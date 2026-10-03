@@ -11,7 +11,7 @@ STORY_CHOICES.push({id:REPORT_BEFORE_NODE,title:'第一日检举开始前',day:'
 function captureBeforeDayOneReport(){if(state.game.day!==1||state.story.dayOneReport?.phase!=='home-wait'||window.mobileLaunch||['nodes','game-menu'].includes(view))return;return captureStoryNode(REPORT_BEFORE_NODE,state,{route:{view:'home',active:null},worldline:true,branchPoint:true})}
 STORY_CHOICES.push({id:REPORT_RESULT_NODE,title:'检举结果发放',day:'第一日 · 晚上9:05',chat:null});
 const DAY_ONE_REPORT_LINES=['第一日检举已经开始','所有人必须在五分钟内提交一名学生的姓名','检举结果提交后不可修改','请确认你输入的是对方的姓名'];
-C.avatars.push({id:'chat_report_black',name:'',src:'assets/chat-avatars/chat_report_black_v1.svg'});
+C.avatars.push({id:'chat_report_black',name:'',src:'assets/chat-avatars/chat_report_black_v1.jpg'});
 function reportRound(progress=state){return progress.game.day>=3&&progress.story.dayThreeReport?progress.story.dayThreeReport:progress.game.day>=2&&progress.story.dayTwoReport?progress.story.dayTwoReport:progress.story.dayOneReport}
 function dayReport(){return reportRound()}
 function reportDayLabel(r=dayReport()){return r?.day===3?'第三日':r?.day===2?'第二日':'第一日'}

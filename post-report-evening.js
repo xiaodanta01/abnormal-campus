@@ -1,7 +1,7 @@
 /* Day-one continuation using existing message, choice, notification and bedtime styles. */
 const POST_MENG_ID='mengshu-friend';
 const POST_MENG_AVATAR='chat_mengshu';
-C.avatars.push({id:POST_MENG_AVATAR,name:'孟舒',src:'assets/chat-avatars/chat_mengshu_v1.svg'});
+C.avatars.push({id:POST_MENG_AVATAR,name:'孟舒',src:'assets/chat-avatars/chat_mengshu_v1.jpg'});
 PORTRAIT_CHARACTERS['孟舒']=POST_MENG_AVATAR;
 function migrateMengshuPortrait(progress){if(!progress)return;for(const c of progress.contacts||[])if(c.id===POST_MENG_ID)c.avatar=POST_MENG_AVATAR;for(const m of progress.messages?.[POST_MENG_ID]||[])if(m.sender&&m.sender!=='me')m.sender=POST_MENG_AVATAR}
 migrateMengshuPortrait(state);
@@ -217,10 +217,10 @@ setInterval(aliveMorningTick,250);
 
 // Updated avatar crops and death-line checkpoints.
 const NEW_NPC_AVATARS={叶琳:'npc-yelin-v1',乔安:'npc-qiaoan-v1',陆遥:'npc-luyao-v1',蒋小雪:'npc-jiangxiaoxue-v1'};
-for(const [id,name,file] of [['chat_zhoumo_v2','周茉','chat_zhoumo_v2.svg'],['chat_yelin_v2','叶琳','chat_yelin_v2.svg'],['npc-jiangxiaoxue-v1','蒋小雪','npc-jiangxiaoxue-v1.svg?v=2'],['npc-yelin-v1','叶琳','npc_yelin_v1.png'],['npc-qiaoan-v1','乔安','npc_qiaoan_v1.png'],['npc-luyao-v1','陆遥','npc_luyao_v1.png'],['npc-avatar-pool-1','备用NPC头像1','npc_pool_1_v1.png'],['npc-avatar-pool-2','备用NPC头像2','npc_pool_2_v1.png'],['npc-avatar-pool-3','备用NPC头像3','npc_pool_3_v1.png']]){if(!C.avatars.some(a=>a.id===id))C.avatars.push({id,name,src:'assets/chat-avatars/'+file});if(NEW_NPC_AVATARS[name])PORTRAIT_CHARACTERS[name]=id}
+for(const [id,name,file] of [['chat_zhoumo_v2','周茉','chat_zhoumo_v2.jpg'],['chat_yelin_v2','叶琳','chat_yelin_v2.jpg'],['npc-jiangxiaoxue-v1','蒋小雪','npc-jiangxiaoxue-v1.jpg?v=2'],['npc-yelin-v1','叶琳','npc_yelin_v1.jpg'],['npc-qiaoan-v1','乔安','npc_qiaoan_v1.jpg'],['npc-luyao-v1','陆遥','npc_luyao_v1.jpg'],['npc-avatar-pool-1','备用NPC头像1','npc_pool_1_v1.jpg'],['npc-avatar-pool-2','备用NPC头像2','npc_pool_2_v1.jpg'],['npc-avatar-pool-3','备用NPC头像3','npc_pool_3_v1.jpg']]){if(!C.avatars.some(a=>a.id===id))C.avatars.push({id,name,src:'assets/chat-avatars/'+file});if(NEW_NPC_AVATARS[name])PORTRAIT_CHARACTERS[name]=id}
 LEAK_PEOPLE.zhoumo.avatar='chat_zhoumo_v2';
 LEAK_PEOPLE.yelin.avatar=NEW_NPC_AVATARS['叶琳'];
-if(typeof RECORD_PEOPLE!=='undefined')RECORD_PEOPLE.ye[2]='assets/chat-avatars/npc_yelin_v1.png';
+if(typeof RECORD_PEOPLE!=='undefined')RECORD_PEOPLE.ye[2]='assets/chat-avatars/npc_yelin_v1.jpg';
 function migrateDebatePortraits(progress){for(const c of progress.contacts||[]){const name=(c.name||'').replace(/^叶舒/,'蒋小雪').replace(/（.*?）|\(.*?\)/g,'').trim();if(NEW_NPC_AVATARS[name])c.avatar=NEW_NPC_AVATARS[name];else if(c.id==='yeshu')c.avatar=NEW_NPC_AVATARS['蒋小雪']}for(const rows of Object.values(progress.messages||{}))for(const m of rows){if(m.sender==='me')continue;if(/^周茉/.test(m.name||''))m.sender='chat_zhoumo_v2';for(const [name,id] of Object.entries(NEW_NPC_AVATARS))if(new RegExp('^'+name).test((m.name||'').replace(/^叶舒/,'蒋小雪')))m.sender=id}}
 migrateDebatePortraits(state);
 const portraitRecords=nodeRecords();for(const record of Object.values(portraitRecords))if(record.checkpoint)migrateDebatePortraits(record.checkpoint);saveNodes(portraitRecords);
@@ -245,7 +245,7 @@ actions['post-early-sleep-confirm']=()=>{if(!earlySleepAvailable()){closeSheet()
 setInterval(syncEarlySleepButton,250);syncEarlySleepButton();
 
 // Han Lu portrait and Jiang Xiao's identity-question checkpoint.
-if(!C.avatars.some(a=>a.id==='chat_hanlu_v1'))C.avatars.push({id:'chat_hanlu_v1',name:'韩露',src:'assets/chat-avatars/chat_hanlu_v1.svg'});PORTRAIT_CHARACTERS['韩露']='chat_hanlu_v1';LEAK_PEOPLE.hanlu.avatar='chat_hanlu_v1';
+if(!C.avatars.some(a=>a.id==='chat_hanlu_v1'))C.avatars.push({id:'chat_hanlu_v1',name:'韩露',src:'assets/chat-avatars/chat_hanlu_v1.jpg'});PORTRAIT_CHARACTERS['韩露']='chat_hanlu_v1';LEAK_PEOPLE.hanlu.avatar='chat_hanlu_v1';
 function migrateHanluPortrait(progress){for(const rows of Object.values(progress.messages||{}))for(const m of rows)if(m.sender!=='me'&&/^韩露/.test(m.name||''))m.sender='chat_hanlu_v1';for(const c of progress.contacts||[])if(/^韩露/.test(c.name||''))c.avatar='chat_hanlu_v1'}
 migrateHanluPortrait(state);const hanluResumeBase=resumeStoryScene;resumeStoryScene=function(snapshot){const result=hanluResumeBase(snapshot);migrateHanluPortrait(state);return result};
 const JIANG_IDENTITY_NODE='jiang-alive-identity-question';if(!STORY_CHOICES.some(n=>n.id===JIANG_IDENTITY_NODE))STORY_CHOICES.push({id:JIANG_IDENTITY_NODE,title:'江晓：检举结果的矛盾',day:'第二日 · 江晓存活线',chat:JX.id});

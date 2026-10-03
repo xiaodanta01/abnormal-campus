@@ -1,5 +1,5 @@
 /* Character-specific avatar assets from the supplied reference sheet. */
-const NPC_PORTRAITS={'npc-wenning':{name:'温宁',src:'assets/npc-wenning.svg'},'npc-sumu':{name:'苏沐',src:'assets/npc-sumu.svg'},'npc-qinqi':{name:'秦琦',src:'assets/npc-qinqi.svg'},linqing:{name:'林晴',src:'assets/npc-linqing.svg'},shen:{name:'沈可欣',src:'assets/npc-shen.svg'},'npc-jiangxiao':{name:'江晓',src:'assets/npc-jiangxiao.svg'},'npc-zhaoshiyu':{name:'赵诗雨',src:'assets/npc-zhaoshiyu.svg'}};
+const NPC_PORTRAITS={'npc-wenning':{name:'温宁',src:'assets/npc-wenning.jpg'},'npc-sumu':{name:'苏沐',src:'assets/npc-sumu.jpg'},'npc-qinqi':{name:'秦琦',src:'assets/npc-qinqi.jpg'},linqing:{name:'林晴',src:'assets/npc-linqing.jpg'},shen:{name:'沈可欣',src:'assets/npc-shen.jpg'},'npc-jiangxiao':{name:'江晓',src:'assets/npc-jiangxiao.jpg'},'npc-zhaoshiyu':{name:'赵诗雨',src:'assets/npc-zhaoshiyu.jpg'}};
 for(const [id,portrait] of Object.entries(NPC_PORTRAITS)){const existing=C.avatars.find(a=>a.id===id);if(existing)Object.assign(existing,portrait);else C.avatars.push({id,...portrait})}
 JX.avatar='npc-jiangxiao';HG_PEOPLE.jiang.avatar=JX.avatar;HG_PEOPLE.zhao.avatar='npc-zhaoshiyu';HG_PEOPLE.wen.avatar='npc-wenning';HG_PEOPLE.su.avatar='npc-sumu';HG_PEOPLE.qin.avatar='npc-qinqi';
 function migrateNpcPortraits(progress){if(!progress)return false;let changed=false;
