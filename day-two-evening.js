@@ -58,7 +58,7 @@ function d2EveningNotice(chat=HG_ID){
  const c=state.contacts.find(c=>c.id===chat);if(!c)return;
  const el=document.createElement('div');el.id='day2-evening-notice';el.className='opening-message';
  el.innerHTML='<button class="opening-body" data-d2-evening-chat="'+esc(chat)+'"><span>'+avatar(c.avatar)+'</span><span><small>讯息 · '+state.system.time+'</small><strong>'+esc(c.name||'请离通知')+'</strong><span>'+esc(c.preview||'你收到一条消息')+'</span></span></button>';
- document.querySelector('#phone').append(el);playNotificationSound('message');
+ document.querySelector('#phone').append(el);playNotificationSound('message',el);
 }
 function d2EveningDepartureList(e){return [['liangyin','梁音','603'],['linxia','林夏','116'],...(!e.jiangAlive?[['qiyue','戚悦','508']]:[]),['xutang','李恬','401']]}
 function d2EveningMigrateDepartures(e){

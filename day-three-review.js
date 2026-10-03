@@ -62,7 +62,7 @@ function d3ReviewSend(){
  let c=reportContact();if(!c){c={id:DAY_ONE_REPORT_ID,name:'',avatar:'chat_report_black',status:'',systemAccount:true,protected:true,online:false,unread:0};state.contacts.unshift(c)}
  const rows=state.messages[DAY_ONE_REPORT_ID]??=[];
  if(!rows.some(m=>m.id==='day3-review-assigned')){rows.push({id:'day3-review-assigned',type:'text',sender:'chat_report_black',name:'',text:D3_REVIEW_MESSAGE,time:r.time,gameDate:r.date});c.unread=(c.unread||0)+1}
- c.preview=D3_REVIEW_MESSAGE;c.time=r.time;persist();if(view==='report-chat'&&active===DAY_ONE_REPORT_ID)openReportChat();else{if(view==='messages')chatList();d3ReviewNotice()}playNotificationSound('message');status();
+ c.preview=D3_REVIEW_MESSAGE;c.time=r.time;persist();if(view==='report-chat'&&active===DAY_ONE_REPORT_ID)openReportChat();else{if(view==='messages')chatList();d3ReviewNotice()}playNotificationSound('message',document.querySelector('#d3-review-notice'));status();
 }
 function d3ReviewOpen(){
  const r=d3Review();if(!r||r.phase==='waiting'||d3Paused())return;

@@ -1,7 +1,7 @@
 /* Decoded, reusable short effects. No storage or story state is owned here. */
 window.GameAudio=(()=>{
  const buffers=new Map(),loading=new Map(),active=new Set(),keys=new Map(),fallback=new Map();
- let context=null,unsupported=false;
+ let context=null,unsupported=false,unlocked=false,primed=false;
  function getContext(){
   if(!context&&!unsupported){try{const Constructor=window.AudioContext||window.webkitAudioContext;if(!Constructor)throw Error('Web Audio unavailable');context=new Constructor({latencyHint:'interactive'})}catch{unsupported=true}}
   return context;
@@ -15,8 +15,21 @@ window.GameAudio=(()=>{
   const task=fetch(src).then(r=>{if(!r.ok)throw Error('Audio '+r.status);return r.arrayBuffer()}).then(bytes=>ctx.decodeAudioData(bytes)).then(buffer=>{buffers.set(src,buffer);return buffer}).catch(()=>null).finally(()=>loading.delete(src));
   loading.set(src,task);return task;
  }
- function unlock(){const ctx=getContext();if(ctx&&ctx.state!=='running')ctx.resume().catch(()=>{})}
- for(const event of ['pointerdown','touchstart','keydown'])document.addEventListener(event,unlock,{capture:true,passive:true});
+ function prime(){
+  if(primed||document.hidden||!context||context.state!=='running')return;
+  // A single silent frame opens the output after an allowed user gesture; no keep-alive loop.
+  const source=context.createBufferSource();source.buffer=context.createBuffer(1,1,context.sampleRate);
+  source.connect(context.destination);source.onended=()=>source.disconnect();source.start(0);primed=true;
+ }
+ function wake(){
+  if(!unlocked||document.hidden)return;
+  const ctx=getContext();if(!ctx||ctx.state==='closed')return;
+  if(ctx.state!=='running')ctx.resume().then(prime).catch(()=>{});else prime();
+ }
+ function unlock(event){if(!event.isTrusted)return;unlocked=true;wake()}
+ for(const event of ['pointerdown','pointerup','touchstart','touchend','click','keydown'])document.addEventListener(event,unlock,{capture:true,passive:true});
+ window.addEventListener('pageshow',wake);
+ window.addEventListener('focus',wake);
  function play(src,{volume=0.5,key=null,onended=()=>{},maxDelay=200}={}){
   if(key)keys.get(key)?.pause();
   let source=null,gain=null,audio=null,done=false,timer=null,level=volume;
@@ -43,7 +56,7 @@ window.GameAudio=(()=>{
   return handle;
  }
  function stopAll(){for(const h of [...active])h.pause()}
- document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAll()});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){primed=false;stopAll()}else wake()});
  const important=['dreamcore-click-01-glass.wav','dialogue-blip-01-girl.wav','muted-keypress-06-short-tap.wav','message-notification-v1.wav','system-unlock-v1.wav'];
  for(const name of important)prepare('assets/audio/'+name);
  // Longer scene sounds retain their existing media-element timing and envelopes.

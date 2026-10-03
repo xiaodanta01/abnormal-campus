@@ -66,7 +66,7 @@ function d2NightSleep(){
 }
 function d2FourthNotice(){
  if(document.querySelector('#day2-fourth-notice'))return;const el=document.createElement('div');el.id='day2-fourth-notice';el.className='opening-message';
- el.innerHTML='<button class="opening-body" data-action="day2-fourth-open"><span>'+avatar('chat_report_black')+'</span><span><small>讯息 · 00:00</small><strong>校园墙 · 转发帖子</strong><span>第四章规则已发布</span></span></button>';document.querySelector('#phone').append(el);playNotificationSound('message');
+ el.innerHTML='<button class="opening-body" data-action="day2-fourth-open"><span>'+avatar('chat_report_black')+'</span><span><small>讯息 · 00:00</small><strong>校园墙 · 转发帖子</strong><span>第四章规则已发布</span></span></button>';document.querySelector('#phone').append(el);playNotificationSound('message',el);
 }
 function d2FourthPublish(){
  const n=d2Night();if(n.rulesNotified)return;n.rulesNotified=true;n.phase='midnight-notice';

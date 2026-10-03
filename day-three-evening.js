@@ -26,7 +26,7 @@ function d3EveningStart(){
  state.system.time='18:03';state.game.period='晚上';persist();home();d3EveningLastTick=Date.now();
 }
 function d3EveningInside(){return view==='chat'&&active===d3Evening()?.chat}
-function d3EveningNotice(){const q=d3Evening(),c=state.contacts.find(c=>c.id===q?.chat);if(!c||d3EveningInside()||document.querySelector('#d3-evening-notice'))return;const el=document.createElement('div');el.id='d3-evening-notice';el.className='opening-message';el.innerHTML='<button class="opening-body" data-action="d3-evening-open"><span>'+avatar(c.avatar)+'</span><span><small>讯息 · '+state.system.time+'</small><strong>'+esc(c.name)+'</strong><span>'+esc(c.preview)+'</span></span></button>';document.querySelector('#phone').append(el);playNotificationSound('message')}
+function d3EveningNotice(){const q=d3Evening(),c=state.contacts.find(c=>c.id===q?.chat);if(!c||d3EveningInside()||document.querySelector('#d3-evening-notice'))return;const el=document.createElement('div');el.id='d3-evening-notice';el.className='opening-message';el.innerHTML='<button class="opening-body" data-action="d3-evening-open"><span>'+avatar(c.avatar)+'</span><span><small>讯息 · '+state.system.time+'</small><strong>'+esc(c.name)+'</strong><span>'+esc(c.preview)+'</span></span></button>';document.querySelector('#phone').append(el);playNotificationSound('message',el)}
 actions['d3-evening-open']=()=>{if(!d3Evening())return;document.querySelector('#d3-evening-notice')?.remove();openChat(d3Evening().chat)};
 function d3EveningWrite(text,id,mine=false){
  const q=d3Evening(),c=state.contacts.find(c=>c.id===q.chat),rows=state.messages[q.chat]??=[];if(!c||rows.some(m=>m.id===id))return;

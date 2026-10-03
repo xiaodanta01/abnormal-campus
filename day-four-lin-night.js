@@ -317,7 +317,7 @@ function d4SleepNotice(){
  if(document.querySelector('#d4-release-notice'))return;
  const el=document.createElement('div');el.id='d4-release-notice';el.className='opening-message';
  el.innerHTML='<button class="opening-body" data-action="d4-release-open"><span>'+avatar('chat_report_black')+'</span><span><small>讯息 · 01:00</small><strong>校园墙 · 转发帖子</strong><span>校园新规将于30分钟后解除</span></span></button>';
- document.querySelector('#phone').append(el);playNotificationSound('message');
+ document.querySelector('#phone').append(el);playNotificationSound('message',el);
 }
 function d4SleepOpenRelease(){
  if(d3Paused()||!['notice','reading'].includes(d4Sleep()?.phase))return;

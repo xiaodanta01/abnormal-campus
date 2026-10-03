@@ -110,7 +110,7 @@ function pickupDay2SoloNotice(){
  const p=pickup16State();if(!p||p!==state.story.dayTwoPickup||!['d2-choice','d2-solo-chat'].includes(p.phase))return;
  p.phase='d2-solo-chat';const text=state.profile.name+'，你去哪了？';pickupDay2ChatMessage('day2-pickup-lin-1',text);persist();pickup16Cleanup();
  pickup16Internal=true;try{pickup16Base.home()}finally{pickup16Internal=false}
- const el=document.createElement('div');el.id='day2-pickup-lin-notice';el.className='opening-message';el.innerHTML='<button class="opening-body" data-pickup16="d2-open-chat"><span>'+avatar('linqing')+'</span><span><small>讯息 · '+esc(state.system.time)+'</small><strong>林晴</strong><span>'+esc(text)+'</span></span></button>';document.querySelector('#phone').append(el);playNotificationSound('message');
+ const el=document.createElement('div');el.id='day2-pickup-lin-notice';el.className='opening-message';el.innerHTML='<button class="opening-body" data-pickup16="d2-open-chat"><span>'+avatar('linqing')+'</span><span><small>讯息 · '+esc(state.system.time)+'</small><strong>林晴</strong><span>'+esc(text)+'</span></span></button>';document.querySelector('#phone').append(el);playNotificationSound('message',el);
 }
 function pickupDay2OpenLinChat(){
  const p=pickup16State();if(!p||p!==state.story.dayTwoPickup||!['d2-solo-chat','d2-solo-reply-wait','d2-solo-ok'].includes(p.phase))return;
