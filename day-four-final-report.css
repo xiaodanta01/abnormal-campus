@@ -1,0 +1,11 @@
+/* Match the existing delegation card and campus identity screen. */
+/* The waking flash stays a muted grey-white, never full display white. */
+.d4-final-sleep-black{background:#000}
+@keyframes d4-hospital-dawn{from{background:#000}to{background:#d9dcd8}}
+.d4-final-sleep-light{animation:d4-hospital-dawn 1.8s ease-in-out both}
+.d4-hospital-light{background:#d9dcd8}
+.d4-final-winner-avatar{display:flex;justify-content:center;margin:0 0 18px}.d4-final-winner-avatar .avatar{width:64px;height:64px}
+.d4-lin-input .nickname{margin:0;width:100%;min-width:0}.d4-lin-input label{font-size:12px;line-height:1.6;color:#c4b7c9}
+.d4-final-identity-image{display:block;text-align:left;padding:0;border:0;background:transparent;width:224px;max-width:100%;white-space:normal;color:inherit}
+.d4-final-identity{box-sizing:border-box;width:100%;padding:20px 16px 28px;background:#f1f4f2;color:#263d43;border-radius:8px;line-height:1.6}
+.d4-final-identity>header{font-size:16px;font-weight:600;margin:0 0 24px}.d4-final-identity .identity-owner{display:flex;align-items:center;gap:10px;margin-bottom:24px}.d4-final-identity .identity-owner .avatar{width:36px;height:36px}.d4-final-identity .identity-owner small{display:block;font-size:9px;color:#76847c}.d4-final-identity .identity-owner strong{display:block;font-size:14px}.d4-final-identity .identity-card{padding:18px 14px;border:1px solid #dbe4dc;background:#fff;border-radius:10px}.d4-final-identity .identity-eyebrow{font-size:10px;color:#76847c}.d4-final-identity .identity-role h2{font-size:21px;font-weight:500;margin:10px 0 24px}.d4-final-identity .identity-ability{display:flex;justify-content:space-between;font-size:11px;border-top:1px solid #e2e8e3;padding-top:14px}.d4-final-identity .identity-card p{font-size:10px;color:#76847c;margin:16px 0 0}

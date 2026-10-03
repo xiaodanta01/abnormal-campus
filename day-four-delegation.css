@@ -1,0 +1,26 @@
+.delegation-page{background:#191a23;color:#eeeae2;min-height:100%;display:flex;flex-direction:column;padding-bottom:28px}
+.delegation-top-art{height:72px;min-height:72px;flex-shrink:0;display:flex;align-items:center;padding:0 8px;pointer-events:none;user-select:none;color:#e6ac5570}
+.delegation-top-art>span{font-size:10px;letter-spacing:3px;white-space:nowrap}.delegation-top-art>i{height:1px;flex:1;margin:0 18px;background:linear-gradient(90deg,#e6ac5538,transparent)}.delegation-top-art>b{font-size:37px;font-weight:300;line-height:1;color:#e6ac552b;letter-spacing:-2px}
+.delegation-deadline{margin:10px 0 27px;padding:15px 18px;border:1px solid #e6ac5540;border-radius:17px;display:flex;justify-content:space-between;align-items:center;background:#e6ac5508}
+.delegation-deadline>span{font-size:12px;color:#b8b4ad}.delegation-deadline>strong{font-size:20px;font-weight:500;color:#e6ac55;font-variant-numeric:tabular-nums}
+.delegation-section{display:flex;justify-content:space-between;font-size:12px;color:#aaa8b4;margin:0 3px 14px}.delegation-section>span:last-child{color:#e6ac55}
+.delegation-card{background:#252630;border:1px solid #ffffff0c;border-radius:20px;padding:18px;margin-bottom:12px;animation:reason-enter .2s ease-out}
+.delegation-person{display:flex;align-items:center;min-width:0}.delegation-person>.avatar{width:54px;height:54px;flex-shrink:0;margin-right:13px;border-radius:50%;overflow:hidden}.delegation-person>strong{font-size:16px;font-weight:500;overflow-wrap:anywhere}.delegation-person>small{margin-left:auto;font-size:11px;border:1px solid #b8b4ad50;border-radius:20px;padding:3px 9px;color:#d7d2c9}
+.delegation-votes{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:13px;border-top:1px solid #ffffff0d}.delegation-votes>span{font-size:12px;color:#aaa8b4}.delegation-votes>strong{font-size:28px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+.delegation-demo{font-size:11px;color:#aaa8b4;text-align:center;margin:8px 0}.delegation-intro{padding:20px 8px}.delegation-intro p{font-size:16px;line-height:2.1}.delegation-intro>p{animation:delegation-appear .4s ease-out both}.delegation-intro .delegation-second{margin-top:30px;animation:delegation-appear .4s ease-out .5s both}
+.delegation-mark{display:inline-flex;color:#e6ac55;padding:14px;background:#252630;border-radius:17px;margin-bottom:16px}.delegation-mark svg{width:28px;height:28px}.delegation-second>p{margin-bottom:0}.delegation-bottom{margin-top:12px}.delegation-bottom>.primary{width:100%;background:#e6ac55;color:#252630;border-radius:16px;min-height:50px}.delegation-narration{background:#191a23}
+/* Shared appearance for every delegation update and transfer notice. */
+#overlay .sheet.delegation-update-sheet{background:#191a23;color:#eeeae2;border:1px solid #e6ac552b;border-radius:24px;padding:22px;box-shadow:0 18px 60px #0006}
+.delegation-update-sheet .sheet-header{padding:0 2px 15px;border-bottom:1px solid #e6ac5524;margin-bottom:18px}
+.delegation-update-sheet .sheet-header h2{font-size:14px;font-weight:500;letter-spacing:1px;color:#e6ac55;margin:0;line-height:1.5}
+.delegation-update-sheet .delegation-card{padding:20px;margin-bottom:0;animation:none}
+.delegation-update-sheet .delegation-mark{background:#e6ac5510;border:1px solid #e6ac5526;padding:11px;border-radius:14px;margin-bottom:16px}
+.delegation-update-sheet .delegation-mark svg{width:25px;height:25px}
+.delegation-update-sheet .d4-vote-modal h2{font-size:20px;font-weight:500;line-height:1.65;color:#eeeae2;margin:0;overflow-wrap:anywhere}
+.delegation-update-sheet .d4-vote-details{font-size:13px;line-height:1.9;color:#b8b4ad;margin:16px 0 0;padding-top:14px;border-top:1px solid #ffffff0d;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.delegation-update-sheet .delegation-bottom{margin-top:18px}
+.delegation-update-sheet .primary{font-size:14px;font-weight:600;border:1px solid #f0c48340;transition:filter .15s,transform .15s}
+.delegation-update-sheet .primary:active{filter:brightness(.9);transform:scale(.985)}
+.delegation-update-sheet .primary:focus-visible{outline:2px solid #f0c483;outline-offset:3px}
+@keyframes delegation-appear{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.delegation-intro p,.delegation-second,.delegation-card{animation:none}}

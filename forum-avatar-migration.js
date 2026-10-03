@@ -1,0 +1,6 @@
+/* Forum save compatibility never mutates message records or message preferences. */
+function migrateForumAvatars(progress){if(!progress)return;function rows(value){if(!value||typeof value!=='object')return;if(Array.isArray(value)){value.forEach(rows);return}if(value.name&&['male','female'].includes(value.gender))registerForumAccount(value.author||value.name,value.name,value.gender);for(const key of ['avatar','avatarId','avatarPath','avatarSrc','portrait','portraitId','portraitPath'])delete value[key];for(const key of ['comments','replies'])rows(value[key])}rows(progress.forumPosts);rows(progress.story?.comments);for(const key of ['forumAvatarCache','forumAvatarMap','forumPortraits']){delete progress[key];if(progress.preferences)delete progress.preferences[key]}progress.forumAvatarVersion=1}
+for(const entry of [...C.avatars,...C.playerAvatars]){const current=chatAvatarLibrary.resolve(entry);entry.src=current.src}
+migrateForumAvatars(state);const avatarNodes=nodeRecords();for(const node of Object.values(avatarNodes))migrateForumAvatars(node.checkpoint);saveNodes(avatarNodes);
+const forumAvatarPersist=persist;persist=function(){migrateForumAvatars(state);return forumAvatarPersist()};
+persist();if(view==='wall')forum();else if(view==='post')postDetail(active);else if(view==='rules')rulesPage();

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="750" viewBox="0 0 660 750">
+<rect width="660" height="750" rx="28" fill="#25212e"/>
+<g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">
+<path d="M48 56l-12 12 12 12" fill="none" stroke="#ddcbdc" stroke-width="3"/>
+<text x="76" y="78" font-size="26" fill="#eee5ef">校园物流</text>
+<text x="42" y="149" font-size="16" fill="#a895b4">我的校园包裹</text>
+<text x="42" y="194" font-size="32" fill="#eee5ef">物流记录</text>
+<text x="42" y="234" font-size="18" fill="#bca8c5">沈可欣 · 最近两日</text>
+<rect x="30" y="271" width="600" height="210" rx="22" fill="#332b3c"/>
+<text x="56" y="313" font-size="21" fill="#e4d4e6">购买记录</text>
+<text x="330" y="381" text-anchor="middle" font-size="25" fill="#d8c4df">暂无购买记录</text>
+<text x="330" y="424" text-anchor="middle" font-size="17" fill="#ac98b7">最近两日没有购买物资</text>
+<rect x="30" y="501" width="600" height="210" rx="22" fill="#332b3c"/>
+<text x="56" y="544" font-size="21" fill="#e4d4e6">待取包裹</text>
+<text x="330" y="612" text-anchor="middle" font-size="25" fill="#d8c4df">暂无待取包裹</text>
+<text x="330" y="655" text-anchor="middle" font-size="17" fill="#ac98b7">当前没有需要领取的物资</text>
+</g></svg>

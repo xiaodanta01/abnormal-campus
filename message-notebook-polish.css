@@ -1,0 +1,6 @@
+#notebook-collected{position:absolute;z-index:6500;top:max(18px,env(safe-area-inset-top));left:18px;right:18px;padding:13px 17px;border:1px solid #dbc8d734;border-radius:17px;background:#322a39ed;backdrop-filter:blur(12px);box-shadow:0 5px 24px #0003;color:#ebd8e6;font-size:13px;line-height:1.6;text-align:center;pointer-events:none;animation:notebook-collected 2s ease both}
+@keyframes notebook-collected{0%{opacity:0;transform:translateY(-6px)}12%,82%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-4px)}}
+.chat-page .message-group-time{display:block;text-align:center;margin:20px 0 14px;font-size:11px;color:#82919c}
+.forum-handle{color:#d9bedf;text-decoration:underline;text-underline-offset:3px;user-select:text;-webkit-user-select:text;-webkit-touch-callout:none;cursor:copy;padding:5px 0}
+.forum-evidence-message{display:block;padding:0;text-align:left;max-width:220px}.forum-evidence-message img{display:block;width:100%;border-radius:9px}.forum-evidence-message small{display:block;font-size:10px;color:#baacbe;margin-top:7px}.image-message[src$="day3-songyan-logistics.svg"],.image-message[src$="day4-shen-logistics.svg"]{height:auto;max-height:none;object-fit:contain;cursor:default}
+#pickup16 .pickup16-door-hotspot{left:51%;top:35%;width:28%;height:29%}

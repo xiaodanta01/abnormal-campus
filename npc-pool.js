@@ -1,0 +1,12 @@
+/* Stable random portrait assignments for unnamed/default NPCs and forum accounts. */
+function poolPortrait(name,male=false){const key=String(name||'同学');const choices=male?[4,5,6]:[0,1,2,3,7];let hash=0;for(const ch of key)hash=(hash*31+ch.charCodeAt(0))>>>0;return 'assets/npc-pool-'+choices[hash%choices.length]+'.svg'}
+function forumPortraitMarkup(html){const template=document.createElement('template');template.innerHTML=html;for(const row of template.content.querySelectorAll('.rule-comment,.post-author,.forum-reply')){const frame=row.querySelector(':scope > .avatar');if(!frame||frame.classList.contains('black-avatar'))continue;const label=row.matches('.post-author')?row.querySelector('span:not(.avatar)'):row.querySelector('.comment-heading strong,.forum-reply strong');const name=label?.firstChild?.textContent?.trim();if(!name||name==='楼主'||frame.dataset.forumAccount)continue;frame.outerHTML=forumAvatar(name,name)}return template.innerHTML}
+function refreshForumPortraits(){if(!['wall','post','rules'].includes(view))return;for(const row of screen.querySelectorAll('.post-author,.forum-reply')){const updated=forumPortraitMarkup(row.outerHTML);if(updated!==row.outerHTML)row.outerHTML=updated}for(const row of screen.querySelectorAll('.rule-comment')){const image=row.querySelector(':scope > .avatar img');if(!image)continue;const template=document.createElement('template');template.innerHTML=forumPortraitMarkup(row.outerHTML);const replacement=template.content.querySelector('.avatar img');if(replacement){image.src=replacement.getAttribute('src');image.alt=replacement.alt}}}
+const poolForum=forum;forum=function(...args){const result=poolForum(...args);refreshForumPortraits();return result};
+const poolDetail=postDetail;postDetail=function(...args){const result=poolDetail(...args);refreshForumPortraits();return result};
+const poolRules=rulesPage;rulesPage=function(...args){const result=poolRules(...args);refreshForumPortraits();return result};
+const poolComment=commentMarkup;commentMarkup=function(...args){return forumPortraitMarkup(poolComment(...args))};
+const poolAwComment=awCommentMarkup;awCommentMarkup=function(...args){return forumPortraitMarkup(poolAwComment(...args))};
+const poolNsComments=nsComments;nsComments=function(...args){return forumPortraitMarkup(poolNsComments(...args))};
+const poolAwCard=awCard;awCard=function(...args){return forumPortraitMarkup(poolAwCard(...args))};
+if(view==='chat')openChat(active);else if(view==='messages')chatList();else refreshForumPortraits();

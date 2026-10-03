@@ -1,0 +1,10 @@
+/* All current and future CG choice groups use cg-options: centered in the scene, never anchored to the dialogue box. */
+.cg-options.cg-options{position:absolute;top:50%;bottom:auto;left:22px;right:22px;transform:translateY(-50%);z-index:3;display:grid;gap:12px;margin:0;max-height:calc(100% - 160px);overflow-y:auto;overscroll-behavior:contain}
+.cg-options.cg-options>button{box-sizing:border-box;display:block;width:100%;min-height:48px;padding:15px 18px;border:1px solid #e4d2e24d;border-radius:16px;background:#d1bacddf;color:#392d3c;font-size:14px;line-height:1.6;text-align:left;white-space:normal;overflow-wrap:break-word;box-shadow:none;backdrop-filter:blur(10px)}
+.cg-options>.ending-rest{position:static;transform:none;width:100%;margin:0;white-space:normal}
+.cg-options>.ending-rest:active{transform:scale(.97)}
+
+/* Scene chrome is set in JS so older mobile browsers do not need :has(). */
+#phone.cg-active #phone-back,#phone.cg-active #dock,#phone.cg-active #homebar,#phone.cg-active #message-bottom,#phone.cg-active #status{display:none!important}
+#phone.cg-active #screen{height:100%;padding-bottom:0}
+#phone #cg-recovery-home[hidden]{display:none!important}

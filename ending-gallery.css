@@ -1,0 +1,61 @@
+/* Story archive shares the homepage's ink-green and muted sage palette. */
+:root{--ending-romance-bg:linear-gradient(145deg,#563747,#30232f);--ending-romance-border:#dda7bf80;--ending-romance-text:#ffe2ee;--ending-romance-muted:#d5a7be;--ending-romance-accent:#e5b1ca}
+#screen .ending-archive{min-height:100%;box-sizing:border-box;padding:38px 22px 28px;background:radial-gradient(ellipse at 85% 0%,#303b32 0,transparent 52%),linear-gradient(160deg,#1b2320,#0c1112 75%);color:#d8ddd8;font-family:inherit}
+.ending-gallery-head{margin-bottom:24px;text-align:left}
+.ending-gallery-head>small,.ending-collection>small{font-size:9px;letter-spacing:3px;color:#98a891}
+.ending-gallery-head h1{margin:12px 0;font-size:27px;line-height:1.45;font-weight:550;letter-spacing:2px;color:#dde0d7}
+.ending-gallery-head p{margin:0;color:#8d9d92;font-size:12px;letter-spacing:1px}
+.ending-gallery-head p strong{color:#d3dbca;font-size:18px;font-weight:500}
+.ending-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding:4px;background:#060d0b66;border:1px solid #a4b69e1a;border-radius:13px;margin-bottom:23px}
+.ending-filters button{min-height:38px;padding:5px 2px;background:transparent;border:0;border-radius:9px;font:inherit;font-size:11px;color:#8b9b91;white-space:nowrap}
+.ending-filters button[aria-pressed=true]{background:#85907d;color:#111a15;box-shadow:0 2px 8px #0003}
+.ending-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.ending-card{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;min-width:0;min-height:214px;padding:17px 15px 15px;border:1px solid #a6b79c38;border-radius:19px;background:linear-gradient(150deg,#87967b21,#202c2699);color:#dce2d6;text-align:left;box-shadow:0 7px 19px #0003;backdrop-filter:blur(9px);transition:transform .17s,border-color .17s;font-family:inherit}
+.ending-card:active:not(:disabled){transform:scale(.97)}
+.ending-card:focus-visible,.ending-archive button:focus-visible{outline:2px solid #b7c6a8;outline-offset:3px}
+.ending-card-art{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 95% 0%,#9dae8130,transparent 64%)}
+.ending-card-number{font-size:10px;letter-spacing:2px;color:#9faa95}
+.ending-card-symbol{display:block;margin:23px 0 19px;color:#aab99e}
+.ending-card-symbol svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.ending-card strong{font-size:13px;line-height:1.75;font-weight:500;overflow-wrap:anywhere}
+.ending-card-caption{margin-top:auto;padding-top:20px;font-size:9px;color:#9ba990;letter-spacing:1px}
+.ending-card.is-locked{opacity:1;background:#111a17b8;border-color:#92a18c20;box-shadow:0 5px 17px #0002;color:#77847b}
+.ending-card.is-locked .ending-card-art{filter:blur(7px);opacity:.5}
+.ending-card.is-locked .ending-card-number,.ending-card.is-locked .ending-card-symbol,.ending-card.is-locked .ending-card-caption{color:#748276}
+.ending-card.is-locked strong{letter-spacing:4px}
+.ending-exit{display:block;width:100%;min-height:46px;margin-top:22px;border:1px solid #89958b38;border-radius:12px;background:#141c1d99;color:#abb7a9;font:inherit;font-size:12px;letter-spacing:1px}
+.ending-empty{padding:32px 4px;color:#829487;font-size:13px;line-height:1.9;text-align:center}
+.ending-detail-page .ending-gallery-head{padding:17px 0 24px;border-bottom:1px solid #9bad9430}
+.ending-detail-page .ending-gallery-head h1{font-size:23px;letter-spacing:1px;margin-top:22px}
+.ending-description{font-size:14px;line-height:2;color:#b1bcae;margin:25px 0 35px}
+.ending-letters{padding:20px;border:1px solid #9aac9330;border-radius:18px;background:#84907b0d;box-shadow:0 8px 22px #0002}
+.ending-letters h2{margin:0;font-weight:500;font-size:12px;letter-spacing:2px;color:#a6b59c}
+.ending-letter{display:flex;align-items:flex-start;gap:12px;margin-top:24px}
+.ending-letter>.avatar{width:38px;height:38px;flex-shrink:0;border-radius:12px}
+.ending-letter strong{font-size:12px;color:#b5c4ac}
+.ending-letter p{font-size:14px;line-height:1.9;white-space:pre-wrap;color:#d6ddcf}
+#screen .ending-collection{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 30px}
+.ending-collection h1{font-size:25px;font-weight:500;letter-spacing:3px;margin:18px 0 8px}
+.ending-collection>p{font-size:13px;color:#b2bfa9;line-height:1.8;max-width:280px;margin-bottom:27px}
+.ending-card-mini{width:180px;min-height:232px;text-align:left;transform-origin:20% 50%;animation:ending-file-in .7s cubic-bezier(.2,.75,.25,1) both}
+.ending-collect-open{width:100%;min-height:48px;margin-top:30px;border:1px solid #b1bba955;border-radius:12px;background:#879181;color:#101714;font:inherit;font-size:14px;letter-spacing:2px}
+.ending-collection .ending-exit{margin-top:10px}
+@keyframes ending-file-in{from{opacity:0;transform:perspective(700px) rotateY(-35deg) translateY(15px)}to{opacity:1;transform:perspective(700px) rotateY(0) translateY(0)}}
+@media(prefers-reduced-motion:reduce){.ending-card-mini{animation:none}.ending-card{transition:none}}
+/* 020: a quiet, insistent love letter, sharing the hidden-ending pink palette. */
+#screen .ending-detail-page.ending-devotion{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 100% 0%,#753d5838,transparent 58%),radial-gradient(ellipse at 0% 85%,#6a32452b,transparent 55%),#100d12;color:var(--ending-romance-text)}
+.ending-devotion>header,.ending-devotion>p,.ending-devotion>section,.ending-devotion>button{position:relative;z-index:1}
+.ending-devotion .ending-gallery-head{border-color:#dda7bf33}
+.ending-devotion .ending-gallery-head>small,.ending-devotion .ending-letters h2{color:var(--ending-romance-muted)}
+.ending-devotion .ending-gallery-head h1{color:var(--ending-romance-text);text-shadow:0 2px 24px #e5b1ca20}
+.ending-devotion .ending-description{color:#cfb8c5;line-height:2.15}
+.ending-devotion .ending-letters{border-color:var(--ending-romance-border);background:linear-gradient(145deg,#56374738,#19131bd9);box-shadow:0 10px 32px #0003,inset 0 1px #ffe2ee09}
+.ending-devotion .ending-letter strong{color:var(--ending-romance-accent)}
+.ending-devotion .ending-letter p{color:var(--ending-romance-text)}
+.ending-devotion .ending-exit{border-color:#dda7bf38;background:#30232fa6;color:var(--ending-romance-muted);transition:background .17s,border-color .17s}
+.ending-devotion .ending-exit:hover,.ending-devotion .ending-exit:active{background:#56374799;border-color:var(--ending-romance-border)}
+.ending-devotion button:focus-visible{outline-color:var(--ending-romance-accent)}
+.zero-death>.ending-unlock-note{max-width:280px;padding:0 18px;margin-top:-18px;text-align:center;line-height:1.8;letter-spacing:0}
+.zero-death>p.ending-hint{font-size:12px;line-height:1.8;letter-spacing:0;max-width:300px;padding:0 18px;text-align:center}
+
+.ending-letter-avatar{display:grid;place-items:center;width:38px;height:38px;flex-shrink:0;border-radius:12px;overflow:hidden}.ending-letter-black{background:#000}.ending-letter-author{background:#1b2520;border:1px solid #9aac9330}.ending-letter-author img{width:26px;height:26px}.ending-detail-hint{margin-top:20px;padding:18px 20px;border:1px solid #9aac9328;border-radius:16px;background:#84907b09}.ending-detail-hint h2{margin:0 0 10px;font-size:12px;font-weight:500;color:#a6b59c;letter-spacing:2px}.ending-detail-hint p{margin:0;font-size:13px;line-height:1.9;color:#aebba5;white-space:pre-wrap}

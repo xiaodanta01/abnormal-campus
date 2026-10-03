@@ -1,0 +1,62 @@
+// Reuse on each daily transition; values come from the once-only settlement receipt.
+function dailyVitalsMarkup(){const g=state.game,day=Math.floor((Date.parse(state.system.date+'T00:00:00Z')-Date.UTC(2045,8,7))/86400000),receipt=g.dailyVitalChanges?.[day];return '<div class="daily-vitals" aria-label="每日状态结算">'+[['health','健康值'],['spirit','精神值']].map(([key,label])=>{const r=receipt?.[key],value=r?.after??g[key]??100;return '<div><span>'+label+'</span><strong>'+value+'</strong><small>'+(!r?'当前数值':r.delta===0?'无变化':(r.delta>0?'＋':'－')+Math.abs(r.delta))+'</small></div>'}).join('')+'</div>'}
+/* First-morning pickup choice. Shared story continues only when supplied. */
+const FM=window.FIRST_MORNING;
+HG_PEOPLE.jiang={name:'江晓（316）',avatar:'student5'};
+HG_PEOPLE.wen={name:'温宁（701）',avatar:'student3'};
+HG_PEOPLE.linqing={name:'林晴',avatar:'linqing'};
+function fm(){return state.story.firstMorning??={phase:'idle',step:0,due:0,choice:null,waiting:false,left:[],banner:false,doorLine:0}}
+const fmBase={endingMorning,openChat,sendMessage,renderMessage,zeroLock,deliveryAllowed,deliveryTick,nsHealth,initializeChapter,retryStoryChoice};
+function fmBlocked(){return ['intro','door','campus-notice','profile','dying'].includes(fm().phase)}
+zeroLock=function(){return fmBlocked()||fmBase.zeroLock()};
+deliveryAllowed=function(o){if(state.system.date==='2045-09-08'&&state.system.time<'16:00')return false;return fmBase.deliveryAllowed(o)};
+deliveryTick=function(){if(fm().phase==='intro')return;return fmBase.deliveryTick()};
+function fmPrepare(){state.story.firstMorningReady=true;state.system.date='2045-09-08';state.system.time='08:32';state.game.day=1;state.game.period='早晨';state.game.restriction={date:'2045-09-08',until:'16:00',text:'16:00前不得离开本人宿舍'};hg().count=33;const c=hgContact();if(c){c.status='群成员：33人';if(!c.members.includes('wen')){const unknown=c.members.findIndex(id=>id.startsWith('stranger-'));if(unknown>=0)c.members[unknown]='wen'}}for(const o of deliveryOrders()){if(o.status==='待配送'&&o.lines.some(p=>['矿泉水','饼干'].includes(p.name))){o.deliveryDate='2045-09-08';o.arrivalNotified??=false;o.seenStatus=null}}persist()}
+endingMorning=function(){if(ending().phase!=='sleep')return;fm().phase='intro';fm().due=Date.now()+4500;fmPrepare();fmBase.endingMorning();zeroChrome();const el=document.createElement('div');el.className='morning-title';el.id='morning-title';el.innerHTML='<strong>第一日</strong><span>新规实施剩余3日</span>'+dailyVitalsMarkup();document.querySelector('#phone').append(el);storyTimeout(()=>el.remove(),4500)};
+function fmCommon(){fm().phase='common';fm().waiting=false;state.story.morningCommonReady=true;persist();if(view==='chat'&&active===HG_ID)openChat(HG_ID)}
+function fmHasPickupOrder(){return deliveryOrders().some(o=>!o.expired&&o.status==='待领取')}
+function fmReplyChoices(){return fmHasPickupOrder()?FM.choices.map((text,id)=>({id,text})):[{id:2,text:'我昨天根本没买'}]}
+function fmStartInvite(){Object.assign(fm(),{phase:'invitation',step:0,readStarted:false,due:Date.now()+messageSendDelay()});persist()}
+function fmAdd(row,id){if(row[3]==='departed-su')fm().suDeparted=true;hgAdd(row,id);if(!(view==='chat'&&active===HG_ID)){fm().waiting=!fm().readStarted;if(!fm().readStarted)hgNotice('group')}persist()}
+openChat=function(id){const waiting=fm().waiting;fmBase.openChat(id);if(view!=='chat'||active!==HG_ID)return;if(['invitation','choice','accept','leave-button','refuse'].includes(fm().phase)){fm().readStarted=true;persist()}if(waiting){fm().waiting=false;fm().due=Date.now()+([FM.invitation.length,FM.refuse.length].includes(fm().step)?STORY_CHOICE_DELAY:messageSendDelay());persist()}if(!['invitation','choice','accept','leave-button','refuse'].includes(fm().phase))return;const input=screen.querySelector('#message-input');input.disabled=true;input.placeholder=fm().phase==='choice'?'选择一条回复…':'查看群消息…';screen.querySelectorAll('#composer button').forEach(b=>b.disabled=true);if(fm().phase==='choice'){recordStoryChoice(FM.node);screen.querySelector('#composer').insertAdjacentHTML('beforebegin',`<div class="zero-choices">${fmReplyChoices().map(({text,id})=>`<button data-fm-choice="${id}">${esc(text)}</button>`).join('')}</div>`)}if(fm().phase==='leave-button')screen.querySelector('#composer').insertAdjacentHTML('beforebegin','<div class="zero-choices"><button data-action="fm-leave">前往取件</button></div>');scrollMessages()};
+sendMessage=function(id,text){if(id===HG_ID&&['invitation','choice','accept','leave-button','refuse'].includes(fm().phase))return false;return fmBase.sendMessage(id,text)};
+renderMessage=function(m,c){let html=fmBase.renderMessage(m,c);if(c.id===HG_ID&&fm().suDeparted&&m.hgWho==='su'){const name=HG_PEOPLE.su.name;html=html.replace('<div class="sender-name">'+esc(name)+'</div>','<div class="sender-name">'+esc(name)+'<small class="zero-left-status">已离校</small></div>')}if(c.id===HG_ID&&fm().left.includes(m.hgWho)){const name=HG_PEOPLE[m.hgWho]?.name;html=html.replace('<div class="sender-name">'+esc(name)+'</div>','<div class="sender-name">'+esc(name)+'<small class="zero-left-status">被请离</small></div>')}return html};
+const fmMembers=actions['chat-options'];actions['chat-options']=()=>{fmMembers();if(active!==HG_ID)return;document.querySelectorAll('#overlay .setting-row').forEach(row=>{for(const id of fm().left)if(row.textContent.includes(HG_PEOPLE[id].name))row.querySelector('span')?.insertAdjacentHTML('beforeend','<small class="zero-left-status">被请离</small>')})};
+function fmChoose(i){if(fm().phase!=='choice'||!fmReplyChoices().some(c=>c.id===i))return;fm().choice=i;fm().phase=i===0?'accept':'refuse';fm().step=0;fm().due=Date.now()+messageSendDelay();fmAdd(['08:33','me',i===0?'我也去':i===2?'我昨天根本没买':'我晚点自己去吧'],'fm-player-choice');persist()}
+function fmCampusNotice(){fm().phase='campus-notice';fm().banner=true;z().playerLeft=true;persist();const el=document.createElement('div');el.id='fm-campus-notice';el.className='opening-message';el.innerHTML=`<button class="opening-body" data-action="fm-campus"><span class="zero-notice-icon">${icon('card')}</span><span><small>校园通知 · 现在</small><strong>校园通</strong><span>信息更新成功。</span></span></button>`;document.querySelector('#phone').append(el)}
+function fmDoor(fade=true){const previous=captureSceneSnapshot(screen);fm().phase='door';view='fm-door';active=null;closeSheet();zeroChrome();rememberRoute();screen.innerHTML=`<section class="ending-scene fm-door">${FM.doorImage?`<img src="${esc(FM.doorImage)}" alt="第一人称视角，408宿舍门口">`:''}</section>`;CGDialogue.present(screen.firstElementChild,['你刚走出宿舍门一步，被开门声吵醒的林晴就叫住了你。',{speaker:'linqing',name:'林晴',text:state.profile.name+'，你疯了吗？'}],{index:fm().doorLine,onIndex:i=>{fm().doorLine=i;persist()},onComplete:fmCampusNotice});if(fade)zeroDissolve(previous);persist()}
+function fmCampus(){if(!['campus-notice','profile'].includes(fm().phase))return;document.querySelector('#fm-campus-notice')?.remove();fm().banner=false;fm().phase='profile';fm().due=Date.now()+6500;view='fm-profile';active=null;screen.innerHTML=campusPageMarkup(true);persist()}
+function fmTick(){const a=fm(),now=Date.now();if(document.hidden||['game-menu','nodes'].includes(view)||a.waiting||now<a.due)return;if(a.phase==='intro'){a.phase='delivery';view='home';zeroChrome();home();for(const o of deliveryOrders())if(!o.expired&&o.status==='待配送'&&o.deliveryDate==='2045-09-08')o.status='待领取';const o=deliveryOrders().find(o=>!o.expired&&o.status==='待领取');if(o){o.arrivalNotified=true;deliveryNotice(o);const text=document.querySelector('#delivery-notification .opening-body>span:last-child>span');if(text)text.textContent='你的订单已送达女生B栋宿舍楼楼顶接收平台，请于今日22:00前领取'}deliveryBadge();fmStartInvite();return}
+ const rows=a.phase==='invitation'?FM.invitation:a.phase==='accept'?FM.accept:a.phase==='refuse'?FM.refuse:null;
+ if(rows){if(a.phase==='invitation'&&a.step===0&&document.querySelector('#delivery-notification'))return;if(a.step<rows.length){const i=a.step++;a.due=now+(i===rows.length-1&&a.phase==='invitation'?STORY_CHOICE_DELAY:messageSendDelay());const row=rows[i];if(row[3]?.startsWith('remove-')){const who=row[3].slice(7);if(!a.left.includes(who)){a.left.push(who);hg().count--;hgContact().members=hgContact().members.filter(id=>id!==who)}}fmAdd(row,a.phase==='refuse'?(i===4?'fm-refuse-su-question':'fm-refuse-'+(i>4?i-1:i)):'fm-'+a.phase+'-'+i)}else if(a.phase==='invitation'){a.phase='choice';persist();if(view==='chat'&&active===HG_ID)openChat(HG_ID)}else if(a.phase==='accept'){a.phase='leave-button';persist();if(view==='chat'&&active===HG_ID)openChat(HG_ID)}else fmCommon();return}
+ if(a.phase==='profile'){a.phase='dead';persist();zeroDeath()}
+}
+STORY_CHOICES.push({id:FM.node,title:'无人机取货邀请',chat:HG_ID,day:'第一日 · 清晨'});
+
+Object.assign(actions,{'fm-leave':()=>{if(fm().phase==='leave-button')fmDoor()},'fm-campus':fmCampus});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-fm-choice]');if(b)fmChoose(Number(b.dataset.fmChoice))});
+const firstMorningStyle=document.createElement('style');firstMorningStyle.textContent=`.morning-title{position:absolute;inset:0;z-index:24;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#15101a;gap:17px;animation:morning-title-fade 4.5s ease both}.morning-title strong{font-size:30px;font-weight:450;letter-spacing:6px;color:#e7d5e3}.morning-title span{font-size:13px;letter-spacing:2px;color:#bda4c4}.morning-title .daily-vitals{display:grid;gap:12px;width:min(260px,75%);margin-top:15px;padding:18px 0;border-top:1px solid #bda4c426}.morning-title .daily-vitals>div{display:flex;align-items:center;gap:14px}.morning-title .daily-vitals span{font-size:13px;letter-spacing:1px}.morning-title .daily-vitals strong{margin-left:auto;font-size:23px;letter-spacing:0;font-variant-numeric:tabular-nums}.morning-title .daily-vitals small{min-width:48px;text-align:right;font-size:12px;color:#bda4c4}.fm-door{background:#16131b}@keyframes morning-title-fade{0%,100%{opacity:0}25%,75%{opacity:1}}`;document.head.append(firstMorningStyle);
+initializeChapter=function(...args){document.querySelector('#fm-campus-notice')?.remove();document.querySelector('#morning-title')?.remove();return fmBase.initializeChapter(...args)};
+if(!state.story.comments.some(c=>c.id==='c-no-class'))state.story.comments.unshift(structuredClone(D.comments.find(c=>c.id==='c-no-class')));
+if(state.story.firstMorningReady&&fm().phase==='idle'){fmPrepare();fm().phase='intro';fm().due=Date.now()+4500;const title=document.createElement('div');title.className='morning-title';title.id='morning-title';title.innerHTML='<strong>第一日</strong><span>新规实施剩余3日</span>'+dailyVitalsMarkup();document.querySelector('#phone').append(title);storyTimeout(()=>title.remove(),4500)}
+if(fm().phase==='door')fmDoor(false);else if(fm().phase==='campus-notice'){fmDoor(false)}else if(fm().phase==='profile')fmCampus();
+persist();setInterval(fmTick,250);
+
+
+if(!fm().morningApologyV2){fm().morningApologyV2=true;if(fm().phase==='refuse'&&fm().step>=4)fm().step++;persist()}
+
+// Correct the previously assigned question and status in existing progress and retries.
+function correctMorningQuestion(progress){const morning=progress?.story?.firstMorning;if(!morning)return false;let changed=false;if(morning.zhaoDeparted){morning.suDeparted=true;delete morning.zhaoDeparted;changed=true}const messages=progress.messages?.[HG_ID]||[];const question=messages.find(m=>m.id==='fm-refuse-zhao-question');if(question){question.id='fm-refuse-su-question';question.hgWho='su';question.sender=HG_PEOPLE.su.avatar;question.name=HG_PEOPLE.su.name;morning.suDeparted=true;changed=true;const contact=progress.contacts?.find(c=>c.id===HG_ID);if(contact&&messages.at(-1)===question)contact.preview=HG_PEOPLE.su.name+'：？'}return changed}
+if(correctMorningQuestion(state))persist();const correctedMorningNodes=nodeRecords();let morningNodesChanged=false;for(const record of Object.values(correctedMorningNodes))if(correctMorningQuestion(record.checkpoint))morningNodesChanged=true;if(morningNodesChanged)saveNodes(correctedMorningNodes);
+
+// Allow a deliberate screen click to finish the revoked-profile transition.
+screen.addEventListener('click',event=>{
+ const morning=view==='fm-profile'&&fm().phase==='profile';
+ const supermarket=false;
+ if(!morning&&!supermarket)return;
+ event.preventDefault();event.stopImmediatePropagation();
+ clearTimeout(zeroTimer);
+ if(morning){fm().phase='dead';fm().due=0;persist()}
+ else if(z().phase==='profile')zeroAdd('where',0,['21:00','linqing','{name}，你在哪？'],'linqing');
+ zeroDeath();
+},true);

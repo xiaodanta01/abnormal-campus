@@ -1,0 +1,6 @@
+/* One slow wave of dizziness; opacity remains a fallback when blur is unsupported. */
+@keyframes d3-night-blur{
+ 0%,100%{filter:blur(0);opacity:1;transform:scale(1)}
+ 42%,58%{filter:blur(9px);opacity:.58;transform:scale(1.035)}
+}
+.d3-night-blur{animation:d3-night-blur 4.8s ease-in-out both;transform-origin:center}

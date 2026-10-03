@@ -1,0 +1,205 @@
+/* Visible decoration only; no keyboard, send action or attachment interaction. */
+.chat-page #composer[inert]{cursor:default}
+.chat-page #composer[inert] textarea{cursor:default}
+.sms-read{display:none}
+
+/* Bound both themes to the viewport, including intrinsic grid/flex widths. */
+#screen .app-page[data-message-page="messages"],
+#screen .app-page[data-message-page="message-contacts"],#screen .chat-page,
+#screen #contact-list,#screen .chat-page .messages,#message-bottom{
+ width:100%;max-width:100%;min-width:0;box-sizing:border-box;overflow-x:hidden;
+}
+#screen #contact-list{grid-template-columns:minmax(0,1fr)}
+#screen .contact{max-width:100%;min-width:0;box-sizing:border-box}
+#screen .contact-body,#screen .contact-top,#screen .contact-name,
+#screen .contact-preview,#screen .preview-text{min-width:0}
+#screen .contact-name,#screen .preview-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#screen .contact time{flex-shrink:0;white-space:nowrap}
+#message-bottom .message-tabs,#message-bottom .message-tabs button{min-width:0;max-width:100%;box-sizing:border-box}
+
+/* All overrides are restricted to messaging roots. Default and CGs stay untouched. */
+[data-message-theme="paid"]{--sms-bg:#1b1b20;--sms-in:#39393f;--sms-mine:#eeedeb;--sms-ink:#f1eff3;background:var(--sms-bg)!important;color:var(--sms-ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Alibaba PuHuiTi 3.0",sans-serif;-webkit-font-smoothing:antialiased}
+.chat-page[data-message-theme="paid"] .chat-head{background:var(--sms-bg);border-color:#ffffff0a;gap:8px;padding:12px 16px 16px}
+.chat-page[data-message-theme="paid"] .person strong{font-weight:600;letter-spacing:.3px}
+.chat-page[data-message-theme="paid"] .person small{color:#aaa6af}
+.chat-page[data-message-theme="paid"] .messages{padding:10px 17px 26px;scrollbar-color:#56515b transparent}
+.chat-page[data-message-theme="paid"] .message{margin:20px 0 4px;gap:9px;align-items:flex-start}
+.chat-page[data-message-theme="paid"] .message.sms-continuation{margin-top:4px}
+.chat-page[data-message-theme="paid"] .message-main{max-width:calc(100% - 53px);min-width:0;position:relative}
+.chat-page[data-message-theme="paid"] .message .avatar{width:29px;height:29px}
+.chat-page[data-message-theme="paid"] .message.sms-continuation>.avatar,
+.chat-page[data-message-theme="paid"] .message.sms-continuation>.self-avatar,
+.chat-page[data-message-theme="paid"] .message.sms-continuation>.npc-avatar-button{visibility:hidden}
+.chat-page[data-message-theme="paid"] .sms-continuation .sender-name{display:none}
+.chat-page[data-message-theme="paid"] .sender-name{color:#bab5c1;font-size:11px;line-height:1.5;margin:0 0 6px 9px}
+.chat-page[data-message-theme="paid"] .zero-left-status{color:#b2a6b2}
+.chat-page[data-message-theme="paid"] .bubble{position:relative;border:0;border-radius:19px;padding:8px 14px;background:var(--sms-in);color:var(--sms-ink);font-size:14px;font-weight:400;line-height:1.6;max-width:100%;box-shadow:none;overflow-wrap:anywhere;word-break:normal}
+.chat-page[data-message-theme="paid"] .mine .bubble{background:var(--sms-mine);color:#202024}
+.chat-page[data-message-theme="paid"] .sms-group-start:not(.mine) .bubble{border-top-left-radius:12px}
+.chat-page[data-message-theme="paid"] .sms-group-start.mine .bubble{border-top-right-radius:12px}
+.chat-page[data-message-theme="paid"] .sms-group-start .bubble:after{content:'';position:absolute;top:10px;left:-6px;width:9px;height:10px;background:var(--sms-in);clip-path:polygon(100% 0,100% 100%,0 20%)}
+.chat-page[data-message-theme="paid"] .sms-group-start.mine .bubble:after{left:auto;right:-6px;background:var(--sms-mine);transform:scaleX(-1)}
+.chat-page[data-message-theme="paid"] .sms-named.sms-group-start>.avatar,
+.chat-page[data-message-theme="paid"] .sms-named.sms-group-start>.npc-avatar-button{margin-top:23px}
+.chat-page[data-message-theme="paid"] .message-meta{display:none}
+.chat-page[data-message-theme="paid"] .sms-read{display:block;color:#b7afbf;font-size:9px;margin:4px 8px 0;line-height:1.4}
+.chat-page[data-message-theme="paid"] .message:not(.sms-group-end) .sms-read{display:none}
+.chat-page[data-message-theme="paid"] .message-group-time{font-size:10px;color:#a5a0aa;letter-spacing:.5px;margin:25px 0 22px}
+.chat-page[data-message-theme="paid"] .system-msg{color:#aaa4af;font-size:11px;line-height:1.8;text-align:center;margin:20px 10px}
+.chat-page[data-message-theme="paid"] .image-message{max-width:100%;border-radius:14px}
+.chat-page[data-message-theme="paid"] .quote{border-left:2px solid currentColor;opacity:.75}
+.chat-page[data-message-theme="paid"] .zero-choices{background:var(--sms-bg);padding:14px 17px max(18px,env(safe-area-inset-bottom));border-top:1px solid #ffffff0b;gap:8px;max-height:45%;overflow:auto}
+.chat-page[data-message-theme="paid"] .zero-choices button{border:1px solid #aaa0b538;background:#2d2b33;color:#eeebf2;border-radius:20px;padding:13px 17px;line-height:1.65}
+.chat-page[data-message-theme="paid"] .zero-choices button:disabled{opacity:.5}
+.chat-page[data-message-theme="paid"] .zero-choices button:active{background:#45404d}
+/* Small, soft stationery details, still on the charcoal message background. */
+#phone.sms-shell{background:#1b1b20!important}
+#phone.sms-shell #status{background:#1b1b20;color:#eee6f1}
+#phone.sms-shell #phone-back{background:#342d3bef;border-color:#c6aed333;color:#e2cfe9;box-shadow:none}
+.chat-page[data-message-theme="paid"] #composer{display:flex;align-items:center;gap:3px;padding:12px 12px max(15px,env(safe-area-inset-bottom));background:#201e25;border-top:1px solid #d9bcdf10}
+.chat-page[data-message-theme="paid"] #composer textarea{height:38px;min-height:38px;border-radius:22px;padding:9px 12px;line-height:19px;background:#302b35;border:1px solid #d8bad620;color:#d9ccdf;font-size:13px!important;opacity:1;box-shadow:inset 0 1px 0 #ffffff05}
+.chat-page[data-message-theme="paid"] #composer textarea::placeholder{color:#a399ae;opacity:1}
+.chat-page[data-message-theme="paid"] #composer .icon-button{width:30px;min-width:30px;height:36px;min-height:36px;padding:6px;color:#d7bfdc;opacity:1}
+.chat-page[data-message-theme="paid"] #composer .icon-button svg{width:19px;height:19px}
+.chat-page[data-message-theme="paid"] #composer .icon-button:first-child{width:33px;min-width:33px;background:#d4bfe41a;border-radius:50%;margin-right:4px}
+.chat-page[data-message-theme="paid"] #composer .icon-button:first-child svg{display:none}
+.chat-page[data-message-theme="paid"] #composer .icon-button:first-child:after{content:'♡';font-size:23px;line-height:24px;color:#e5c6d9}
+.chat-page[data-message-theme="paid"] #composer .send{background:#d9c3d9;color:#3c2c40;border-radius:50%;margin-left:4px;width:33px;min-width:33px}
+#phone.sms-shell .app-page[data-message-theme="paid"]:is([data-message-page="messages"],[data-message-page="message-contacts"]):before,.chat-page[data-message-theme="paid"]:before{content:'little messages  ·  小短信';font-size:10px;line-height:1.4;letter-spacing:1.8px;color:#b49fbd;border-bottom-color:#c8aedb15}
+.app-page[data-message-theme="paid"]:is([data-message-page="messages"],[data-message-page="message-contacts"]) .page-head{margin-bottom:24px;gap:13px;padding:16px;border:1px solid #d6b8dc16;border-radius:25px;background:linear-gradient(115deg,#3d3042,#29242f);box-shadow:0 8px 24px #100a161c}
+.app-page[data-message-theme="paid"]:is([data-message-page="messages"],[data-message-page="message-contacts"]) .page-head h1{font-size:24px;font-weight:600;letter-spacing:2px;color:#f0e6f1}
+.app-page[data-message-theme="paid"]:is([data-message-page="messages"],[data-message-page="message-contacts"]) .page-head>.icon-button{background:#c3a5cf12;border:1px solid #d6b8dc20;border-radius:16px;color:#dfc5e3}
+.chat-page[data-message-theme="paid"] .chat-head{margin:0 12px 8px;padding:12px;border:1px solid #d6b8dc19;border-radius:24px;background:linear-gradient(115deg,#372e3d,#26222c);box-shadow:0 5px 20px #100a161c;gap:9px}
+.chat-page[data-message-theme="paid"] .chat-head .icon-button{background:#d6b8dc0d;border-radius:50%;width:32px;min-width:32px;height:34px;min-height:34px;color:#d4bedc;padding:7px}
+.chat-page[data-message-theme="paid"] .chat-head .icon-button svg{width:18px;height:18px}
+.chat-page[data-message-theme="paid"] .chat-head .avatar{outline:3px solid #ceb1da15;outline-offset:2px}
+.chat-page[data-message-theme="paid"] .chat-head .person strong{font-size:14px;color:#f2e7f4}
+.chat-page[data-message-theme="paid"] .chat-head .person small{font-size:10px;color:#b5a6c0}
+.app-page[data-message-theme="paid"] .list-self .avatar{width:39px;height:39px;outline:3px solid #c8aad21a;outline-offset:3px}
+.app-page[data-message-theme="paid"] .search{height:46px;border-radius:24px;background:#302a35;border:1px solid #cfb6da1a;color:#bca9c8;padding:0 16px;margin-bottom:23px}
+.app-page[data-message-theme="paid"] .search input{font-size:13px!important;color:#eee4f0}
+.app-page[data-message-theme="paid"] .search input::placeholder{color:#b1a1ba}
+.app-page[data-message-theme="paid"] .list-label{color:#baabc4;font-size:10px;letter-spacing:1px;padding:4px 7px 15px}
+.app-page[data-message-theme="paid"] .list-label>span:first-child:before{content:'✧';margin-right:7px;color:#d7badf}
+.app-page[data-message-theme="paid"] #contact-list{display:grid;gap:9px}
+.app-page[data-message-theme="paid"] .contact{min-height:85px;padding:15px 13px;gap:13px;border:1px solid #bda3ce10;border-radius:22px;background:#28242e;box-shadow:0 3px 12px #00000008}
+.app-page[data-message-theme="paid"] .contact.pinned{background:#312937;border-color:#d6b3df20}
+.app-page[data-message-theme="paid"] .contact.pinned:before{display:none}
+.app-page[data-message-theme="paid"] .contact>.avatar{width:43px;height:43px;flex-shrink:0;border-radius:50%;outline:3px solid #bba1c51a;outline-offset:2px}
+.app-page[data-message-theme="paid"] .contact>.avatar.group{border-radius:16px}
+.app-page[data-message-theme="paid"] .contact-top{align-items:center;margin-bottom:8px}
+.app-page[data-message-theme="paid"] .contact-name{color:#f1e8f2;font-size:14px;font-weight:500}
+.app-page[data-message-theme="paid"] .contact time{color:#b5a5bf;font-size:10px}
+.app-page[data-message-theme="paid"] .contact-preview{color:#b9adbf;font-size:12px;line-height:1.5;gap:7px}
+.app-page[data-message-theme="paid"] .contact .unread{background:#e4bdce;color:#482b41;min-width:18px;height:18px;padding:0 5px;border-radius:7px;font-size:10px;box-shadow:0 2px 6px #0002;flex-shrink:0}
+.app-page[data-message-theme="paid"] .contact .pin{color:#d8bfdc}
+.app-page[data-message-theme="paid"] .list-footer{color:#9e8ba9;font-size:10px;letter-spacing:1px;padding:5px 0 16px}
+.app-page[data-message-theme="paid"] .list-footer:before{content:'♡';display:block;font-size:19px;line-height:1.8;color:#c2a1c9}
+#message-bottom[data-message-theme="paid"]{background:#1b1b20;border:0;padding:9px 15px max(12px,env(safe-area-inset-bottom))}
+#message-bottom[data-message-theme="paid"] .message-tabs{padding:5px;gap:5px;border:1px solid #d4b3df1c;background:#29242f;border-radius:25px;box-shadow:0 5px 22px #0c080f40}
+#message-bottom[data-message-theme="paid"] .message-tabs button{position:relative;border-radius:20px;gap:5px;min-height:58px;color:#af9fba;font-size:10px;letter-spacing:.5px;flex:1}
+#message-bottom[data-message-theme="paid"] .message-tabs button svg{width:21px;height:21px;stroke-width:1.55}
+#message-bottom[data-message-theme="paid"] .message-tabs button.selected{background:#decae6;color:#493551;box-shadow:0 2px 9px #0002}
+#message-bottom[data-message-theme="paid"] .message-tabs button.selected:after{content:'✧';position:absolute;right:14px;top:6px;font-size:13px;color:#765486}
+
+/* Address book: rounded friend cards and a small lavender search panel. */
+.app-page[data-message-theme="paid"][data-message-page="message-contacts"] .page-head>.avatar{width:42px;height:42px;outline:3px solid #d2b6dc1a;outline-offset:3px}
+.app-page[data-message-theme="paid"] .address-friend{margin:0 0 10px;padding:10px 12px;border:1px solid #d4b5df15;border-radius:22px;background:#2a2530;gap:8px}
+.app-page[data-message-theme="paid"] .address-friend>button:first-child{padding:5px 0;gap:13px;min-width:0}
+.app-page[data-message-theme="paid"] .address-friend>button:first-child>span:not(.avatar){min-width:0}
+.app-page[data-message-theme="paid"] .address-friend .avatar{width:43px;height:43px;border-radius:50%;outline:3px solid #c7a8d31a;outline-offset:2px}
+.app-page[data-message-theme="paid"] .address-friend strong{font-size:14px;color:#f1e6f3;font-weight:500;overflow-wrap:anywhere}
+.app-page[data-message-theme="paid"] .address-friend small{font-size:11px;color:#b2a0bf;overflow-wrap:anywhere}
+.app-page[data-message-theme="paid"] .address-friend .contact-departed{color:#9f90aa}
+.app-page[data-message-theme="paid"] .address-detail{flex:0 0 38px;width:38px;height:38px;border-radius:14px;background:#cfb1d512;color:#d5bcdf}
+.app-page[data-message-theme="paid"] .address-search{margin-top:25px;padding:18px 15px;border:1px solid #d5b7e123;border-radius:24px;background:linear-gradient(140deg,#362c3c,#26212c)}
+.app-page[data-message-theme="paid"] .contact-search-intro{padding:0}
+.app-page[data-message-theme="paid"] .contact-search-intro small{color:#c6add1}
+.app-page[data-message-theme="paid"] .contact-search-intro h2{color:#eee0f2;font-size:17px;margin:8px 0 18px}
+.app-page[data-message-theme="paid"] #contacts-handle-search{gap:7px}
+.app-page[data-message-theme="paid"] #contacts-handle-search .search{height:44px;border-radius:16px;background:#231f29;border-color:#b99aca27;color:#b5a1c4;padding:0 10px}
+.app-page[data-message-theme="paid"] #contacts-handle-search .search input{color:#eee1f2;font-size:12px!important}
+.app-page[data-message-theme="paid"] #contacts-handle-search .search input::placeholder{color:#af9cbc}
+.app-page[data-message-theme="paid"] #contacts-handle-search .contact-search-submit{flex-basis:54px;min-height:44px;padding:0 9px;border-radius:16px;border-color:#d9bfdc;background:#d9bfdc;color:#452d4c;font-size:12px}
+.app-page[data-message-theme="paid"] .address-search .lin-profile-card.contact-detail{background:#2b2532;border-color:#cfb0df24}
+.app-page[data-message-theme="paid"] .address-search .contact-detail-hero h2,.app-page[data-message-theme="paid"] .address-search .contact-handle{color:#eee2f3}
+.app-page[data-message-theme="paid"] .address-search .contact-detail-hero small,.app-page[data-message-theme="paid"] .address-search .contact-detail-row>span:first-child,.app-page[data-message-theme="paid"] .address-search .contact-detail-row small,.app-page[data-message-theme="paid"] .address-search .contact-relation,.app-page[data-message-theme="paid"] .contact-search-empty{color:#bba5c7}
+.app-page[data-message-theme="paid"] .address-search .contact-detail-row.signature p{color:#d2c2dc}
+.app-page[data-message-theme="paid"] .address-search .contact-copy-note{color:#b29bc0!important}
+.app-page[data-message-theme="paid"] .address-search .contact-add-cheng{background:#4b3855;border-color:#d5b7e134;color:#e9d7ef}
+.app-page[data-message-theme="paid"] .friend-request-dot{background:#ea99b5}
+.app-page[data-message-theme="paid"] :is(input,button):focus-visible{outline-color:#d8b9e6}
+.app-page[data-message-theme="paid"] #contacts-handle-search .search:focus-within{border-color:#d8b9e680}
+
+/* Moments keep all layout, text, pictures and interactions; palette overrides only. */
+.app-page[data-message-theme="paid"]:is([data-message-page="message-moments"],[data-message-page="personal-moments"]):before{color:#b49fbd;border-bottom-color:#c8aedb15}
+.app-page[data-message-theme="paid"] :is(.feed-heading,.lin-feed-owner p,.friends-moment time,.lin-moment time){color:#b29ebe}
+.app-page[data-message-theme="paid"] :is(.friend-post-name,.lin-feed-owner strong){color:#e6c7ed}
+.app-page[data-message-theme="paid"] .lin-moment-text{color:#e8dfec}
+.app-page[data-message-theme="paid"] :is(.friends-moment,.lin-moment,.lin-feed-owner){border-color:#ceb1da1a}
+.app-page[data-message-theme="paid"] .lin-existing-replies{background:#302736;color:#d9c6e1}
+.app-page[data-message-theme="paid"] .lin-existing-replies p{color:#d9c6e1}
+.app-page[data-message-theme="paid"] .lin-existing-replies strong{color:#dfb7e8}
+.app-page[data-message-theme="paid"] .lin-music-card{background:#302736;border-color:#ceb1da1a;color:#ebdff0}
+.app-page[data-message-theme="paid"] .lin-music-art{background:#45314e;color:#e0bce9}
+.app-page[data-message-theme="paid"] :is(.lin-music-info small,.lin-music-open){color:#c7acd3}
+.app-page[data-message-theme="paid"] .page-head{color:#eee2f2}
+.app-page[data-message-theme="paid"] .moment-send{background:#d8bfdc;color:#422d4b}
+.app-page[data-message-theme="paid"] .moment-draft-label,.app-page[data-message-theme="paid"] #moment-draft::placeholder{color:#b29ebe}
+.app-page[data-message-theme="paid"] #moment-draft{color:#e8dfec}
+.app-page[data-message-theme="paid"] .moment-add-photo{background:#302736;border-color:#ceb1da1a;color:#c7acd3}
+
+/* Settings-only selection cards and compact, explicitly labelled previews. */
+.message-skin-sheet .skin-caption{color:#b6aaba;margin:6px 0 22px}
+.skin-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.skin-card{position:relative;display:flex;flex-direction:column;padding:7px;border:1px solid #ffffff18;border-radius:19px;text-align:left;min-width:0;background:#ffffff03}
+.skin-card.selected{border-color:#d8bfd4;box-shadow:0 0 0 2px #d8bfd415}
+.skin-mini{min-height:264px;flex:1;display:flex;flex-direction:column;align-items:stretch;gap:12px;border-radius:13px;padding:14px 8px 10px;background:#151d23;overflow:hidden}
+.skin-mini>small{align-self:center;color:#a5a0aa;font-size:9px;margin:0 0 5px;letter-spacing:1px}
+.skin-mini-messages{display:flex;flex-direction:column;gap:10px}
+.skin-mini-row{display:flex;align-items:flex-start;gap:5px}
+.skin-mini-row>div{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.skin-mini-row span{position:relative;display:block;max-width:100%;font-size:9.5px;line-height:1.6;padding:7px;background:#2a343d;color:#e2e9ec;border-radius:3px 10px 10px 10px;overflow-wrap:anywhere}
+.skin-mini-avatar{display:block;width:17px;height:17px;flex:0 0 17px;border-radius:50%;background:#a699af;box-shadow:inset 0 0 0 3px #ffffff12;margin-top:2px}
+.skin-mini-mine{flex-direction:row-reverse}
+.skin-mini-mine>div{align-items:flex-end}
+.skin-mini-mine .skin-mini-avatar{background:#c8b2c7}
+.skin-mini-mine span{background:var(--accent);color:white;border-radius:10px 3px 10px 10px}
+.skin-mini-paid{background:#1b1b20}
+.skin-mini-paid .skin-mini-messages{gap:3px}
+.skin-mini-paid .skin-mini-row:nth-child(3){margin-top:14px}
+.skin-mini-paid .skin-mini-continuation .skin-mini-avatar{visibility:hidden}
+.skin-mini-paid .skin-mini-row span{background:#39393f;border-radius:14px;color:#f1eff3;padding:3px 10px;font-size:9px;line-height:1.45}
+.skin-mini-paid .skin-mini-mine span{background:var(--sms-mine,#eeedeb);color:#202024}
+.skin-mini-paid .skin-mini-row:not(.skin-mini-continuation) span:before{content:'';position:absolute;left:-3px;top:6px;width:5px;height:6px;background:#39393f;clip-path:polygon(100% 0,100% 100%,0 20%)}
+.skin-mini-paid .skin-mini-mine span:first-child:before{left:auto;right:-3px;background:var(--sms-mine,#eeedeb);transform:scaleX(-1)}
+.skin-mini-read{font-size:7px;color:#9fa8af;font-style:normal;margin-right:4px;line-height:1.3}
+.skin-mini-input{display:flex;align-items:center;gap:3px;margin-top:auto;padding:6px 0 0;border-top:1px solid #ffffff0a;font-size:12px;color:#9e9aa7}
+.skin-mini-input>svg{width:10px;height:12px}
+.skin-mini-input i{flex:1;min-width:8px;height:20px;background:#28333a;border:1px solid #ffffff08;border-radius:5px}
+.skin-mini-send{display:grid;place-items:center;width:17px;height:20px;border-radius:5px;background:var(--accent);color:#ecf0f1;flex-shrink:0}
+.skin-mini-send svg{width:11px;height:11px}
+.skin-mini-paid .skin-mini-input{color:#dbc1dd;gap:3px}
+.skin-mini-paid .skin-mini-input i{height:22px;background:#302b35;border:1px solid #d8bad620;border-radius:12px}
+.skin-mini-heart{display:grid;place-items:center;width:18px;height:20px;font-size:15px;font-weight:400;background:#d4bfe41a;border-radius:50%;color:#e5c6d9;flex-shrink:0}
+.skin-mini-paid .skin-mini-send{width:20px;height:20px;border-radius:50%;background:#d9c3d9;color:#3c2c40}
+.skin-card-label{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:14px 5px 8px;flex-wrap:wrap}
+.skin-card-label strong{font-size:14px;font-weight:500;color:#eee6ef}
+.skin-card-label small{font-size:10px;color:#baa9bd}
+.skin-card-description{display:block;font-size:9px;line-height:1.6;color:#ac9bb6;padding:0 5px 8px;white-space:normal}
+.skin-lock{display:flex;flex-direction:column;gap:5px;background:#d7c5d7;color:#332c37;border-radius:9px;padding:8px 7px;margin:2px 2px 9px;font-size:10px}
+.skin-lock-title{display:flex;align-items:center;justify-content:center;gap:4px}
+.skin-lock-note{display:block;font-size:9px;line-height:1.65;text-align:center;color:#55425b;font-weight:400}
+.skin-lock svg{width:12px;height:12px}
+.skin-redeem{width:100%;margin-top:19px!important}
+.skin-colors{display:flex;justify-content:space-around;gap:12px;margin:24px 0}
+.skin-colors button{display:grid;justify-items:center;gap:12px;flex:1;font-size:12px;color:#d4cbd8;min-height:76px}
+.skin-colors i{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;color:#252129;font-size:19px;font-style:normal;outline:2px solid transparent;outline-offset:4px}
+.skin-colors [aria-pressed="true"] i{outline-color:#d8bfd4}
+.skin-dev{border-top:1px dashed #ffffff25;margin-top:22px;padding-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+.skin-dev small{width:100%;color:#baa9bd;font-size:11px}
+.skin-dev button{padding:10px 12px;border:1px solid #ffffff20;border-radius:10px;font-size:12px}
+
+/* Redeemed messaging launcher; the badge and original launcher size stay intact. */
+.app-icon.sms-app-icon{background:#d3caea;color:#6a588d}
+/* SVG size, outline weight and tile shape inherit the shared app icon rules. */

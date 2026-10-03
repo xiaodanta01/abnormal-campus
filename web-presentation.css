@@ -1,0 +1,46 @@
+/* Reuse the Windows phone presentation, scoped to desktop web browsers. */
+body.web-preview .zero-menu.abnormal-game-menu .game-bgm-hint{white-space:nowrap;text-wrap:nowrap;max-width:none;font-size:min(11px,2.8vw)}
+body.web-preview [data-web-playlist-link]{display:inline-block;margin-top:5px;color:inherit;text-decoration:underline;text-underline-offset:3px}
+/* Match the existing Android message spacing and archive navigation. */
+body.web-preview #phone.messages-shell .app-page,body.web-preview #phone .chat-page,body.web-preview #phone .lin-moments,
+body.web-preview #phone.messages-shell .moments-feed,body.web-preview #phone.messages-shell .moments-directory{padding-top:14px}
+body.web-preview #phone.messages-shell .app-page::before,body.web-preview #phone .chat-page::before,body.web-preview #phone .lin-moments::before{content:none;display:none}
+body.web-preview #screen .ending-gallery.ending-archive,body.web-preview #screen .ending-detail-page.ending-archive{padding-top:14px}
+body.web-preview .android-archive-back{display:flex;align-items:center;margin:0 0 12px}
+body.web-preview .android-archive-back .icon-button{width:44px;height:44px;flex:0 0 44px;color:inherit}
+body.web-desktop-layout:not(.pc-phone-mode) #phone{width:100%!important;height:100dvh!important;max-height:100dvh!important;min-height:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;transform:none!important}
+body.web-desktop-layout.pc-phone-mode{
+  display:grid!important;
+  place-items:center;
+  min-height:100dvh;
+  background:radial-gradient(ellipse at 50% 42%,#29302c 0%,#141a19 45%,#090d0e 90%);
+}
+body.web-desktop-layout.pc-phone-mode #phone{
+  width:min(470px,calc(100vw - 36px),max(340px,calc((100dvh - 48px)*.52)))!important;
+  height:min(940px,calc(100dvh - 48px))!important;
+  max-height:min(940px,calc(100dvh - 48px))!important;
+  min-height:0!important;
+  border:9px solid #292d30!important;
+  border-radius:42px!important;
+  box-shadow:0 0 0 1px #858d8c80,inset 0 0 0 1px #090d0e,0 30px 90px #0009!important;
+  overflow:hidden;
+  transform:translateZ(0) scale(var(--pc-phone-scale,1));
+  transform-origin:center;
+}
+body.web-desktop-layout.pc-phone-mode #phone::before{
+  content:"";
+  position:absolute;
+  z-index:1000;
+  top:5px;
+  left:50%;
+  width:54px;
+  height:5px;
+  border-radius:8px;
+  background:#070b0c;
+  box-shadow:0 1px 0 #ffffff12;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+@media(max-height:650px){
+  body.web-desktop-layout.pc-phone-mode #phone{height:calc(100dvh - 20px)!important;max-height:calc(100dvh - 20px)!important;border-width:7px!important;border-radius:32px!important}
+}

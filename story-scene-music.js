@@ -1,0 +1,1 @@
+/* Background and CG music removed. Story progression is unchanged. */

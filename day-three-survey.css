@@ -1,0 +1,34 @@
+/* Extend the first questionnaire's monochrome controls and type scale. */
+.survey-screen.d3-survey{overflow-y:auto;overscroll-behavior:contain}
+.d3-survey .survey-question h1{animation:none}
+.d3-survey .d3-instructions h1{margin-bottom:22px}
+.d3-instructions ol{padding-left:24px;margin:0 0 30px;color:#ccc;font-size:15px;line-height:1.9}
+.d3-instructions li+li{margin-top:18px}
+.d3-writing{position:relative;margin:0;left:auto;right:auto;top:auto;transform:none;flex-direction:column}
+.d3-writing input{width:100%;min-height:72px}
+.d3-survey .d3-prompt{min-height:72px;white-space:pre-wrap}
+.d3-prompt:after{content:'';display:inline-block;width:2px;height:1em;margin-left:5px;vertical-align:-.1em;background:#ddd;animation:survey-caret 1.1s step-end infinite}
+.d3-summary{box-sizing:border-box;max-width:620px;margin:0 auto;padding:42px 25px 30px;animation:survey-appear .6s ease both}
+.d3-summary header{border-bottom:1px solid #ffffff24;padding-bottom:24px;margin-bottom:24px}
+.d3-summary header>small{font-size:10px;letter-spacing:3px;color:#888}
+.d3-summary h1{font-size:19px;font-weight:400;line-height:1.9;margin:12px 0 0}
+.d3-summary-type{padding:22px;border:1px solid #ffffff24;border-radius:2px;background:linear-gradient(145deg,#ffffff09,transparent);margin-bottom:20px}
+.d3-summary-type>small,.d3-axis>small,.d3-summary-note small{font-size:11px;color:#999;letter-spacing:1px}
+.d3-summary-type h2{font-size:27px;font-weight:400;letter-spacing:3px;margin:12px 0 18px}
+.d3-summary-type p{font-size:14px;color:#c1c1c1;line-height:1.95;white-space:pre-line;margin:0}
+.d3-axes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.d3-axis{border:1px solid #ffffff1c;padding:16px 14px;border-radius:2px;background:#080808}
+.d3-axis-value{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:12px 0;color:#ddd;font-size:12px}
+.d3-axis-value b{font:400 22px/1.2 Consolas,monospace;white-space:nowrap}
+.d3-axis-value b small{font-size:11px;margin-left:2px;color:#999}
+.d3-axis-track{position:relative;height:4px;background:#ffffff18;margin:18px 4px 12px}
+.d3-axis-track:before{content:'';position:absolute;left:50%;top:-3px;height:10px;border-left:1px solid #ffffff33}
+.d3-axis-track i{position:absolute;top:-3px;margin-left:-5px;width:10px;height:10px;box-sizing:border-box;background:#ddd;border:2px solid #080808;border-radius:50%;box-shadow:0 0 0 1px #aaa}
+.d3-axis-ends{display:flex;justify-content:space-between;gap:8px;font-size:9px;line-height:1.6;color:#777}
+.d3-summary-note{margin:22px 0;padding:20px 0;border-top:1px solid #ffffff24;border-bottom:1px solid #ffffff24}
+.d3-summary-note>div{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.d3-summary-note strong{font-size:13px;font-weight:400;padding:5px 12px;border:1px solid #555;border-radius:2px}
+.d3-summary-note p{font-size:13px;color:#bbb;line-height:1.9;margin:8px 0 0}
+.d3-summary-caption{font-size:10px;color:#777;line-height:1.8;margin:18px 0 22px}
+@media(max-width:380px){.d3-summary{padding:30px 18px 22px}.d3-summary-type{padding:18px}.d3-axes{gap:8px}.d3-axis{padding:13px 10px}.d3-axis-value{display:block}.d3-axis-value b{display:block;margin-top:8px}}
+@media(prefers-reduced-motion:reduce){.d3-summary{animation:none}.d3-prompt:after{animation:none}}
