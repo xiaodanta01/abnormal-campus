@@ -1,9 +1,11 @@
 /* User-supplied UI click and one blip per non-player CG line. */
 const interactionSoundFiles={doorCloseChase:'assets/audio/cg-close-door.mp3',runningSteps:'assets/audio/cg-running-footsteps.mp3',doorOpen:'assets/audio/cg-open-door.mp3',pour:'assets/audio/cg-pour-water.mp3',tear:'assets/audio/cg-tear-package.mp3',knock:'assets/audio/cg-knock-door.mp3',doorClose:'assets/audio/cg-close-door.mp3',glassDoor:'assets/audio/sliding-glass-door.wav',pickup:'assets/audio/muted-keypress-06-short-tap.wav',button:'assets/audio/dreamcore-click-01-glass.wav',dialogue:'assets/audio/dialogue-blip-01-girl.wav'};
 const interactionSounds={};
+for(const src of new Set(Object.values(interactionSoundFiles)))GameAudio.prepare(src);
 function playInteractionSound(kind){
  if(document.hidden||(typeof mobileSounds!=='undefined'&&mobileSounds.silent))return;
- try{let sound=interactionSounds[kind];if(!sound){const AudioClass=typeof MiniPcmAudio==='function'?MiniPcmAudio:Audio;sound=interactionSounds[kind]=new AudioClass(interactionSoundFiles[kind]);sound.loop=false;sound.volume=kind==='doorCloseChase'?.65:.5}sound.pause();sound.currentTime=0;const playing=sound.play();if(playing&&playing.catch)playing.catch(()=>{})}catch(error){}
+ if(!interactionSoundFiles[kind])return;
+ interactionSounds[kind]=GameAudio.play(interactionSoundFiles[kind],{key:'interaction:'+kind,volume:kind==='doorCloseChase'?.65:.5});
 }
 function playCGCharacterBlip(row){if(row&&typeof row==='object'&&!row.silentBlip&&row.speaker&&row.speaker!=='me'&&row.speaker!=='narrator')playInteractionSound('dialogue')}
 document.addEventListener('click',function(event){

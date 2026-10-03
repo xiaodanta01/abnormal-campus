@@ -3,7 +3,7 @@
  const apps=['messages','wall','supply','notes','wallet','calendar','campus','phone'];
  const names=['讯息','校园墙','物资中心','备忘录','钱包','日历','校园通','电话'];
  const date='2045-09-09',time='09:33';
- const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.wav';
+ const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3';
  const base={persist,home,status,openApp,chatList,openChat,forum,postDetail,shop,orders,cartSheet,checkout,pay,renderMessage,contactRow,cartLines,cartTotal,quantity,productCards,productArt,forumAvatar,zeroLock,resumeStoryScene,initializeChapter,savePersonalNotebook,playNotificationSound,checkSurvival,showNotebookNotice};
  let owner=null,entered=null;
  let callTimer=null,callTimerKey=null,callAudio=null,callTypingTimer=null;
