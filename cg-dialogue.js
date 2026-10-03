@@ -3,19 +3,27 @@ const cgStyle=document.createElement('style');cgStyle.textContent=`.vn-dialogue{
 let cgTypingTimer=null;
 function cgScreenCrossfade(previous){
  const selector='.rd-cg>img,.ending-scene>img,.zero-scene>.zero-cg';
- const before=previous?.querySelector(selector),after=screen.querySelector(selector);
- if(!previous||!after||before?.getAttribute('src')===after.getAttribute('src'))return;
+ let before=previous?.querySelector(selector);const after=screen.querySelector(selector);
+ if(!before?.naturalWidth)before=previous?.querySelector('.cg-outgoing-image')||before;
+ if(!previous||!after)return;
+ if(before?.complete&&before.naturalWidth){cgImageCrossfade(before,after);return}
  zeroDissolve(previous,600);
 }
 function cgFadeLayer(layer,image){
  layer.inert=true;layer.setAttribute('aria-hidden','true');layer.style.pointerEvents='none';
  layer.style.animation='zero-dissolve .6s ease-in-out forwards';
- let started=false;const start=()=>{if(started)return;started=true;layer.style.animationPlayState='running';setTimeout(()=>layer.remove(),600)};
- if(image&&!image.complete){layer.style.animationPlayState='paused';image.addEventListener('load',start,{once:true});image.addEventListener('error',start,{once:true});setTimeout(start,2500)}else start();
+ layer.style.animationPlayState='paused';
+ const source=image?.getAttribute('src');
+ const cleanup=new MutationObserver(()=>{if(image&&!image.isConnected){layer.remove();cleanup.disconnect()}});cleanup.observe(screen,{childList:true,subtree:true});
+ const start=()=>{cleanup.disconnect();if(!layer.isConnected)return;layer.style.animationPlayState='running';setTimeout(()=>layer.remove(),600)};
+ if(!image){start();return}
+ CGImages.ready(image).then(ok=>{if(!image.isConnected||image.getAttribute('src')!==source){layer.remove();cleanup.disconnect();return}if(!ok){const old=layer.matches('img')?layer:layer.querySelector('img');if(old?.naturalWidth)image.src=old.src}start()});
 }
 function cgImageCrossfade(previous,current){
- if(!previous||!current||previous.getAttribute('src')===current.getAttribute('src'))return;
- current.style.animation='none';previous.removeAttribute('id');previous.classList.add('cg-outgoing-image');
+ if(!previous||!current)return;
+ const outgoing=current.parentElement.querySelector('.cg-outgoing-image');
+ if(outgoing){if(!previous.complete||!previous.naturalWidth)previous=outgoing.cloneNode(true);outgoing.remove()}
+ previous.removeAttribute('id');previous.classList.add('cg-outgoing-image');
  Object.assign(previous.style,{position:'absolute',inset:'0',width:'100%',height:'100%',objectFit:'cover'});
  current.after(previous);cgFadeLayer(previous,current);
 }
