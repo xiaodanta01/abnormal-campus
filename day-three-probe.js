@@ -27,10 +27,10 @@ function d3ProbeInside(){return view==='chat'&&active===HG_ID&&!hgContact()?.unr
 function d3ProbeWrite(who,text,id,type='text'){
  const rows=state.messages[HG_ID]??=[];if(rows.some(m=>m.id===id))return;
  const q=d3Probe(),person=dayTwoPerson(who),mine=who==='me';text=d3ProbeText(text);
- rows.push({id,type,sender:mine?'me':person.avatar,name:mine?state.profile.name:person.name,hgWho:who,text,time:q.time,gameDate:q.date,status:'read',...(type==='image'?{src:'assets/day3-songyan-logistics.svg'}:{})});
+ rows.push({id,type,sender:mine?'me':person.avatar,name:mine?state.profile.name:person.name,hgWho:who,text,time:q.time,gameDate:q.date,status:'read',...(type==='image'?{src:'assets/day3-songyan-logistics.svg?v=20261011-rc4'}:{})});
  if(type==='image')q.songyanRecordReceived=true;
- const c=hgContact();if(c){c.preview=type==='image'?'[图片]':mine?'我：'+text:text;c.time=q.time}
- persist();openChat(HG_ID);
+ const c=hgContact();if(c){c.preview=type==='image'?'[图片]':mine?'我：'+text:text;c.time=q.time;if(view!=='chat'||active!==HG_ID)c.unread=(c.unread||0)+1}
+ persist();if(view==='chat'&&active===HG_ID)openChat(HG_ID);else hgNotice('group');
 }
 function d3ProbeDecorate(){
  if(!d3ProbeInside())return;
@@ -50,11 +50,11 @@ function d3ProbeChoose(key,id){
 }
 let d3ProbeLastTick=0,d3ProbeLastSave=0;
 function d3ProbeTick(){
- const now=Date.now();if(d3Paused()||!d3ProbeInside()&&d3Probe()?.phase!=='pickup-wait'||document.querySelector('#overlay .sheet')){d3ProbeLastTick=0;return}
+ const now=Date.now();if(d3Paused()||!d3ProbeInside()&&d3Probe()?.phase!=='pickup-wait'&&!window.StoryResumeRecovery?.allow('d3-probe')||document.querySelector('#overlay .sheet')){d3ProbeLastTick=0;return}
  const elapsed=d3ProbeLastTick?Math.max(0,now-d3ProbeLastTick):0;d3ProbeLastTick=now;d3ProbeStart();const q=d3Probe();
  if(!q||!['chat','pickup-wait'].includes(q.phase))return;
  q.remaining=Math.max(0,q.remaining-elapsed);
- if(q.remaining){if(now-d3ProbeLastSave>=1000){d3ProbeLastSave=now;persist()}return}
+ if(q.phase==='chat'&&window.ReadHistory?ReadHistory.waiting('d3-probe',q,'remaining','remaining'):q.remaining){if(now-d3ProbeLastSave>=1000){d3ProbeLastSave=now;persist()}return}
  if(q.phase==='pickup-wait'){q.phase='done';persist();d3PickupBegin();return}
  const script=d3ProbeRows(q.script);if(!script)return;
  const additionKey=q.index===script.rows.length?(q.script==='evidence'?'day3-self-proof':q.script==='counter'?'day3-zhao-defense':null):null;
@@ -63,6 +63,7 @@ function d3ProbeTick(){
  const row=script.rows[q.index];
  if(row){
   const token='day3-probe:'+q.script+':'+q.index;
+  if(row[0]==='me'&&window.ReadHistory?.canContinueReadReply('d3-probe',q,'day3-probe-'+q.script+'-'+q.index))confirmStoryReply(token);
   if(row[0]==='me'&&storyReplyGate(HG_ID,d3ProbeText(row[1]),token,'d3ProbeTick',q.script==='intro'&&q.index===0))return;
   const id='day3-probe-'+q.script+'-'+q.index;q.index++;q.remaining=messageSendDelay();
   if(q.index===script.rows.length&&script.next==='pickup'){q.phase='pickup-wait';q.remaining=3000}

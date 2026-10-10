@@ -1,5 +1,5 @@
 /* Questionnaire follows the final evening warning. Dedicated sound awaits the supplied asset. */
-const SURVEY_CONFIG={sound:'assets/audio/questionnaire-monitor-v1.mp3',wakeImage:'assets/questionnaire/dorm-night-v1.jpg'};
+const SURVEY_CONFIG={sound:'assets/audio/questionnaire-monitor-v1.mp3?v=20261011-rc4',wakeImage:'assets/questionnaire/dorm-night-v1.jpg?v=20261011-rc4'};
 const SURVEY_LEGACY_NODE='day1-questionnaire-start';
 const SURVEY_PRE_NODE='day1-questionnaire-before-notice';
 const SURVEY_QUESTIONS=[
@@ -10,6 +10,45 @@ const SURVEY_QUESTIONS=[
  {text:'请确认与你今晚共同进食的人员。',choices:['陈妍','周禾','林晴'],correct:2}
 ];
 STORY_CHOICES.push({id:SURVEY_PRE_NODE,title:'？？？问卷',day:'第一日 · 问卷前',chat:null});
+
+// Display-only completion history is independent of timeline snapshots.
+const SURVEY_HISTORY_KEY=STORAGE_KEY+'-questionnaire-history';
+let surveyReplayEntry=null;
+function surveyRememberSuccess(progress){
+ const q=progress?.story?.questionnaire;
+ if(progress?.story?.questionnaireComplete!==true||q?.failed||q?.phase==='dead'||q?.phase?.startsWith('death'))return;
+ try{GameStorage.setItem(SURVEY_HISTORY_KEY,JSON.stringify({version:1,completed:true}))}catch{}
+}
+function surveyHasSuccess(){
+ surveyRememberSuccess(state);
+ try{for(const key of [STORAGE_KEY,STORAGE_KEY+'-continue']){try{surveyRememberSuccess(JSON.parse(GameStorage.getItem(key)||'null'))}catch{}}
+  for(const record of Object.values(nodeRecords()||{}))surveyRememberSuccess(record?.checkpoint);
+  const h=JSON.parse(GameStorage.getItem(SURVEY_HISTORY_KEY)||'null');return h?.version===1&&h.completed===true;
+ }catch{return false}
+}
+function surveyReplayStart(q){return !!q&&!q.failed&&(['waiting','notice'].includes(q.phase)||q.phase==='question'&&q.question===0)&&!Object.keys(q.answers||{}).length}
+function surveyReplayCheck(){
+ const q=survey();
+ if(surveyReplayEntry&&(surveyReplayEntry.q!==q||surveyReplayEntry.state!==state))surveyReplayEntry=null;
+ if(window.mobileLaunch||storyRestoring)return false;
+ if(['game-menu','nodes','zero-death'].includes(view)||!surveyReplayStart(q))return false;
+ if(!surveyReplayEntry)surveyReplayEntry={q,state,offered:false,open:false,nextCheck:0};
+ const entry=surveyReplayEntry;
+ if(entry.offered)return entry.open;
+ if(Date.now()<entry.nextCheck)return false;
+ entry.nextCheck=Date.now()+1000;
+ if(!surveyHasSuccess())return false;
+ document.querySelector('#survey-notice')?.remove();
+ surveyModal('问卷','检测到已完成的问卷记录。','replay-skip','跳过问卷');
+ const modal=document.querySelector('#survey-notice'),card=modal.firstElementChild;
+ card.style.cssText='background:#080808;color:#fff;border:1px solid #777;border-radius:2px';
+ card.querySelector('small').remove();
+ card.insertAdjacentHTML('beforeend','<button data-survey-action="replay-restart">重新作答</button>');
+ card.querySelectorAll('button').forEach(button=>button.style.cssText='background:#111;color:#fff;border:1px solid #888;border-radius:0;margin-top:10px');
+ entry.offered=true;entry.open=true;
+ return true;
+}
+
 function survey(){const q=state.story.questionnaire;if(q&&q.stayStep>2)q.stayStep=2;return q}
 function surveyLocked(){if(storyInputDormant())return false;const owner=storyEndingOwner();if(owner&&owner!=='survey')return false;const q=survey();return !!q&&!['done','dead'].includes(q.phase)}
 function surveyAudioActive(){const q=survey();return surveyLocked()&&!['waiting','notice','wake','off','death-notice','death-campus','death-black'].includes(q.phase)&&!window.mobileLaunch&&!['game-menu','nodes'].includes(view)}
@@ -24,12 +63,12 @@ function surveyChoose(index){const q=survey();if(!q)return;if(q.phase==='extra')
 function surveyNext(number){survey().nextQuestion=number;surveySet('fade',450)}
 function surveyFail(){const q=survey();if(!q||q.phase.startsWith('death')||q.phase==='dead')return;q.failed=true;surveySet('death-notice');playNotificationSound('system')}
 function surveyDie(){const q=survey();if(!q.deathCounted){q.deathCounted=true;state.game.deaths=(state.game.deaths||0)+1}surveySet('dead');surveyStopSound();applyGameBgm()}
-function surveyFinish(){const q=survey();if(!q||q.phase!=='wake')return;q.phase='done';q.due=0;state.story.questionnaireComplete=true;state.system.time='21:00';state.game.period='晚上';surveyCleanup();surveyCall(home);surveySave();applyGameBgm()}
+function surveyFinish(replay=false){const q=survey();if(!q||!(q.phase==='wake'||replay&&surveyReplayEntry?.q===q&&surveyReplayEntry.state===state&&surveyReplayEntry.open&&surveyReplayStart(q)))return;if(surveyReplayEntry)surveyReplayEntry.open=false;q.phase='done';q.due=0;state.story.questionnaireComplete=true;surveyRememberSuccess(state);state.system.time='21:00';state.game.period='晚上';surveyCleanup();surveyCall(home);surveySave();applyGameBgm()}
 function surveyCleanup(){document.querySelector('#survey-notice')?.remove();document.querySelector('#phone').classList.remove('survey-active','survey-notifying');surveyStopSound();surveyMutedGame=false}
 function surveyModal(title,text,action,label){const el=document.createElement('div');el.id='survey-notice';el.className='survey-notice';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label',title);el.innerHTML='<section><small>'+esc(title)+'</small><p>'+esc(text)+'</p><button data-survey-action="'+action+'">'+esc(label)+'</button></section>';document.querySelector('#phone').append(el)}
 function surveyProgress(){const q=survey();return ['extra','typing','input','erasing','sent','exiting'].includes(q.phase)?'6/5':['stay','trapped'].includes(q.phase)?'8/6':(q.question+1)+'/5'}
 function surveyQuestionMarkup(disabled=false){const q=survey(),row=SURVEY_QUESTIONS[q.question],text=q.question===4&&state.story.noodleEvening?.route==='no-water'?'今天和你分享食物的人是':row.text;return '<div class="survey-question"><h1>'+esc(text)+'</h1><div class="survey-options">'+row.choices.map((label,i)=>'<button data-survey-choice="'+i+'" '+(disabled?'disabled':'')+'>'+esc(q.phase==='name-error'&&i===2?'错误 未登记人员':label)+'</button>').join('')+'</div></div>'}
-function surveyRender(){const q=survey();if(!q)return;if(storyEndingOwner()==='survey')enterStoryEnding();document.querySelector('#survey-notice')?.remove();const phone=document.querySelector('#phone');phone.classList.toggle('survey-active',surveyLocked()&&!['waiting','notice','death-notice'].includes(q.phase));phone.classList.toggle('survey-notifying',['waiting','notice','death-notice'].includes(q.phase));if(q.phase==='done'){surveyCleanup();return}
+function surveyRender(){const q=survey();if(!q)return;if(surveyReplayCheck())return;if(storyEndingOwner()==='survey')enterStoryEnding();document.querySelector('#survey-notice')?.remove();const phone=document.querySelector('#phone');phone.classList.toggle('survey-active',surveyLocked()&&!['waiting','notice','death-notice'].includes(q.phase));phone.classList.toggle('survey-notifying',['waiting','notice','death-notice'].includes(q.phase));if(q.phase==='done'){surveyCleanup();return}
  if(q.phase==='waiting'){surveyCall(openChat,HG_ID);return;}
  if(q.phase==='notice'){if(!screen.querySelector('.home'))surveyCall(home);view='questionnaire-notice';active=null;if(q.phase==='notice')surveyModal('校园通','你有一份必须完成的问卷','open','点击查看');return}
  if(q.phase==='death-notice'){surveyCall(home);view='questionnaire-notice';surveyModal('校园通','校园通已更新','death-campus','点击查看');return}
@@ -65,8 +104,8 @@ function surveySendInput(text){const q=survey();if(q?.phase!=='input')return fal
 function surveyEraseValue(){const q=survey(),letters=q.eraseText||[];return letters.slice(0,Math.max(0,letters.length-Math.floor((Date.now()-q.enteredAt)/(q.eraseStep||80)))).join('')}
 function surveyEraseTick(){const input=screen.querySelector('.survey-input-wrap input');if(input)input.value=surveyEraseValue()}
 function surveyType(){const q=survey(),el=screen.querySelector('.survey-auto-input');if(q?.phase==='typing'&&el)el.textContent='你知道你现在在哪吗？'.slice(0,Math.floor((Date.now()-q.enteredAt)/110))}
-function surveyTick(){const q=survey();if(!q){if(!window.mobileLaunch&&!['game-menu','nodes','zero-death'].includes(view)&&!state.game.survivalEnding&&state.story.eveningAnomalyComplete)startQuestionnaire();return}if(!surveyLocked()||window.mobileLaunch||['game-menu','nodes'].includes(view))return;surveySyncSound();if(q.phase==='typing')surveyType();if(q.phase==='erasing')surveyEraseTick();if(q.phase==='stay')surveyTerminalTick();if(!q.due||Date.now()<q.due)return;const phase=q.phase;q.due=0;switch(phase){case 'waiting':surveySet('notice');playNotificationSound('system');break;case 'blank':surveySet('confirming',1500);break;case 'confirming':surveySet('identity',1000);break;case 'identity':surveyShowQuestion(0);break;case 'recorded':surveyNext(1);break;case 'fade':surveyShowQuestion(q.nextQuestion);break;case 'verify-wait':surveySet('mismatch',1000);break;case 'mismatch':surveyNext(3);break;case 'terminated':surveyFail();break;case 'name-error':surveySet('name-restored',350);break;case 'name-restored':surveySet('verified',1000);break;case 'verified':surveySet('submitted',2000);break;case 'submitted':surveySet('extra',5000);break;case 'extra':surveySet('typing','你知道你现在在哪吗？'.length*110+700);break;case 'typing':surveySet('input');break;case 'erasing':delete q.eraseText;delete q.eraseStep;surveySet('exiting',1200);break;case 'sent':surveySet('exiting',1200);break;case 'exiting':surveySet('stay');break;case 'trapped':surveySet('off',1000);break;case 'off':surveySet('wake');break;case 'death-black':surveyDie();break;}}
-window.addEventListener('click',e=>{if(!surveyLocked())return;if(e.target.closest('#survey-input')){if(e.target.closest('button[type="submit"]')){e.preventDefault();e.stopImmediatePropagation();surveySendInput(screen.querySelector('#survey-input input').value)}return;}if(survey().phase==='wake'){if(e.target.closest('#screen'))return;e.preventDefault();e.stopImmediatePropagation();return}const q=survey(),button=e.target.closest('[data-survey-action],[data-survey-choice]');e.preventDefault();e.stopImmediatePropagation();if(q.phase==='death-campus'){if(e.target.closest('#screen')&&Date.now()>=q.readyAt)surveySet('death-black',700);return}if(!button)return;if(button.hasAttribute('data-survey-choice'))return surveyChoose(Number(button.dataset.surveyChoice));const action=button.dataset.surveyAction;if(action==='open'&&q.phase==='notice')surveySet('blank',1000);else if(action==='death-campus'&&q.phase==='death-notice'){q.readyAt=Date.now()+2000;surveySet('death-campus')}else if(action==='return'&&surveyTerminalReady())surveySet('trapped',2000)},true);
+function surveyTick(){if(window.mobileLaunch||storyRestoring)return;if(surveyReplayCheck())return;const q=survey();if(!q){if(!window.mobileLaunch&&!['game-menu','nodes','zero-death'].includes(view)&&!state.game.survivalEnding&&state.story.eveningAnomalyComplete)startQuestionnaire();return}if(!surveyLocked()||window.mobileLaunch||['game-menu','nodes'].includes(view))return;surveySyncSound();if(q.phase==='typing')surveyType();if(q.phase==='erasing')surveyEraseTick();if(q.phase==='stay')surveyTerminalTick();if(!q.due||Date.now()<q.due)return;const phase=q.phase;q.due=0;switch(phase){case 'waiting':surveySet('notice');playNotificationSound('system');break;case 'blank':surveySet('confirming',1500);break;case 'confirming':surveySet('identity',1000);break;case 'identity':surveyShowQuestion(0);break;case 'recorded':surveyNext(1);break;case 'fade':surveyShowQuestion(q.nextQuestion);break;case 'verify-wait':surveySet('mismatch',1000);break;case 'mismatch':surveyNext(3);break;case 'terminated':surveyFail();break;case 'name-error':surveySet('name-restored',350);break;case 'name-restored':surveySet('verified',1000);break;case 'verified':surveySet('submitted',2000);break;case 'submitted':surveySet('extra',5000);break;case 'extra':surveySet('typing','你知道你现在在哪吗？'.length*110+700);break;case 'typing':surveySet('input');break;case 'erasing':delete q.eraseText;delete q.eraseStep;surveySet('exiting',1200);break;case 'sent':surveySet('exiting',1200);break;case 'exiting':surveySet('stay');break;case 'trapped':surveySet('off',1000);break;case 'off':surveySet('wake');break;case 'death-black':surveyDie();break;}}
+window.addEventListener('click',e=>{if(!surveyLocked())return;if(e.target.closest('#survey-input')){if(e.target.closest('button[type="submit"]')){e.preventDefault();e.stopImmediatePropagation();surveySendInput(screen.querySelector('#survey-input input').value)}return;}if(survey().phase==='wake'){if(e.target.closest('#screen'))return;e.preventDefault();e.stopImmediatePropagation();return}const q=survey(),button=e.target.closest('[data-survey-action],[data-survey-choice]');e.preventDefault();e.stopImmediatePropagation();if(q.phase==='death-campus'){if(e.target.closest('#screen')&&Date.now()>=q.readyAt)surveySet('death-black',700);return}if(!button)return;if(surveyReplayEntry?.open&&!button.dataset.surveyAction?.startsWith('replay-'))return;if(button.hasAttribute('data-survey-choice'))return surveyChoose(Number(button.dataset.surveyChoice));const action=button.dataset.surveyAction;if(action==='replay-skip'&&surveyReplayEntry?.open){surveyFinish(true);return}else if(action==='replay-restart'&&surveyReplayEntry?.open){surveyReplayEntry.open=false;document.querySelector('#survey-notice')?.remove();if(q.phase==='question')surveyShowQuestion(0);else surveySet('waiting',1000);return}if(action==='open'&&q.phase==='notice')surveySet('blank',1000);else if(action==='death-campus'&&q.phase==='death-notice'){q.readyAt=Date.now()+2000;surveySet('death-campus')}else if(action==='return'&&surveyTerminalReady())surveySet('trapped',2000)},true);
 window.addEventListener('keydown',e=>{if(!surveyLocked())return;if(e.key==='Escape'||(e.altKey&&['ArrowLeft','Home'].includes(e.key))||e.key==='BrowserBack'){e.preventDefault();e.stopImmediatePropagation()}},true);
 const surveyBaseLock=zeroLock;zeroLock=function(){return (!surveyInternal&&surveyLocked())||surveyBaseLock()};
 for(const name of ['home','openApp','openChat','chatList','forum','postDetail','settings']){const original=({home,openApp,openChat,chatList,forum,postDetail,settings})[name];const wrapped=function(...args){if(surveyLocked()&&!surveyInternal)return;return original(...args)};if(name==='home')home=wrapped;else if(name==='openApp')openApp=wrapped;else if(name==='openChat')openChat=wrapped;else if(name==='chatList')chatList=wrapped;else if(name==='forum')forum=wrapped;else if(name==='postDetail')postDetail=wrapped;else settings=wrapped;}

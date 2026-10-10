@@ -3,97 +3,97 @@ window.CAMPUS_CONFIG={
     {
       "id": "player-01",
       "name": "卷尾双马尾",
-      "src": "assets/player-approved-01.jpg"
+      "src": "assets/player-approved-01.jpg?v=20261011-rc4"
     },
     {
       "id": "player-03",
       "name": "侧盘卷发",
-      "src": "assets/player-approved-03.jpg"
+      "src": "assets/player-approved-03.jpg?v=20261011-rc4"
     },
     {
       "id": "player-04",
       "name": "长直姬发",
-      "src": "assets/player-approved-04.jpg"
+      "src": "assets/player-approved-04.jpg?v=20261011-rc4"
     },
     {
       "id": "player-06",
       "name": "层次大卷",
-      "src": "assets/player-approved-06.jpg"
+      "src": "assets/player-approved-06.jpg?v=20261011-rc4"
     },
     {
       "id": "player-07",
       "name": "地雷系双马尾",
-      "src": "assets/player-approved-07.jpg"
+      "src": "assets/player-approved-07.jpg?v=20261011-rc4"
     },
     {
       "id": "player-09",
       "name": "侧编发",
-      "src": "assets/player-approved-09.jpg"
+      "src": "assets/player-approved-09.jpg?v=20261011-rc4"
     },
     {
       "id": "player-10",
       "name": "偏分长直发",
-      "src": "assets/player-approved-10.jpg"
+      "src": "assets/player-approved-10.jpg?v=20261011-rc4"
     },
     {
       "id": "player-11",
       "name": "外翘披肩发",
-      "src": "assets/player-approved-11.jpg"
+      "src": "assets/player-approved-11.jpg?v=20261011-rc4"
     },
     {
       "id": "player-12",
       "name": "波浪双马尾",
-      "src": "assets/player-approved-12.jpg"
+      "src": "assets/player-approved-12.jpg?v=20261011-rc4"
     },
     {
       "id": "player-new-01",
       "name": "发卡短发",
-      "src": "assets/player-new-01.jpg"
+      "src": "assets/player-new-01.jpg?v=20261011-rc4"
     },
     {
       "id": "player-new-02",
       "name": "圆框眼镜",
-      "src": "assets/player-new-02.jpg"
+      "src": "assets/player-new-02.jpg?v=20261011-rc4"
     },
     {
       "id": "player-new-03",
       "name": "蓬松短发",
-      "src": "assets/player-new-03.jpg"
+      "src": "assets/player-new-03.jpg?v=20261011-rc4"
     },
     {
       "id": "player-new-04",
       "name": "齐刘海短发",
-      "src": "assets/player-new-04.jpg"
+      "src": "assets/player-new-04.jpg?v=20261011-rc4"
     },
     {
       "id": "player-new-05",
       "name": "男生短发",
-      "src": "assets/player-new-05.jpg"
+      "src": "assets/player-new-05.jpg?v=20261011-rc4"
     },
     {
       "id": "player-new-06",
       "name": "卷发发卡",
-      "src": "assets/player-new-06.jpg"
+      "src": "assets/player-new-06.jpg?v=20261011-rc4"
     },
     {
       "id": "reward-1",
       "name": "金色长卷发",
-      "src": "assets/reward-1.jpg"
+      "src": "assets/reward-1.jpg?v=20261011-rc4"
     },
     {
       "id": "reward-2",
       "name": "黑发蝴蝶结",
-      "src": "assets/reward-2.jpg"
+      "src": "assets/reward-2.jpg?v=20261011-rc4"
     },
     {
       "id": "reward-3",
       "name": "浅紫罗马卷",
-      "src": "assets/reward-3.jpg"
+      "src": "assets/reward-3.jpg?v=20261011-rc4"
     },
     {
       "id": "reward-4",
       "name": "红色长卷发",
-      "src": "assets/reward-4.jpg"
+      "src": "assets/reward-4.jpg?v=20261011-rc4"
     }
   ],
   "homeLayout": {
@@ -137,82 +137,82 @@ window.CAMPUS_CONFIG={
     {
       "id": "student0",
       "name": "陈子昂 · 自然短发",
-      "src": "assets/npc-pool-4.jpg"
+      "src": "assets/npc-pool-4.jpg?v=20261011-rc4"
     },
     {
       "id": "student1",
       "name": "林夏 · 齐刘海波波头",
-      "src": "assets/npc-pool-0.jpg"
+      "src": "assets/npc-pool-0.jpg?v=20261011-rc4"
     },
     {
       "id": "student2",
       "name": "许知远 · 偏分短发",
-      "src": "assets/npc-pool-5.jpg"
+      "src": "assets/npc-pool-5.jpg?v=20261011-rc4"
     },
     {
       "id": "student3",
       "name": "宋晴 · 日常低马尾",
-      "src": "assets/npc-pool-7.jpg"
+      "src": "assets/npc-pool-7.jpg?v=20261011-rc4"
     },
     {
       "id": "student4",
       "name": "周老师 · 偏分与眼镜",
-      "src": "assets/npc-teacher.jpg"
+      "src": "assets/npc-teacher.jpg?v=20261011-rc4"
     },
     {
       "id": "student5",
       "name": "同学 · 披肩直发",
-      "src": "assets/npc-pool-2.jpg"
+      "src": "assets/npc-pool-2.jpg?v=20261011-rc4"
     },
     {
       "id": "student6",
       "name": "同学 · 清爽短发",
-      "src": "assets/npc-pool-6.jpg"
+      "src": "assets/npc-pool-6.jpg?v=20261011-rc4"
     },
     {
       "id": "student7",
       "name": "同学 · 耳后中长发",
-      "src": "assets/npc-pool-1.jpg"
+      "src": "assets/npc-pool-1.jpg?v=20261011-rc4"
     },
     {
       "id": "linqing",
       "name": "林晴",
-      "src": "assets/npc-linqing.jpg"
+      "src": "assets/chat-avatars/linqing.jpg?v=20261011-rc4"
     },
     {
       "id": "zhouhe",
       "name": "周禾",
-      "src": "assets/chat-avatars/chat_zhouhe_v1.jpg"
+      "src": "assets/chat-avatars/chat_zhouhe_v1.jpg?v=20261011-rc4"
     },
     {
       "id": "chenyue",
       "name": "陈妍",
-      "src": "assets/npc-pool-1.jpg"
+      "src": "assets/npc-pool-1.jpg?v=20261011-rc4"
     },
     {
       "id": "shen",
       "name": "沈可欣",
-      "src": "assets/npc-shen.jpg"
+      "src": "assets/npc-shen.jpg?v=20261011-rc4"
     },
     {
       "id": "luo",
       "name": "罗佳",
-      "src": "assets/npc-pool-0.jpg"
+      "src": "assets/npc-pool-0.jpg?v=20261011-rc4"
     },
     {
       "id": "liu",
       "name": "刘菲",
-      "src": "assets/npc-pool-2.jpg"
+      "src": "assets/npc-pool-2.jpg?v=20261011-rc4"
     },
     {
       "id": "zhao",
       "name": "赵诗雨",
-      "src": "assets/npc-zhaoshiyu.jpg"
+      "src": "assets/npc-zhaoshiyu.jpg?v=20261011-rc4"
     },
     {
       "id": "tang",
       "name": "唐瑶",
-      "src": "assets/npc-pool-3.jpg"
+      "src": "assets/npc-pool-3.jpg?v=20261011-rc4"
     }
   ],
   "apps": [

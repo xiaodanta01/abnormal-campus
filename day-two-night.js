@@ -3,6 +3,7 @@ const D2_FOURTH_RULE_ID='chapter-four-midnight-rules';
 const D2_FOURTH_RULE_BODY='新增两名校医志愿者，可在今晚10点前选择一位要保护的对象。只能保护除自己以外的人。\n\n1.今早9点将向所有在校普通学生发放《留校资格申请》，收到后必须在规定时间内完成作答。\n\n2.问卷不存在标准答案。请根据自身经历、能力与贡献，如实说明。\n\n3.问卷阶段结束后，将进入匿名评审。每名学生会随机收到两份匿名答卷，并对其“留校价值”进行评分。\n\n4.每份答卷将接受相同数量的匿名评审。系统将根据最终综合评分进行排名。\n\n5.综合评分最低者，将被取消留校资格。\n\n没有人有义务为一个毫无价值的人让出自己的位置。';
 // Refresh the published wording when reading older saves, without changing progression.
 const d2FourthPostBase=postDetail;postDetail=function(id,...args){if(id===D2_FOURTH_RULE_ID){const post=state.forumPosts.find(p=>p.id===id);if(post)post.body=D2_FOURTH_RULE_BODY}return d2FourthPostBase(id,...args)};
+STORY_CHOICES.push({id:'tree-day2-night-bed',title:'上床睡觉',day:'第二日 · 深夜',chat:null});
 function d2Night(){return state.story.dayTwoNight}
 function d2PurchaseRequired(){return state.game.day===2&&['transition','explore','purchase-required','bed'].includes(d2Night()?.phase)}
 function d2PurchasePrompt(expired=false){
@@ -31,7 +32,7 @@ function d2NightRemoveOthers(){
    if(Number.isFinite(state.game.campusPopulation?.alive))state.game.campusPopulation.alive=Math.max(0,state.game.campusPopulation.alive-1);
    const group=hgContact();if(group){const members=group.members||[],person=FA_PEOPLE[key];let i=members.findIndex(id=>[key,person?.contact,person?.avatar,PORTRAIT_CHARACTERS[name]].includes(id));if(i<0)i=members.findLastIndex(id=>id.startsWith('stranger-'));if(i>=0)members.splice(i,1);hg().count=Math.max(0,hg().count-1);group.status='群成员：'+hg().count+'人'}
   }
-  for(const c of state.contacts)if(c.id===key||c.name?.replace(/[（(].*$/,'')===name){c.status='已请离';c.online=false}
+  for(const c of state.contacts)if(c.id===key||c.name?.replace(/[（(].*$/,'')===name){c.status='已离校';c.online=false}
   for(const f of [state.story.freeAction,state.story.dayTwoFreeAction])for(const clue of f?.clues||[])if(clue.id==='members')clue.removedMembers=[...new Set([...(clue.removedMembers||[]),key])];
   d2NightWrite({id:'day2-after-vote-remove-'+key,type:'system',text:'沈可欣已将'+name+'（'+room+'）移出群聊'});
  }
@@ -48,7 +49,7 @@ function d2NightExplore(){const n=d2Night();n.phase='explore';n.remaining=60000;
 function d2NightBed(){
  const n=d2Night();if(!n||d2PurchasePrompt(true))return;n.phase='bed';earlySleepButton.hidden=true;closeSheet();stopReading();clearInterval(cgTypingTimer);
  const previous=captureSceneSnapshot(screen);view='day2-night-bed';active=null;rememberRoute();zeroChrome();
- screen.innerHTML='<section class="ending-scene"><img src="'+DAY_ZERO_BEDROOM+'" alt="夜晚的宿舍"><div class="cg-options"><button class="ending-rest" data-action="day2-night-sleep">上床睡觉</button></div></section>';cgScreenCrossfade(previous);persist();
+ screen.innerHTML='<section class="ending-scene"><img src="'+DAY_ZERO_BEDROOM+'" alt="夜晚的宿舍"><div class="cg-options"><button class="ending-rest" data-action="day2-night-sleep">上床睡觉</button></div></section>';cgScreenCrossfade(previous);persist();d2Capture('tree-day2-night-bed',{view:'day2-night-bed',active:null});
 }
 function d2NightBlack(){closeSheet();view='day2-midnight';active=null;rememberRoute();screen.innerHTML='<section class="ending-scene" style="background:#000"></section>';zeroChrome();persist()}
 function d2YelinEndingReason(progress=state){
@@ -69,11 +70,11 @@ function d2FourthNotice(){
  el.innerHTML='<button class="opening-body" data-action="day2-fourth-open"><span>'+avatar('chat_report_black')+'</span><span><small>讯息 · 00:00</small><strong>校园墙 · 转发帖子</strong><span>第四章规则已发布</span></span></button>';document.querySelector('#phone').append(el);playNotificationSound('message',el);
 }
 function d2FourthPublish(){
- const n=d2Night();if(n.rulesNotified)return;n.rulesNotified=true;n.phase='midnight-notice';
+ const n=d2Night();if(!n||!['midnight-wait','midnight-notice','midnight-reading'].includes(n.phase))return;const reading=n.phase==='midnight-reading';n.rulesNotified=true;if(!reading)n.phase='midnight-notice';
  state.system.date=deliveryDateNext(n.date);state.system.time='00:00';state.game.day=3;
  if(!state.forumPosts.some(p=>p.id===D2_FOURTH_RULE_ID))state.forumPosts.push({id:D2_FOURTH_RULE_ID,author:'campus-system',name:'',nightService:true,official:true,tag:'校园新规',category:'校园新规',title:'【校园新规 第四章】',body:D2_FOURTH_RULE_BODY,date:state.system.date,time:'00:00',likes:0,replies:[]});
- const rows=state.messages[DAY_ONE_REPORT_ID]??=[];if(!rows.some(m=>m.id===D2_FOURTH_RULE_ID))rows.push({id:D2_FOURTH_RULE_ID,type:'text',sender:'chat_report_black',name:'',text:'校园墙 · 转发帖子：第四章规则已发布',time:'00:00',gameDate:state.system.date});
- const c=reportContact();if(c){c.preview='第四章规则已发布';c.time='00:00';c.unread=(c.unread||0)+1}persist();d2FourthNotice();status();
+ const rows=state.messages[DAY_ONE_REPORT_ID]??=[],added=!rows.some(m=>m.id===D2_FOURTH_RULE_ID);if(added)rows.push({id:D2_FOURTH_RULE_ID,type:'text',sender:'chat_report_black',name:'',text:'校园墙 · 转发帖子：第四章规则已发布',time:'00:00',gameDate:state.system.date});
+ const c=reportContact();if(c){c.preview='第四章规则已发布';c.time='00:00';if(!reading)c.unread=added?(c.unread||0)+1:Math.max(1,c.unread||0)}persist();if(!reading)d2FourthNotice();status();
 }
 actions['day2-fourth-open']=()=>{const n=d2Night();if(!n||!['midnight-notice','midnight-reading'].includes(n.phase))return;document.querySelector('#day2-fourth-notice')?.remove();n.phase='midnight-reading';if(reportContact())reportContact().unread=0;postDetail(D2_FOURTH_RULE_ID);persist()};
 actions['day2-night-sleep']=d2NightSleep;

@@ -31,7 +31,7 @@ let syncMessageTheme=()=>{};
  function syncAppIcons(){for(const tile of document.querySelectorAll('[data-app="messages"]>.app-icon')){const paid=theme()==='paid';if(tile.classList.contains('sms-app-icon')===paid)continue;const art=tile.querySelector('svg');if(!art)continue;if(paid){originalAppIcons.set(tile,art.outerHTML);art.outerHTML=paidAppIcon}else{const original=originalAppIcons.get(tile);if(original)art.outerHTML=original;originalAppIcons.delete(tile)}tile.classList.toggle('sms-app-icon',paid)}}
  let syncing=false,syncFrame=null;
  const observer=new MutationObserver(scheduleSync);
- function scheduleSync(){if(syncFrame!==null)return;syncFrame=requestAnimationFrame(()=>{syncFrame=null;sync()})}
+ function scheduleSync(){if(syncFrame!==null)return;syncFrame=true;Promise.resolve().then(()=>{syncFrame=null;sync()})}
  function layoutRoots(){return [...screen.querySelectorAll('.app-page[data-message-page="messages"],.app-page[data-message-page="message-contacts"],.chat-page,#contact-list,.chat-page .messages')];}
  function resetHorizontalLayout(){
   const roots=layoutRoots();if(!roots.length)return;
@@ -50,8 +50,8 @@ let syncMessageTheme=()=>{};
  }
  function sync(){if(syncing)return;syncing=true;observer.disconnect();try{syncNow();resetHorizontalLayout()}finally{observer.observe(screen,{childList:true,subtree:true});syncing=false}}
  function syncNow(){prefs=read();syncAppIcons();document.documentElement.style.setProperty('--accent',state.accent);const page=screen.querySelector('.chat-page'),personalMoments=screen.querySelector('.lin-moments'),social=['messages','message-contacts','message-moments','moment-compose'].includes(view),list=social?screen.querySelector('.app-page'):personalMoments;
-  const messages=page?.querySelector('.messages'),bottom=messages&&messages.scrollHeight-messages.clientHeight-messages.scrollTop<3;
-  const edge=messages?.getBoundingClientRect().top,anchor=messages&&[...messages.children].find(el=>el.getBoundingClientRect().bottom>edge),offset=anchor?.getBoundingClientRect().top;
+  const messages=page?.querySelector('.messages');captureMessagePosition(messages);
+
   for(const root of [page,list].filter(Boolean)){root.dataset.messageTheme=theme();root.style.setProperty('--sms-mine',colors[prefs.color].value)}
   if(list)list.dataset.messagePage=personalMoments?'personal-moments':view;
   document.querySelector('#phone')?.classList.toggle('sms-shell',theme()==='paid'&&!!(page||list));
@@ -59,7 +59,7 @@ let syncMessageTheme=()=>{};
   // Visible, non-interactive composer; authored choices still insert before it.
   const form=page?.querySelector('#composer');if(form){form.hidden=false;form.setAttribute('inert','');form.setAttribute('aria-disabled','true');form.removeAttribute('aria-hidden')}
   if(page)decorate(page);
-  if(messages){if(bottom)messages.scrollTop=messages.scrollHeight;else if(anchor)messages.scrollTop+=anchor.getBoundingClientRect().top-offset}
+  if(messages)queueMessagePosition(messages)
  }
  // Run before existing scroll positioning and after navigation, never reopen a chat.
  const baseScroll=scrollMessages;scrollMessages=function(...args){sync();return baseScroll(...args)};

@@ -11,7 +11,7 @@ window.SaveSchema=(()=>{
  function fields(target,defaults){for(const key of Object.keys(defaults)){if(target[key]===undefined||target[key]===null)target[key]=clone(defaults[key])}return target}
  function normalize(input){
   if(!object(input))throw new Error('Invalid save root: expected an object');
-  const s=input,c=window.CAMPUS_CONFIG;
+  const s=WebAssets.normalize(input),c=window.CAMPUS_CONFIG;
   s.system=fields(object(s.system)?s.system:{},c.system);
   s.game=fields(object(s.game)?s.game:{},c.initialState);
   for(const k of ['inventory','orders','unlockedApps','triggeredEvents'])if(k in s.game||k!=='orders')s.game[k]=array(s.game[k]);
@@ -26,7 +26,7 @@ window.SaveSchema=(()=>{
    // Correct authored display content in existing chat saves/checkpoints only.
    for(const row of s.messages[key])if(object(row)){
     if(row.id==='day4-confront-5'&&row.text==='\u7cb1音告诉我的')row.text='梁音告诉我的';
-    if(row.id==='day4-confront-8'&&row.hgWho==='shen'&&row.type==='image'&&row.src==='assets/day3-songyan-logistics.svg')row.src='assets/day4-shen-logistics.svg';
+    if(row.id==='day4-confront-8'&&row.hgWho==='shen'&&row.type==='image'&&row.src==='assets/day3-songyan-logistics.svg?v=20261011-rc4')row.src='assets/day4-shen-logistics.svg?v=20261011-rc4';
    }
   }
   for(const contact of s.contacts){

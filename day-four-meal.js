@@ -29,16 +29,21 @@ function d4MealSelect(p,phase,index){const choice=D4_MEAL_CHOICES[phase],option=
 function d4MealScene(root,p){if(!p.phase.startsWith('d4-meal-'))return false;
  const food=state.profile.favoriteFood;
  if(!D4_MEAL_IMAGES[food]){
- root.className='pickup16-scene';root.innerHTML='<img class="pickup16-background" src="assets/day4-convenience-bag.jpg" alt="便利店袋子">';cgChoiceDialogue(root,'这份旧存档还没有记录食物偏好，请补选你最喜欢的便利店食品。');
+ root.className='pickup16-scene';root.innerHTML='<img class="pickup16-background" src="assets/day4-convenience-bag.jpg?v=20261011-rc4" alt="便利店袋子">';cgChoiceDialogue(root,'这份旧存档还没有记录食物偏好，请补选你最喜欢的便利店食品。');
  const options=document.createElement('div');options.className='cg-options pickup-day2-options';options.style.cssText='display:grid;grid-template-columns:1fr 1fr;max-height:65%;overflow:auto';let selected=null;
  const confirm=document.createElement('button');confirm.textContent='确认';confirm.disabled=true;confirm.style.gridColumn='1 / -1';
  for(const label of Object.keys(D4_MEAL_IMAGES)){const b=document.createElement('button');b.textContent=label;b.onclick=e=>{e.stopPropagation();selected=label;options.querySelectorAll('button').forEach(el=>{el.setAttribute('aria-pressed',String(el===b));el.style.outline=el===b?'2px solid #acb8a1':''});confirm.disabled=false};options.append(b)}
  confirm.onclick=e=>{e.stopPropagation();if(pickup16State()!==p||!selected)return;state.profile.favoriteFood=selected;persist();pickup16Render()};options.append(confirm);root.append(options);return true;
  }
  const phase=p.phase,choice=D4_MEAL_CHOICES[phase],def=d4MealRows(phase);
- const image=choice?.image||def?.image||('assets/day4-food-'+D4_MEAL_IMAGES[food]+'.jpg');
+ const cgId=/^d4-meal-memory-p[1-8]$/.test(phase)?phase.replace('d4-meal-','day4-lin-'):null;
+ const valid=()=>pickup16State()===p&&p.phase===phase;
+ const complete=()=>{if(valid())pickup16Set(def.next)};
+ if(cgId&&window.ReadHistory?.presentStaticCg(cgId,{owner:p,valid,show:()=>pickup16Render(),onComplete:complete}))return true;
+ const image=choice?.image||def?.image||('assets/day4-food-'+D4_MEAL_IMAGES[food]+'.jpg?v=20261011-rc4');
  root.className='pickup16-scene';root.innerHTML='<img class="pickup16-background" src="'+image+'" alt="与林晴的对话">';
  if(choice){cgChoiceDialogue(root,d4MealText(choice.last));const options=document.createElement('div');options.className='cg-options pickup-day2-options';choice.options.forEach(([label],i)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=e=>{e.preventDefault();e.stopPropagation();d4MealSelect(p,phase,i)};options.append(b)});root.append(options);return true}
  if(!def)return false;
- CGDialogue.present(root,def.rows.map(d4MealText),{index:p.dialogueIndex||0,firstReplyConfirmed:!!def.confirmed,onIndex:i=>{if(pickup16State()===p){p.dialogueIndex=i;persist()}},onComplete:()=>{if(pickup16State()===p&&p.phase===phase)pickup16Set(def.next)}});return true;
+ if(cgId)window.ReadHistory?.cgShown(cgId,root.querySelector('.pickup16-background'),valid);
+ CGDialogue.present(root,def.rows.map(d4MealText),{index:p.dialogueIndex||0,firstReplyConfirmed:!!def.confirmed,onIndex:i=>{if(pickup16State()===p){p.dialogueIndex=i;persist()}},onComplete:complete});return true;
 }

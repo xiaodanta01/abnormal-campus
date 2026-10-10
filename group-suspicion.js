@@ -26,7 +26,7 @@ function npcDepartureMatches(contact,person){return !contact.members&&!contact.s
 function syncNpcDeparture(progress,key,event={}){
  if(!progress?.game||!progress.story||key==='me')return;
  const person=npcDeparturePerson(key),ledger=progress.game.departedNpcs??={},record=ledger[key]??={date:event.date||progress.system.date,cause:event.cause};
- record.status??=event.status||(/night-death|day3-morning/.test(record.cause||'')?'已清理':/report|after-vote/.test(record.cause||'')?'已请离':'已离校');
+ record.status='已离校';
  for(const contact of progress.contacts||[])if(npcDepartureMatches(contact,person)){contact.online=false;contact.status=record.status}
  if(!event.id||event.ready===false)return;
  const chat=event.chat||HG_ID,group=progress.contacts?.find(c=>c.id===chat);if(!group?.members)return;
@@ -60,6 +60,8 @@ function removeAutomaticDepartureNotices(progress){
 }
 function syncNpcDepartures(progress=state){
  if(!progress?.story||!progress.game)return;
+ // Normalize legacy contact labels without changing departure causes or roster counts.
+ for(const contact of progress.contacts||[])if(!contact.members&&!contact.systemAccount&&/^(?:已离校|已注销|已请离|已被请离|被请离|已清理|已被清理)$/.test(contact.status||'')){contact.status='已离校';contact.online=false}
  removeAutomaticDepartureNotices(progress);
  const story=progress.story,rows=progress.messages?.[HG_ID]||[];
  const seed=(key,cause,date,status)=>{progress.game.departedNpcs??={};progress.game.departedNpcs[key]??={cause,date,status}};
@@ -67,10 +69,10 @@ function syncNpcDepartures(progress=state){
  if(story.afterWall?.zhouLeft)seed('zhouhe','departed-reply','2045-09-07','已离校');
  if(story.helpGroup?.xuLeft)seed('xu','departed-reply','2045-09-07','已离校');
  if(story.firstMorning?.suDeparted)seed('su','day1-rule','2045-09-08','已离校');
- for(const key of story.firstMorning?.left||[])seed(key,'day1-rule','2045-09-08','被请离');
+ for(const key of story.firstMorning?.left||[])seed(key,'day1-rule','2045-09-08','已离校');
  const night=story.secondNightResult;
- if(night?.populationApplied)seed(night.target,'night-death',night.date,'已清理');
- if(story.dayThreeMorning?.removalApplied)seed('jiang','day3-morning',story.dayThreeMorning.date,'已清理');
+ if(night?.populationApplied)seed(night.target,'night-death',night.date,'已离校');
+ if(story.dayThreeMorning?.removalApplied)seed('jiang','day3-morning',story.dayThreeMorning.date,'已离校');
  for(const [key,record] of Object.entries(progress.game.departedNpcs||{})){
   let event={ready:false};
   if(key==='chenyue')event={chat:'room408',id:'zero-departure-chenyue',time:'21:03',text:'陈妍已离校'};
@@ -111,6 +113,6 @@ renderMessage=function(message,contact){
  const html=departureRenderMessage(message,contact);
  if(!contact.members||message.type==='system'||message.sender==='me'||html.includes('zero-left-status'))return html;
  const entry=Object.entries(state.game.departedNpcs||{}).find(([key])=>{const p=npcDeparturePerson(key);return key===message.hgWho||p.ids.has(message.sender)||message.name?.replace(/[（(].*$/,'').trim()===p.name});
- return entry?html.replace(/(<div class="sender-name">[^<]*)(<\/div>)/,'$1<small class="zero-left-status">'+esc(entry[1].status||'已离校')+'</small>$2'):html;
+ return entry?html.replace(/(<div class="sender-name">[^<]*)(<\/div>)/,'$1<small class="zero-left-status">已离校</small>$2'):html;
 };
 document.addEventListener('DOMContentLoaded',()=>{syncNpcDepartures(state);persist()},{once:true});

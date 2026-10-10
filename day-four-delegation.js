@@ -3,7 +3,7 @@ const D4_DELEGATION_INITIAL_VOTES={shen:12,me:0,huangyiyi:2};
 const D4_DELEGATION_NODE='day4-delegation-unlocked';
 STORY_CHOICES.push({id:D4_DELEGATION_NODE,title:'解锁委托行动',day:'第四日 · 09:37',chat:null});
 function makeDayFourWorldline(){return {nodes:[
- {id:'day4-start',title:'第四日开始',x:72,y:420,kind:'story',record:null,replayable:false},
+ {id:'day4-start',title:'第四日开始',x:72,y:420,kind:'story',record:'day4-start',replayable:true},
  {id:D4_DELEGATION_NODE,title:'09:37 · 解锁委托行动',x:380,y:420,kind:'story',record:D4_DELEGATION_NODE,replayable:true}
  ],edges:[{from:'day4-start',to:D4_DELEGATION_NODE}],sections:[{label:'第四日 · 委托行动',x:72}],height:850,width:1000,focusY:420}}
 function d4DelegationCapture(){if(d4DelegationReady()&&d4Delegation().phase==='ready')d2Capture(D4_DELEGATION_NODE,{view:'delegation',active:null})}
@@ -11,7 +11,11 @@ D4_GROUP_ROWS.push(
  ['shen','今天的新规则大家应该也都看见了'],
  ['shen','如果大家愿意相信我，可以把票委托给我'],
  ['shen','我向大家保证，我会检举许蓁蓁'],
- ['shen','她和江柠是站在一边的，一定是学生会'],
+ ['zhengning','@沈可欣 你凭什么认定我是学生会？'],
+ ['zhengning','江柠是学生会就代表我也是了？'],
+ ['shen','大家都看得出来，不是我凭空冤枉你'],
+ ['zhengning','随便你们'],
+ ['zhengning','真要相信她，别后悔就行'],
  ['baizhi','我愿意相信可欣，这几天一直都是她在帮我们管理这个群'],
  ['yuwei','是啊，也是她一直在提醒我们担心我们'],
  ['ningke','那就先委托给沈可欣吧']
@@ -33,7 +37,7 @@ function d4DelegationNarrate(){
  const q=d4Delegation();if(!d4DelegationBusy())return;
  closeSheet();stopReading();clearInterval(cgTypingTimer);document.querySelector('#hg-notification')?.remove();
  view='day4-delegation-narration';active=null;rememberRoute();zeroChrome();
- screen.innerHTML='<section class="rd-cg delegation-narration"><img src="assets/bed-phone-day-screen-off.jpg" alt="坐在宿舍床上看着手机"></section>';
+ screen.innerHTML='<section class="rd-cg delegation-narration"><img src="assets/bed-phone-day-screen-off.jpg?v=20261011-rc4" alt="坐在宿舍床上看着手机"></section>';
  CGDialogue.present(screen.firstElementChild,D4_DELEGATION_NARRATION,{index:q.index||0,onIndex:i=>{if(d4Delegation()===q){q.index=i;persist()}},onComplete:()=>{
   if(d4Delegation()!==q||q.phase!=='narration')return;
   q.phase='ready';state.system.time='09:37';state.game.period='早晨';d4DelegationCapture();persist();home();

@@ -20,3 +20,6 @@
 .reason-simple .reason-progress i{display:block;text-align:center;line-height:22px;margin-bottom:6px}.reason-simple .reason-clue-open svg{display:none}
 .reason-pair-list p{border:1px dashed #e6ac55;border-radius:12px;padding:10px 12px;line-height:1.7;font-size:12px;margin:8px 0;color:#e6ac55}.reason-pair-list small{display:block;color:#aaa8b4}
 .reason-no-motion *{animation:none!important;transition:none!important}.reason-simple .reason-picker{display:block}.reason-simple .reason-picker button{width:100%;margin-bottom:9px}
+
+/* Keep interaction updates in place without replaying page-entry effects. */
+.reason-stable-update .reason-main>*,.reason-stable-update .d4-pair-line,.reason-stable-update .d4-evidence-board>div,.reason-stable-update .d4-evidence-board>div:after{animation:none!important}

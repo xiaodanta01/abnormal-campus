@@ -68,7 +68,7 @@ function makeDayThreeWorldline(){
   ['day3-fever-revealChoice','询问林晴出门的原因', [['why','所以现在，可以告诉我为什么了吗？'],['care','你就这么担心我出事，担心到露出马脚也无所谓了吗？']]]
  ];
  const g={nodes:[
-  {id:'day3-start',title:'第三日开始',x:72,y:420,kind:'start',record:null,replayable:false},
+  {id:'day3-start',title:'第三日开始',x:72,y:420,kind:'story',record:'day3-start',replayable:true},
   {id:'day3-survey-before-notice',title:'09:00 · 留校资格申请',x:380,y:420,kind:'story',record:'day3-survey-before-notice',replayable:true},
   {id:'day3-anonymous-review',title:'匿名答卷评审',x:688,y:420,kind:'story',record:'day3-anonymous-review',replayable:true}
  ],edges:[{from:'day3-start',to:'day3-survey-before-notice'},{from:'day3-survey-before-notice',to:'day3-anonymous-review'}],

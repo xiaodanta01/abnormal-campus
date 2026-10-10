@@ -70,6 +70,8 @@ function makeDayTwoWorldline(){
  node('tree-day2-evening-departures','18:09 · 请离名单与楼层提醒',59.9,1100,{checkpoint:'eveningDepartures'});
  node('tree-day2-evening-explore','18:30 · 进食与自由探索',61.3,1100,{checkpoint:'eveningExplore'});
  node('tree-day2-evening-help','18:57 · 求助私聊',62.7,1100,{checkpoint:'eveningHelp'});
+ node('tree-day2-evening-zhou-help','周茉发来求助私聊',62.7,1250,{checkpoint:'eveningZhouHelp'});
+ edge('tree-day2-evening-explore','tree-day2-evening-zhou-help');edge('tree-day2-evening-zhou-help','tree-day2-evening-reflection');
  edge('tree-day2-common','tree-day2-evening-departures');edge('tree-day2-evening-departures','tree-day2-evening-explore');edge('tree-day2-evening-explore','tree-day2-evening-help');
  node('tree-day2-evening-reflection','把求助的事告诉林晴',64.1,1100,{checkpoint:'eveningReflection'});
  edge('tree-day2-evening-help','tree-day2-evening-reflection');
@@ -111,10 +113,10 @@ function makeDayTwoWorldline(){
  node('death-009','结局009 · 学生会清理',83.9,800,{kind:'death'});node('death-010','结局010 · 学生会清理',83.9,1100,{kind:'death'});
  node('death-024','结局024 · 你没能找到正确的线索',83.9,1300,{kind:'death',record:null});edge('d2-night-sleep-yelin','death-024');
  node('tree-day2-fourth-rules','00:00 · 规则第四章',83.9,1500,{kind:'end',checkpoint:'fourthRules'});
- // The chapter heading is always visible, but is never a save or replay point.
+ // The chapter entry keeps its original position and now owns a morning checkpoint.
  for(const n of g.nodes)n.x+=2*step;
  for(const section of g.sections)section.x+=2*step;
- node('day2-start','第二日开始',0,1235,{kind:'start',record:null});
+ node('day2-start','第二日开始',0,1235,{checkpoint:'dayStart'});
  edge('day2-start',sid('intro'));edge('day2-start',sid('aliveMeng'));
  g.sections.unshift({label:'第二日',x:72});
  // Choices are bubbles. Only the decision that opens a branch is a replay card.
@@ -125,7 +127,7 @@ function makeDayTwoWorldline(){
  const optionCounts=new Map();
  for(const n of g.nodes)if(n.kind==='bubble')optionCounts.set(n.record,(optionCounts.get(n.record)||0)+1);
  for(const n of g.nodes){
-  n.replayable=!!(n.script&&DAY_TWO_AUTHORED[n.script].choices?.length>1||n.linScript&&['linAfterWhen','linAfterTaste'].includes(n.linScript)||pickupDecisions.has(n.pickupPhase)||n.middayScript||n.eveningScript||['middayFree','secondReportOpen'].includes(n.checkpoint));
+  n.replayable=!!(n.script&&DAY_TWO_AUTHORED[n.script].choices?.length>1||n.linScript&&['linAfterWhen','linAfterTaste'].includes(n.linScript)||pickupDecisions.has(n.pickupPhase)||n.middayScript||n.eveningScript||['middayFree','secondReportOpen','eveningZhouHelp','nightBed','dayStart'].includes(n.checkpoint));
   if(n.script&&!n.replayable||n.linScript&&!n.replayable||replyPhases.has(n.pickupPhase))removed.add(n.id);
   if(n.kind==='bubble'&&optionCounts.get(n.record)<2)removed.add(n.id);
   // Hide passive transitions; keep actual decisions, conditions and chapter endpoints.

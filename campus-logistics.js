@@ -34,25 +34,25 @@ removeStarterSupplies();
 function noodleWater(item){return ['桶装泡面','泡面'].includes(item.name)}
 function availableNoodleWater(){return state.game.inventory.find(p=>p.name==='矿泉水'&&p.quantity>0)}
 const ITEM_EFFECTS={
- '矿泉水':{category:'饮水',stat:'health',label:'健康值',value:2},
- '饼干':{category:'食品',stat:'health',label:'健康值',value:2},
- '面包':{category:'食品',stat:'health',label:'健康值',value:3},
- '桶装泡面':{category:'食品',stat:'health',label:'健康值',value:5},
- '泡面':{category:'食品',stat:'health',label:'健康值',value:5},
- '能量棒':{category:'食品',stat:'health',label:'健康值',value:7},
- '士力架':{category:'能量棒',stat:'health',label:'健康值',value:7},
- '自嗨锅':{category:'食品',stat:'health',label:'健康值',value:20},
- '水果罐头':{category:'食品',stat:'health',label:'健康值',value:10},
- '电解质饮料':{category:'饮水',stat:'health',label:'健康值',value:5},
- '即饮咖啡':{category:'饮水',stat:'spirit',label:'精神值',value:5},
- '止痛药':{category:'药品',kind:'pain',stat:'spirit',label:'精神值',value:10},
- '精神舒缓片':{category:'药品',stat:'spirit',label:'精神值',value:20}
+ '矿泉水':{category:'饮水',stat:'health',label:'生命值',value:2},
+ '饼干':{category:'食品',stat:'health',label:'生命值',value:2},
+ '面包':{category:'食品',stat:'health',label:'生命值',value:3},
+ '桶装泡面':{category:'食品',stat:'health',label:'生命值',value:5},
+ '泡面':{category:'食品',stat:'health',label:'生命值',value:5},
+ '能量棒':{category:'食品',stat:'health',label:'生命值',value:7},
+ '士力架':{category:'能量棒',stat:'health',label:'生命值',value:7},
+ '自嗨锅':{category:'食品',stat:'health',label:'生命值',value:20},
+ '水果罐头':{category:'食品',stat:'health',label:'生命值',value:10},
+ '电解质饮料':{category:'饮水',stat:'health',label:'生命值',value:5},
+ '即饮咖啡':{category:'饮水',stat:'spirit',label:'精力值',value:5},
+ '止痛药':{category:'药品',kind:'pain',stat:'spirit',label:'精力值',value:10},
+ '精神舒缓片':{category:'药品',stat:'spirit',label:'精力值',value:20}
 };
 function itemUseEffect(item){return ITEM_EFFECTS[item.name]}
 function painEffects(){return state.game.negativeEffects??=[]}
 function isPainEffect(effect){return effect?.type==='pain'||effect?.category==='疼痛'||effect?.category==='pain'}
 function applyNegativeEffect(effect){if(isPainEffect(effect)&&(state.game.painProtection||0)>0){state.game.painProtection--;persist();return false}painEffects().push(effect);persist();return true}
-function painUsePrompt(id){const item=state.game.inventory.find(p=>p.id===id);if(!item||item.quantity<=0)return;pendingItemUse={id,inventory:state.game.inventory,kind:'pain'};const active=painEffects().some(isPainEffect);sheet('确认使用止痛药？','<p>将消耗：止痛药 ×1</p><p>'+(active?'移除一次当前的疼痛类负面效果。':'当前没有疼痛类负面效果，将抵消下一次疼痛类负面效果。')+'</p><p class="subtle">精神+10（最高100点）。</p><button class="primary" data-action="confirm-item-use">确认使用</button><button class="secondary" data-action="cancel-item-use">取消</button>')}
+function painUsePrompt(id){const item=state.game.inventory.find(p=>p.id===id);if(!item||item.quantity<=0)return;pendingItemUse={id,inventory:state.game.inventory,kind:'pain'};const active=painEffects().some(isPainEffect);sheet('确认使用止痛药？','<p>将消耗：止痛药 ×1</p><p>'+(active?'移除一次当前的疼痛类负面效果。':'当前没有疼痛类负面效果，将抵消下一次疼痛类负面效果。')+'</p><p class="subtle">精力值+10（最高100点）。</p><button class="primary" data-action="confirm-item-use">确认使用</button><button class="secondary" data-action="cancel-item-use">取消</button>')}
 
 function deliveryUse(id){const item=state.game.inventory.find(p=>p.id===id),effect=item&&itemUseEffect(item);if(!item||item.quantity<=0||!effect)return;if(effect.kind==='pain')return painUsePrompt(id);if(noodleWater(item)&&!availableNoodleWater()){sheet('水房停水','<p>使用泡面必须额外消耗一瓶矿泉水。背包中没有可用的矿泉水，请在领取后再使用。</p><button class="primary" data-action="cancel-item-use">知道了</button>');return}const before=state.game[effect.stat],after=Math.min(100,before+effect.value);pendingItemUse={id,inventory:state.game.inventory,stat:effect.stat,before};sheet('确认使用'+esc(item.name)+'？',`<p>将消耗：${esc(item.name)} ×1${noodleWater(item)?'、矿泉水 ×1':''}</p>${noodleWater(item)?'<p class="subtle">水房停水，使用泡面必须额外消耗一瓶矿泉水。</p>':''}<div class="setting-row">${effect.label}<span>${before}/100 → ${after}/100</span></div><p class="subtle">${after===before?effect.label+'已满，本次恢复0点，仍会消耗物品。':'实际恢复'+(after-before)+'点'+effect.label+'（最高100点）。'}</p><button class="primary" data-action="confirm-item-use">确认使用</button><button class="secondary" data-action="cancel-item-use">取消</button>`)} 
 actions['cancel-item-use']=()=>{pendingItemUse=null;closeSheet()};

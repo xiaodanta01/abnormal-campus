@@ -12,7 +12,7 @@
   document.body.classList.add('web-preview');
   var stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = 'web-presentation.css';
+  stylesheet.href = 'web-presentation.css?v=20261011-rc4';
   document.head.appendChild(stylesheet);
   function update() {
     var hint = content.querySelector('.zero-menu.abnormal-game-menu .game-bgm-hint');
@@ -26,27 +26,10 @@
       back.type = 'button';
       back.className = 'icon-button';
       back.setAttribute('data-action', detail ? 'ending-gallery' : 'ending-gallery-back');
-      back.setAttribute('aria-label', detail ? '返回图鉴' : '返回游戏主页');
+      back.setAttribute('aria-label', archive.dataset.treeReturn ? '返回再一次抉择' : detail ? '返回图鉴' : '返回游戏主页');
       back.innerHTML = icon('back');
       navigation.appendChild(back);
       archive.insertBefore(navigation, archive.firstChild);
-    }
-    var guides = content.querySelectorAll('[data-author-playlist-guide]');
-    for (var i = 0; i < guides.length; i++) {
-      var guide = guides[i];
-      if (guide.querySelector('[data-web-playlist-link]')) continue;
-      var label = document.createElement('span');
-      label.textContent = guide.textContent;
-      label.appendChild(document.createElement('br'));
-      var link = document.createElement('a');
-      link.href = 'https://163cn.tv/bhMY8KCM';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.setAttribute('data-web-playlist-link', '');
-      link.textContent = '点击此处跳转歌单';
-      label.appendChild(link);
-      guide.textContent = '';
-      guide.appendChild(label);
     }
     var opening = !!content.querySelector('.creation-notice');
     var menu = typeof view !== 'undefined' && (view === 'game-menu' || view === 'nodes');

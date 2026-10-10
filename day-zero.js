@@ -1,6 +1,6 @@
 /* Day zero: a resumable, idempotent local scene machine; no backend. */
 const Z=window.DAY_ZERO;
-const STORY_CHOICE_DELAY=1500;
+
 const zeroBase={home,chatList,openChat,openApp,forum,rulesPage,postDetail,renderMessage,sendMessage,settings,initializeChapter};
 const NODE_KEY=STORAGE_KEY+'-choice-nodes';
 let zeroTimer=null,zeroInternal=false;
@@ -50,7 +50,7 @@ function zeroStep(){
   const next=rows[z().step],chat=name==='warning'?'linqing':'room408';if(next?.[1]==='me'&&storyReplyGate(chat,zeroText(next[2]),'zero:'+name+':'+z().step,'zeroStep'))return;
   const i=z().step++;zeroAdd(name,i,rows[i],name==='warning'?'linqing':'room408');persist();
   // Keep each beat readable; all pacing is configured in DAY_ZERO.timing.
-  const delay=i===rows.length-1&&['invitation','warning'].includes(name)?STORY_CHOICE_DELAY:rows[i][1]==='notice'?Z.timing.notice:name==='refuse'&&i===3?Z.timing.photo:i===rows.length-1?Z.timing.scene:rows[i][2].length>23?messageSendDelay():messageSendDelay();
+  const delay=i===rows.length-1&&['invitation','warning'].includes(name)?storyChoiceDelay():rows[i][1]==='notice'?Z.timing.notice:name==='refuse'&&i===3?Z.timing.photo:i===rows.length-1?Z.timing.scene:rows[i][2].length>23?messageSendDelay():messageSendDelay();
   zeroSchedule(delay,zeroStep);
 }
 function zeroTriggerInvitation(){
@@ -117,7 +117,7 @@ rulesPage=function(...args){if(zeroLock()&&!zeroInternal)return;zeroBase.rulesPa
 postDetail=function(id){if(zeroLock()&&!zeroInternal)return;zeroBase.postDetail(id)};
 openChat=function(id){
   if(zeroLock()&&!zeroInternal)return;const old=view;zeroBase.openChat(id);zeroChrome();zeroExit(old);
-  if(id==='linqing'&&view==='chat'&&active===id&&z().script==='warning'){z().warningReadStarted=true;persist()}if(id==='linqing'&&['warning','where'].includes(z().banner))zeroBanner(null);if(z().waitingForChat===id&&view==='chat'&&active===id){z().waitingForChat=null;zeroSchedule(z().script==='warning'&&z().step>=Z.scripts.warning.length?STORY_CHOICE_DELAY:Z.timing.message,zeroStep)}
+  if(id==='linqing'&&view==='chat'&&active===id&&z().script==='warning'){z().warningReadStarted=true;persist()}if(id==='linqing'&&['warning','where'].includes(z().banner))zeroBanner(null);if(z().waitingForChat===id&&view==='chat'&&active===id){z().waitingForChat=null;zeroSchedule(z().script==='warning'&&z().step>=Z.scripts.warning.length?storyChoiceDelay():Z.timing.message,zeroStep)}
   if(id==='room408'&&z().phase==='invited'){zeroBanner(null);zeroBeginScript('invitation');return}
   const busy=['invitation','choice','accept','refuse','warning','departing'].includes(z().phase);
   if(busy){const input=document.querySelector('#message-input');if(input){input.disabled=true;input.value='';input.placeholder=z().phase==='choice'?'选择一条回复…':'等待消息…'}document.querySelectorAll('#composer button').forEach(b=>b.disabled=true)}
@@ -131,12 +131,12 @@ Object.assign(actions,{'zero-accept':()=>zeroChoose('accept'),'zero-refuse':()=>
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.supplyChoice!==undefined&&z().phase==='supplies'){const item=Z.supplies[Number(b.dataset.supplyChoice)];if(!item)return;z().selected=z().selected.includes(item)?z().selected.filter(x=>x!==item):[...z().selected,item];persist();zeroScene()}if(b.dataset.zeroUpdate&&!zeroLock())zeroReminder(b.dataset.zeroUpdate)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(zeroLock()||['game-menu','nodes'].includes(view))){e.preventDefault();e.stopImmediatePropagation()}},true);
 // Block stale phone controls during CGs; only scene and notification actions may run.
-document.addEventListener('click',e=>{if(!zeroLock())return;const b=e.target.closest('button');if(!b)return;const allowed=((view==='delivery-detail'||view==='logistics')&&(!!b.closest('.page-head')&&b.getAttribute('aria-label')?.startsWith('返回')||b.dataset.deliveryOrder!==undefined||b.dataset.deliveryTab!==undefined||['delivery-list','phone-desktop'].includes(b.dataset.action)))||(b.id==='midnight-continue-sleep'&&typeof midnightRulesReading==='function'&&midnightRulesReading())||b.dataset.storyReply!==undefined||!!b.closest('[data-cg-single-reply]')||(b.dataset.action==='midnight-rules-open'&&state.story.postReportEvening?.phase==='midnight-notice')||(b.dataset.action==='post-sleep'&&view==='post-evening-bed'&&state.story.postReportEvening?.phase==='bed')||b.dataset.action?.startsWith('zero-')||['ending-rest','fm-campus'].includes(b.dataset.action)||b.dataset.supplyChoice!==undefined;if(!allowed){e.preventDefault();e.stopImmediatePropagation()}},true);
+document.addEventListener('click',e=>{if(!zeroLock())return;const b=e.target.closest('button');if(!b)return;const allowed=b.id==='read-speed-toggle'||!!b.closest('[data-read-cg-dialog]')||((view==='delivery-detail'||view==='logistics')&&(!!b.closest('.page-head')&&b.getAttribute('aria-label')?.startsWith('返回')||b.dataset.deliveryOrder!==undefined||b.dataset.deliveryTab!==undefined||['delivery-list','phone-desktop'].includes(b.dataset.action)))||(b.id==='midnight-continue-sleep'&&typeof midnightRulesReading==='function'&&midnightRulesReading())||b.dataset.storyReply!==undefined||!!b.closest('[data-cg-single-reply]')||(b.dataset.action==='midnight-rules-open'&&state.story.postReportEvening?.phase==='midnight-notice')||(b.dataset.action==='post-sleep'&&view==='post-evening-bed'&&state.story.postReportEvening?.phase==='bed')||b.dataset.action?.startsWith('zero-')||['ending-rest','fm-campus'].includes(b.dataset.action)||b.dataset.supplyChoice!==undefined;if(!allowed){e.preventDefault();e.stopImmediatePropagation()}},true);
 
 function zeroResume(){
   const p=z().phase;zeroChrome();
   if(z().menu){zeroCall(()=>{const old=z().phase;z().phase='finished';zeroMenu();z().phase=old});return}
-  if(z().script){if(z().script!=='warning')zeroCall(openChat,'room408');zeroSchedule(Z.timing.message,zeroStep)}
+  if(z().script){if(z().script!=='warning')zeroCall(openChat,'room408');zeroSchedule(messageSendDelay(),zeroStep)}
   else if(p==='choice')zeroCall(openChat,'room408');
   else if(['cg','supplies','queue'].includes(p)){zeroScene();if(p==='queue'&&!z().notices.includes('minute'))zeroSchedule(Z.timing.queue,()=>{zeroNotice('minute');zeroScene()})}
   else if(p==='minute')zeroReminder('minute');

@@ -1,5 +1,5 @@
 /* Evening accusation. All cursors and vote effects belong to the loaded snapshot. */
-const D4_COUNTER_PHOTO='assets/day4-lin-outside-evidence.jpg';
+const D4_COUNTER_PHOTO='assets/day4-lin-outside-evidence.jpg?v=20261011-rc4';
 const D4_COUNTER_SCRIPTS={
  opening:{rows:[['shen','我觉得有件事大家必须知道'],['shen','我不想看着大家相信一个错误的人'],['shen','我也不想看着大家被欺骗'],['shen','何雨，你来说吧'],['heyu','我在窗边看见林晴走出了宿舍楼'],['heyu','一开始我也不敢确定是她'],['heyu','可没过多久，她又从外面回来了'],['heyu','还拿着学校便利店的袋子'],['gunian','她真的离开宿舍楼了？'],['heyu','我看得很清楚'],['heyu','就是林晴'],['shen','林晴不但出去了'],['shen','还安然无恙地回来了'],['shen','这说明什么'],['shen','应该不用我替大家解释了吧？']],vote:'first',next:'accuse'},
  accuse:{rows:[['gunian','而且别忘了'],['gunian','【玩家名字】是一直和林晴在一起的'],['gunian','如果【玩家名字】是普通生，她怎么可能一点事都没有？'],['jiangning','难怪她一直护着林晴'],['supporter','我说呢']],vote:'second',next:'defend'},
@@ -7,7 +7,7 @@ const D4_COUNTER_SCRIPTS={
  photo:{rows:[['heyu','我就知道你们不会承认'],['heyu','林晴离开宿舍楼的照片','image'],['heyu','这是我刚才拍到的'],['heyu','照片里的人是不是林晴'],['heyu','你们自己看'],['baizhi','真的是林晴……'],['gunian','现在还有什么好说的？']],vote:'third',next:'last'},
  last:{rows:[['shen','【玩家名字】，你还准备继续骗大家吗？']],next:'collapse'}
 };
-const D4_COUNTER_NARRATION=['沈可欣甚至不需要继续煽动。','群里的人已经开始自行补全剩下的部分，将一张张委托从你的名字下面移走。','照片是真的，但你和林晴必须咬死不认。','现在，你得想出一个足以扭转局面的反击之策'];
+const D4_COUNTER_NARRATION=['沈可欣甚至不需要继续煽动。','群里的人就已经不再相信你，将一张张委托从你的名字下面撤出。','照片是真的，但你和林晴必须咬死不认。','现在，你得想出一个足以扭转局面的反击之策。'];
 function d4Counter(){return state.story.dayFourCounterattack}
 function d4CounterCounts(){return {shen:d4DelegationVoteCount('shen'),me:d4DelegationVoteCount('me')}}
 function d4CounterHistory(){
@@ -71,7 +71,7 @@ function d4CounterTick(){
  if(d3Paused()||state.game.day!==4){d4CounterLast=0;return}d4CounterBegin();const q=d4Counter();if(!q)return;
  const now=Date.now(),elapsed=d4CounterLast?Math.min(500,now-d4CounterLast):0;d4CounterLast=now;
  if(q.phase==='waiting'){q.remaining=Math.max(0,q.remaining-elapsed);if(!q.remaining){q.phase='chat';q.index=1;q.remaining=messageSendDelay();d4CounterWrite('shen',D4_COUNTER_SCRIPTS.opening.rows[0][1],'d4-counter-opening-0')}}
- else if(q.phase==='chat'&&d4CounterInside()&&!document.querySelector('#overlay .sheet')){
+ else if(q.phase==='chat'&&(d4CounterInside()||window.StoryResumeRecovery?.allow('d4-counter'))&&!document.querySelector('#overlay .sheet')){
   q.remaining=Math.max(0,q.remaining-elapsed);if(!q.remaining){const def=D4_COUNTER_SCRIPTS[q.script],row=def.rows[q.index];if(row){const who=d4DebateWho(row[0]);q.index++;q.remaining=messageSendDelay();if(d4DebatePresent(who))d4CounterWrite(who,row[1],'d4-counter-'+q.script+'-'+(q.index-1),row[2]);else persist()}
   else if(def.vote)d4CounterVote(def.vote);else if(def.options){q.phase='choice';persist();d4CounterDecorate()}else d4CounterGo(def.next)}
  }else if(q.phase==='vote'&&!document.querySelector('#overlay .sheet'))d4CounterVoteNotice();

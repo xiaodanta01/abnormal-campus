@@ -1,8 +1,9 @@
 /* Only the morning vitals transition is authored here; story continues separately. */
+STORY_CHOICES.push({id:'day4-start',title:'第四日开始',day:'第四日 · 早晨',chat:null});
 function d4Morning(){return state.story.dayFourMorning}
 let d4MorningInternal=false,d4MorningLastTick=0,d4MorningLastSave=0;
 function d4MorningBusy(){return !!d4Morning()&&d4Morning().phase!=='done'}
-function d4MorningStart(){if(d4Morning()||state.game.survivalEnding)return;state.story.dayFourMorning={phase:'sleep',remaining:1000};d3Night().phase='done';d4MorningRender();d4MorningLastTick=Date.now()}
+function d4MorningStart(){if(d4Morning()||state.game.survivalEnding)return;state.story.dayFourMorning={phase:'sleep',remaining:1000};d3Night().phase='done';d4MorningRender();d4MorningLastTick=Date.now();d2Capture('day4-start',{view:'day4-sleep',active:null})}
 function d4MorningRender(){const m=d4Morning();if(!m||m.phase==='done')return;closeSheet();stopReading();clearInterval(cgTypingTimer);document.querySelectorAll('.opening-message,#morning-title,.ending-morning-veil').forEach(e=>e.remove());
  if(m.phase==='sleep'){view='day4-sleep';active=null;rememberRoute();screen.innerHTML='<section class="ending-scene" style="background:#000"></section>';zeroChrome();persist();return}
  state.game.day=4;state.system.time='08:40';state.game.period='早晨';settleMorning();persist();d4MorningInternal=true;try{home()}finally{d4MorningInternal=false}view='day4-morning';active=null;rememberRoute();zeroChrome();
@@ -32,12 +33,12 @@ function d4GroupTick(){
  if(d3Paused()||state.game.survivalEnding||state.game.day!==4||d4Morning()?.phase!=='done'){d4GroupLastTick=0;return}
  const now=Date.now(),elapsed=d4GroupLastTick?now-d4GroupLastTick:0;d4GroupLastTick=now;
  const q=state.story.dayFourGroup??={index:0,remaining:messageSendDelay()};if(q.index>=D4_GROUP_ROWS.length)return;
- const inside=view==='chat'&&active===HG_ID;if(q.index&&!inside)return;
+ const inside=view==='chat'&&active===HG_ID;if(q.index&&!inside&&!window.StoryResumeRecovery?.allow('d4-group'))return;
  q.remaining=Math.max(0,q.remaining-elapsed);if(q.remaining)return;
  const index=q.index++,row=D4_GROUP_ROWS[index],rows=state.messages[HG_ID]??=[],id='day4-morning-group-'+index;q.remaining=messageSendDelay();
- let text;if(row[0]==='remove'){d4RemovePerson(row[1],row[2]);text='沈可欣已将'+row[2]+'（'+row[3]+'）移出群聊';if(!rows.some(m=>m.id===id))rows.push({id,type:'system',text,time:state.system.time,gameDate:state.system.date})}
+ const added=!rows.some(m=>m.id===id);let text;if(row[0]==='remove'){d4RemovePerson(row[1],row[2]);text='沈可欣已将'+row[2]+'（'+row[3]+'）移出群聊';if(!rows.some(m=>m.id===id))rows.push({id,type:'system',text,time:state.system.time,gameDate:state.system.date})}
  else{const person=dayTwoPerson(row[0]);if(reportDeparted(GROUP_SUSPECT_NAMES[row[0]])){persist();return}text=row[1];if(!rows.some(m=>m.id===id))rows.push({id,type:'text',text,sender:person.avatar,name:person.name,hgWho:row[0],time:state.system.time,gameDate:state.system.date,status:'read'})}
- const group=hgContact();if(group){group.preview=text;group.time=state.system.time;if(!inside)group.unread=(group.unread||0)+1}persist();if(inside)openChat(HG_ID);else{hgNotice('group');playNotificationSound('message');status()}
+ const group=hgContact();if(group){group.preview=text;group.time=state.system.time;if(!inside&&added)group.unread=(group.unread||0)+1}persist();if(inside)openChat(HG_ID);else{hgNotice('group');const notice=document.querySelector('#hg-notification');if(notice)notice.dataset.ringtonePlayed='true';if(added)playNotificationSound('message');status()}
 }
 setInterval(d4GroupTick,100);
 

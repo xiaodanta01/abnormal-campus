@@ -6,7 +6,7 @@ const PORTRAIT_CHARACTERS={'林晴':'linqing','陈妍':'chenyue','周禾':'zhouh
 for(const [name,id,file] of [['宋佳','chat_songjia_v1'],['顾念','chat_gunian_v1'],['何雨','chat_heyu_v1'],['黄依依','chat_huangyiyi_v1','chat_huangyiyi_v2.jpg'],['宁可','chat_ningke_v1'],['周茉','chat_zhoumo_v2'],['许蓁蓁','chat_xuzhenzhen_v1'],['白栀','chat_baizhi_v1'],['宋妍','chat_songyan_v1'],['余薇','chat_yuwei_v1'],['梁音','chat_liangyin_v1'],['何安','chat_hean_v1','npc-pool-2.jpg'],['李恬','chat_litian_v1','npc-pool-3.jpg']]){
  PORTRAIT_CHARACTERS[name]=id;
  // This file loads before app.js declares C; config.js already exposes the catalog.
- window.CAMPUS_CONFIG.avatars.push({id,name,src:'assets/chat-avatars/'+(file||id+'.jpg')});
+ window.CAMPUS_CONFIG.avatars.push({id,name,src:WebAssets.url('assets/chat-avatars/'+(file||id+'.jpg'))});
 }
 function portraitHash(v){let h=2166136261;for(const c of v)h=Math.imul(h^c.charCodeAt(0),16777619);return(h>>>0).toString(16)}
 function currentAvatarId(value,player=false,name=''){if(typeof value!=='string')return value;if(value==='me'||value==='group')return value;const person=PORTRAIT_CHARACTERS[name.replace(/（.*?）|\(.*?\)/g,'').trim()];let id=person||(value==='record-zhou'?'chat_zhoumo_v2':null)||PORTRAIT_LEGACY_HASHES[portraitHash(value)]||PORTRAIT_LEGACY_NAMES[value.split(/[\\/]/).pop()]||value;if(player&&/^student[0-7]$/.test(id))id=C.playerAvatars[Number(id.slice(-1))%9].id;return id}

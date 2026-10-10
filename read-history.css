@@ -1,0 +1,21 @@
+/* Float over the phone without changing the chat's width or flow. */
+#read-speed-toggle{position:absolute;z-index:20;right:max(10px,env(safe-area-inset-right));top:58%;display:flex;align-items:center;justify-content:center;gap:6px;width:auto;min-height:44px;margin:0;padding:10px 12px;border-radius:24px;font:inherit;font-size:12px;line-height:1.4;white-space:nowrap;color:#fff;background:#29363acc;border:1px solid var(--line,#ffffff20);box-shadow:0 5px 20px #0004;backdrop-filter:blur(8px);animation:enter .2s;touch-action:manipulation}
+#read-speed-toggle[hidden]{display:none!important}
+#read-speed-toggle svg{width:18px;height:18px;flex:none;fill:currentColor;stroke:none;color:#fff}
+#phone [data-read-fast],#phone [data-read-fast] .bubble{animation-duration:.01ms!important;transition-duration:.01ms!important}
+#phone.read-cg-prompt #overlay{position:absolute;inset:0;z-index:12002}
+#phone.read-cg-prompt .sheet-backdrop{padding-bottom:max(13px,env(safe-area-inset-bottom))}
+#phone.cg-replay-running #screen,#phone.cg-replay-running #pickup16{visibility:hidden}
+.story-replay-modal{position:absolute;inset:0;z-index:12004;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:max(20px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));background:#100e165c;overscroll-behavior:contain}
+.story-replay-modal .cg-replay-card{position:relative;inset:auto;transform:none;box-sizing:border-box;width:100%;max-width:390px;min-height:0;max-height:100%;margin:0;padding:26px 22px 22px;cursor:default;overflow:auto;text-align:center}
+.story-replay-modal .cg-replay-card:focus{outline:none}
+.story-replay-modal h2{margin:0 0 12px;font-size:18px;line-height:1.6;color:inherit}
+.story-replay-modal .replay-description{margin:0;color:#c2b2c6;font-size:14px;line-height:1.8}
+.story-replay-modal .cg-options{position:static;inset:auto;transform:none;display:grid;grid-template-columns:1fr 1fr;gap:12px;max-height:none;margin:22px 0 0;overflow:visible}
+.story-replay-modal .cg-options>button{text-align:center;font:inherit;font-size:14px;padding:12px 8px}
+.story-replay-modal .cg-replay-progress{height:8px;margin-top:24px;border:1px solid #d7c2d521;border-radius:16px;background:#d7c2d51a;overflow:hidden}
+.story-replay-modal .cg-replay-progress>span{display:block;width:0;height:100%;border-radius:inherit;background:#d1bacd}
+.story-replay-modal .cg-replay-percent{margin:12px 0 0;color:#eee5ed;font-size:14px;font-variant-numeric:tabular-nums}
+
+#phone.reasoning-replay-running #screen{visibility:hidden}
+#phone.pickup-replay-running #screen,#phone.pickup-replay-running #pickup16{visibility:hidden}

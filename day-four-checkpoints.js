@@ -35,7 +35,7 @@ makeDayFourWorldline=function(){
  order.forEach((id,index)=>{
   const n=g.nodes.find(n=>n.id===id);if(!n)return;
   n.x=72+col*310;n.y=420;
-  if(id==='day4-start'){n.kind='start';n.record=null;n.replayable=false}
+  if(id==='day4-start'){n.kind='story';n.record='day4-start';n.replayable=true}
   const key=Object.keys(rounds).find(key=>id==='day4-debate-'+key+'-choice'),next=order[index+1];
   const afterScript=id==='day4-after-group-choice'?'group':id==='day4-lin-snicker-choice'?'private':null;
   if(id==='day4-wait-choice'){

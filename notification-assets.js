@@ -1,5 +1,5 @@
 /* Notification assets and a fixed, chat-only mutual-aid group portrait. */
-C.avatars.push({id:'chat_help_group',name:'女生B栋临时互助群',src:'assets/chat-avatars/chat_help_group_v1.jpg'});
+C.avatars.push({id:'chat_help_group',name:'女生B栋临时互助群',src:'assets/chat-avatars/chat_help_group_v1.jpg?v=20261011-rc4'});
 function syncHelpGroupPortrait(progress){let changed=false;for(const c of progress?.contacts||[]){if((c.id===HG_ID||c.id==='room408')&&c.avatar!=='chat_help_group'){c.avatar='chat_help_group';changed=true}}return changed}
 const helpPortraitPersist=persist;persist=function(...args){syncHelpGroupPortrait(state);return helpPortraitPersist(...args)};
 syncHelpGroupPortrait(state);{const records=nodeRecords();let changed=false;for(const record of Object.values(records))changed=syncHelpGroupPortrait(record.checkpoint)||changed;if(changed)saveNodes(records)}

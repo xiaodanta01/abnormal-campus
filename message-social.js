@@ -23,7 +23,7 @@ function messageContactDeparted(contact){
  }
  return false;
 }
-const messageContactsBase=messageContacts;messageContacts=function(){messageContactsBase();for(const button of screen.querySelectorAll('.address-friend>[data-contact]')){const contact=state.contacts.find(c=>c.id===button.dataset.contact),name=button.querySelector('strong');if(name&&messageContactDeparted(contact)){name.classList.add('contact-departed');name.title='已被请离'}}};actions['message-moments']=()=>messageMoments();actions['message-contacts']=messageContacts;
+const messageContactsBase=messageContacts;messageContacts=function(){messageContactsBase();for(const button of screen.querySelectorAll('.address-friend>[data-contact]')){const contact=state.contacts.find(c=>c.id===button.dataset.contact),name=button.querySelector('strong');if(name&&messageContactDeparted(contact)){name.classList.add('contact-departed');name.title='已离校'}}};actions['message-moments']=()=>messageMoments();actions['message-contacts']=messageContacts;
 
 new MutationObserver(syncMessageTabs).observe(screen,{childList:true,subtree:true});if(view==='messages')chatList();else syncMessageTabs();
 

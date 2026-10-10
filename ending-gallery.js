@@ -61,7 +61,7 @@
   {
     "id": "014",
     "name": "你似乎有些倒霉。",
-    "hint": "群聊内的人没有获得任何有效信息：可以试试在第零日晚上购买矿泉水-自由行动私聊温宁-询问黄色外套-把取件记录公开在群内"
+    "hint": "群聊内的人没有获得任何有效信息：可以试试在第零日晚上购买矿泉水－自由行动私聊温宁－询问黄色外套－整理成员楼层－把取件记录公开在群内"
   },
   {
     "id": "015",
@@ -353,7 +353,7 @@
   "010": "第二日接受并公开了指向叶琳的误导信息，最终导致叶琳被冤枉",
   "011": "错误检举累计达到两次，触发错误次数限制。",
   "012": "检举倒计时结束，玩家尚未提交回答。",
-  "013": "未及时补充食物，健康不足导致请离。",
+  "013": "未及时补充食物，生命值不足导致请离。",
   "014": "没有找到有效的线索，大家投出了错误的人，学生会也碰巧选择了清除你。",
   "015": "第一日投出赵诗雨，温宁的话在大家心里种下了怀疑的种子",
   "016": "一个本可以在今晚保护你的人离开了",
@@ -370,7 +370,7 @@
  window.hospitalEndingInfoFor=(progress=state)=>{const id=hospitalEndingId(progress),ending=endings.find(e=>e.id===id);return {id,name:ending.name,category:ending.category,description:descriptions[id]}};
  function letterAvatar(name){
   if(name==='黑头像')return '<span class="ending-letter-avatar ending-letter-black" aria-hidden="true"></span>';
-  if(name==='作者')return '<span class="ending-letter-avatar ending-letter-author" aria-hidden="true"><img src="assets/ui-flower.svg" alt=""></span>';
+  if(name==='作者')return '<span class="ending-letter-avatar ending-letter-author" aria-hidden="true"><img src="assets/ui-flower.svg?v=20261011-rc4" alt=""></span>';
   const person=Object.values(FA_PEOPLE).find(p=>p.name===name);
   return avatar(person?.avatar||PORTRAIT_CHARACTERS[name]||'student0');
  }
@@ -388,8 +388,10 @@
   screen.innerHTML='<section class="ending-gallery ending-archive">'+archiveBack('ending-gallery-back','返回游戏主页')+'<header class="ending-gallery-head"><small>STORY ARCHIVE</small><h1>结局图鉴</h1><p>已收集 <strong>'+count+'</strong> / '+endings.length+'</p></header><nav class="ending-filters" aria-label="结局分类">'+categories.map(c=>'<button type="button" data-ending-filter="'+c[0]+'" aria-pressed="'+(selectedFilter===c[0])+'">'+c[1]+'</button>').join('')+'</nav><div class="ending-grid">'+visible.map(e=>card(e,!!records[e.id])).join('')+'</div>'+(!visible.length?'<p class="ending-empty">这一页，尚待故事写下。</p>':'')+'<button class="ending-exit" data-action="ending-gallery-back">返回游戏主页</button></section>';
   screen.scrollTop=0;zeroChrome();
  }
- function openDetail(id){
-  const ending=endings.find(e=>e.id===id);if(!ending||!read()[id]||view!=='game-menu')return;
+ let treeDetailReturn=null;
+ function openDetail(id,returnToTree=null){
+  const ending=endings.find(e=>e.id===id);if(!ending||!read()[id]||!(view==='game-menu'||view==='nodes'&&typeof returnToTree==='function'))return;
+  treeDetailReturn=typeof returnToTree==='function'?returnToTree:null;view='game-menu';
   closeSheet();active=null;z().menu=true;
   const messages=(letters[id]||[]).map(m=>ending.hidden||id==='021'?{...m,text:m.text.replaceAll('【玩家名字】',state.profile?.name||'同学')}:m);
   const devotion=id==='020';
@@ -420,7 +422,18 @@
  const baseLateDeath=renderLateDeath;renderLateDeath=function(...args){const result=baseLateDeath(...args);decorateDeath();return result};
  const baseReportDeath=renderReportDeath;renderReportDeath=function(...args){const result=baseReportDeath(...args);decorateDeath();return result};
  const baseSurveyRender=surveyRender;surveyRender=function(...args){const result=baseSurveyRender(...args);decorateDeath();return result};
- actions['ending-gallery']=openGallery;
+ window.endingGalleryOpenFromTree=(id,onReturn)=>{
+  if(view!=='nodes'||typeof onReturn!=='function')return;
+  migrate();openDetail(String(id).replace(/^death-/,''),onReturn);
+  if(!treeDetailReturn)return;
+  const page=screen.querySelector('.ending-detail-page');page.dataset.treeReturn='true';
+  page.querySelectorAll('[data-action="ending-gallery"]').forEach(button=>{if(button.classList.contains('ending-exit'))button.textContent='返回再一次抉择';else button.setAttribute('aria-label','返回再一次抉择')});
+  page.querySelectorAll('[data-action="ending-gallery-back"]').forEach(button=>button.remove());
+ };
+ actions['ending-gallery']=()=>{
+  if(treeDetailReturn&&screen.querySelector('.ending-detail-page[data-tree-return]')){const back=treeDetailReturn;treeDetailReturn=null;back();return}
+  treeDetailReturn=null;openGallery();
+ };
  actions['ending-gallery-back']=()=>{closeSheet();zeroMenu();screen.scrollTop=0};
  document.addEventListener('click',event=>{const button=event.target.closest('[data-ending-detail],[data-ending-filter]');if(!button)return;event.preventDefault();if(button.dataset.endingDetail)openDetail(button.dataset.endingDetail);else openGallery(button.dataset.endingFilter)});
  // Covers restored death screens and existing renderers without changing their markup or flow.

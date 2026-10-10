@@ -1,5 +1,5 @@
 /* Day-zero closing scene; morning story is left for its own continuation. */
-const DAY_ZERO_BEDROOM='assets/day-zero-bedroom.jpg';
+const DAY_ZERO_BEDROOM='assets/day-zero-bedroom.jpg?v=20261011-rc4';
 function ending(){return state.story.dayZeroEnding??={phase:'waiting',shopOpenedAt:null,line:0}}
 const endingBase={shop,zeroLock,initializeChapter};
 shop=function(){const result=endingBase.shop();if(view==='supply'&&screen.querySelector('.shop-page'))showEndingWaterNotice();return result};
@@ -13,7 +13,23 @@ function endingScene(fade=true){const previous=captureSceneSnapshot(screen);view
 let endingSleepTimer=null;
 function endingSleep(){if(ending().phase!=='rest'&&ending().phase!=='sleep')return;ending().phase='sleep';view='ending-sleep';persist();clearInterval(cgTypingTimer);screen.querySelector('.ending-rest')?.remove();screen.querySelector('.vn-dialogue')?.remove();screen.firstElementChild.insertAdjacentHTML('beforeend','<div class="ending-shade"><p>第零日结束</p></div>');clearTimeout(endingSleepTimer);endingSleepTimer=storyTimeout(endingMorning,5000)}
 function endingMorning(){if(ending().phase!=='sleep')return;ending().phase='finished';state.story.firstMorningReady=true;state.system.date='2045-09-08';state.system.time='08:32';state.game.day=1;state.game.period='早晨';state.game.location='女生宿舍B栋408室';view='home';active=null;persist();zeroChrome();zeroCall(home);const veil=document.createElement('div');veil.className='ending-morning-veil';document.querySelector('#phone').append(veil);storyTimeout(()=>veil.remove(),2200)}
-function endingTick(){const e=ending();if(e.phase!=='waiting'||!ns().identityConfirmed||!ns().productsUpdated||document.hidden||['game-menu','nodes','delivery-pickup'].includes(view))return;if(!e.waterNoticeAt&&view==='supply')showEndingWaterNotice();const deadline=e.waterNoticeDeadline;if(!deadline||Date.now()<deadline)return;if((hgContact()?.unread||0)>0){e.waitingForFinalRead=true;e.cgReadReadyAt=null;persist();return}if(e.waitingForFinalRead){e.cgReadReadyAt??=Date.now()+2000;if(Date.now()<e.cgReadReadyAt)return;e.waitingForFinalRead=false}if(zeroLock())return;closeSheet();document.querySelectorAll('.opening-message,#identity-reward').forEach(el=>el.remove());ns().banner=null;e.phase='dialogue';e.line=0;persist();endingScene()}
+// Extra trigger only: a successful new mineral-water order, before the first morning.
+const endingWaterPayBase=pay;
+pay=function(...args){
+ const owner=state,before=new Set((state.orders||[]).map(o=>o.id));
+ const result=endingWaterPayBase(...args),e=ending();
+ if(state===owner&&!state.story.firstMorningReady&&e.phase==='waiting'&&!e.waterPurchaseCgDue&&
+  (state.orders||[]).some(o=>!before.has(o.id)&&o.lines?.some(line=>line.name==='矿泉水'&&line.quantity>0))){
+  e.waterPurchaseCgDue=Date.now()+3000;persist();
+ }
+ return result;
+};
+function startEndingWaitingCg(){
+ const e=ending();if(e.phase!=='waiting'||zeroLock())return;
+ closeSheet();document.querySelectorAll('.opening-message,#identity-reward').forEach(el=>el.remove());
+ ns().banner=null;e.phase='dialogue';e.line=0;persist();endingScene();
+}
+function endingTick(){const e=ending();if(e.phase!=='waiting'||!ns().identityConfirmed||!ns().productsUpdated||document.hidden||['game-menu','nodes','delivery-pickup'].includes(view))return;if(!window.mobileLaunch&&!storyRestoring&&!state.story.firstMorningReady&&e.waterPurchaseCgDue&&Date.now()>=e.waterPurchaseCgDue){startEndingWaitingCg();return}if(!e.waterNoticeAt&&view==='supply')showEndingWaterNotice();const deadline=e.waterNoticeDeadline;if(!deadline||Date.now()<deadline)return;if((hgContact()?.unread||0)>0){e.waitingForFinalRead=true;e.cgReadReadyAt=null;persist();return}if(e.waitingForFinalRead){e.cgReadReadyAt??=Date.now()+2000;if(Date.now()<e.cgReadReadyAt)return;e.waitingForFinalRead=false}startEndingWaitingCg()}
 
 Object.assign(actions,{'ending-rest':endingSleep});
 initializeChapter=function(...args){clearTimeout(endingSleepTimer);document.querySelector('.ending-morning-veil')?.remove();return endingBase.initializeChapter(...args)};

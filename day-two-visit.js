@@ -1,28 +1,28 @@
 /* Both food branches join here. Scene text and report UI use the existing renderers. */
-const D2_VISIT_IMAGES={door408:'assets/day2-visit-408.jpg',lin:'assets/day2-visit-lin.jpg',down:'assets/day2-visit-down.jpg',door318:'assets/day2-visit-318.jpg',jiang:'assets/day2-visit-jiang-updated.jpg',zhou:'assets/day2-visit-zhou-updated.jpg',tears:'assets/day2-visit-tears-updated.jpg',back:'assets/day2-visit-back.jpg'};
-function d2VisitLine(speaker,text){const key=speaker==='linqing'?'lin':speaker,person=dayTwoPerson(key);return {speaker,text,name:speaker==='me'?state.profile.name:person.name.replace(/[（(].*$/,''),avatar:person.avatar}}
-function d2VisitScript(scene){return {
- door408:{image:'door408',rows:['林晴正在把要带过去的东西拿袋子装好。','你先走出了门，抬头看去，门上的门牌号又变回了408。','真是奇怪，为什么好端端的门牌号可以随意变换呢。'],next:'lin'},
- lin:{image:'lin',rows:['林晴已经拎着装好的东西走到了门口。',d2VisitLine('linqing','走吧')],next:'down'},
+const D2_VISIT_IMAGES={door408:'assets/day2-visit-408.jpg?v=20261011-rc4',lin:'assets/day2-visit-lin.jpg?v=20261011-rc4',down:'assets/day2-visit-down.jpg?v=20261011-rc4',door318:'assets/day2-visit-318.jpg?v=20261011-rc4',jiang:'assets/day2-visit-jiang-updated.jpg?v=20261011-rc4',zhou:'assets/day2-visit-zhou-updated.jpg?v=20261011-rc4',tears:'assets/day2-visit-tears-updated.jpg?v=20261011-rc4',back:'assets/day2-visit-back.jpg?v=20261011-rc4'};
+function d2VisitLine(speaker,text,progress=state){const key=speaker==='linqing'?'lin':speaker,person=dayTwoPerson(key);return {speaker,text,name:speaker==='me'?progress.profile?.name:person.name.replace(/[（(].*$/,''),avatar:person.avatar}}
+function d2VisitScript(scene,progress=state){const line=(speaker,text)=>d2VisitLine(speaker,text,progress);return {
+ door408:{image:'door408',rows:['林晴正在把要带过去的零食和水拿袋子装好。','你先走出了门，抬头看向门上的门牌号，它又变回了408。','真是奇怪，为什么好端端的门牌号可以随意变换呢？'],next:'lin'},
+ lin:{image:'lin',rows:['林晴已经拎着袋子走到了门口。',line('linqing','走吧')],next:'down'},
  down:{image:'down',travel:'正在前往3楼',rows:['电梯缓缓下行，最后停在三楼。'],next:'door318'},
- door318:{image:'door318',rows:[{sfx:'knock',text:'你跟着林晴找到316，抬手敲了敲门。'},'很快，里面传来了脚步声。',{sfx:'doorOpen',text:'门开了。'}],next:d2Visit()?.jiangAlive?'jiang':'zhou'},
+ door318:{image:'door318',rows:[{sfx:'knock',text:'你跟着林晴找到316，抬手敲了敲门。'},'很快，里面传来了脚步声。',{sfx:'doorOpen',text:'门开了。'}],next:progress.story.dayTwoVisit?.jiangAlive?'jiang':'zhou'},
  jiang:{image:'jiang',rows:[
-  '江晓看见你和林晴，又低头看了眼我们手里的东西，明显愣了一下。',
-  d2VisitLine('jiang','你们……真的来了。'),d2VisitLine('linqing','先拿进去吧。'),
-  '江晓接过袋子，沉默了两秒。',d2VisitLine('jiang','……谢谢。'),
-  d2VisitLine('jiang','真的。谢谢你们……我，我不知道该怎么说，但是真的很感谢'),
-  '她说得有点断断续续，也一直没抬头。',d2VisitLine('me','先让周茉吃点东西吧。'),
-  '你隐约看见，她的眼眶好像有点红。',d2VisitLine('jiang','谢谢你愿意相信我。')
+  '江晓看见你和林晴，再看到林晴手上拿着的袋子，有些呆愣在原地了。',
+  line('jiang','你们……真的来了。'),line('linqing','先拿进去吧。'),
+  '她接过袋子，沉默了两秒。',line('jiang','……谢谢。'),
+  line('jiang','真的。谢谢你们……我，我不知道该怎么说，但是真的很感谢'),
+  '她说得有点断断续续，也一直没抬头。',line('me','先让周茉吃点东西吧。'),
+  '你隐约看见，她的眼眶好像有点红。',line('jiang','谢谢你愿意相信我。')
  ],next:'back'},
  zhou:{image:'zhou',rows:[
-  '周茉看到你们后，她先是愣了一下，随后目光落到了你们手中的袋子上。',d2VisitLine('zhoumo','你们真的来了……'),
-  '话刚说完，她的眼睛一下就红了。','你甚至还没来得及开口，她的眼泪就已经掉了下来。'
+  '周茉看到你们后，她先是愣了一下，随后目光落到了你们手中的袋子上。',line('zhoumo','你们真的来了……'),
+  '话刚说完，她的眼睛一下就红了。','你甚至还没来得及开口说什么，她就已经哭了起来。'
  ],next:'tears'},
  tears:{image:'tears',rows:[
-  '她慌乱地抬手擦了一下，眼泪却越擦越多。',d2VisitLine('zhoumo','我刚才一直在想……'),
-  d2VisitLine('zhoumo','你不回我，是不是也没有吃的了'),d2VisitLine('zhoumo','我真的以为我要一个人待在这里等死了。'),
-  '林晴把袋子递给她。',d2VisitLine('linqing','你看，我们不是来了吗。'),
-  '周茉听到这句话，反而哭的更厉害了。',d2VisitLine('zhoumo','谢谢。'),d2VisitLine('zhoumo','真的……谢谢你们。')
+  '她慌乱地抬手擦了一下，可眼泪怎么也止不住。',line('zhoumo','我刚才一直在想……'),
+  line('zhoumo','你不回我，是不是也没有吃的了'),line('zhoumo','我真的以为我要一个人待在这里等死了。'),
+  '林晴把袋子递给她。',line('linqing','你看，我们不是来了吗。'),
+  '周茉听到这句话，反而哭的更厉害了。',line('zhoumo','谢谢。'),line('zhoumo','真的……谢谢你们。')
  ],next:'back'},
  back:{image:'back',rows:['回去的路上，你一直在想：这种时候帮别人，算是圣母心吗？','你不知道。','但你不后悔做这个决定。'],next:'done'}
 }[scene]}
@@ -34,7 +34,7 @@ function syncVisitDescentSound(v){
  if(!v||v.done||v.scene!=='down'){stopVisitDescentSound();return}
  if(document.hidden||visitDescentOwner===v)return;visitDescentOwner=v;
  if(typeof mobileSounds!=='undefined'&&mobileSounds.silent)return;
- try{if(!visitDescentSound){visitDescentSound=new Audio('assets/audio/elevator-descent.mp3');visitDescentSound.volume=.5;visitDescentSound.loop=false}visitDescentSound.currentTime=0;const playing=visitDescentSound.play();if(playing&&playing.catch)playing.catch(()=>{})}catch(error){}
+ try{if(!visitDescentSound){visitDescentSound=new Audio('assets/audio/elevator-descent.mp3?v=20261011-rc4');visitDescentSound.volume=.5;visitDescentSound.loop=false}visitDescentSound.currentTime=0;const playing=visitDescentSound.play();if(playing&&playing.catch)playing.catch(()=>{})}catch(error){}
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopVisitDescentSound()});
 window.addEventListener('pagehide',stopVisitDescentSound);

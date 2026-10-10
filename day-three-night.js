@@ -2,7 +2,7 @@
 const D3_FIFTH_RULE_ID='chapter-five-midnight-rules';
 const D3_FIFTH_RULE_BODY="今晚，系统不接收本人提交的集体检举票。\n请在 21:00 前，指定一名仍在校的人作为你的「委托人」。\n注意：任何身份都可以成为委托人，同时任何人也可以申请成为委托人。\n21:00 时，委托人的检举对象，将同时成为你的检举对象。\n委托人21:00前可以更换；委托人的选择，在结算前对委托者保密。\n未指定委托人，视为放弃检举票。\n\n阵营结算将在今晚1点学生会行动后进行。";
 const D3_NIGHT_BLUR_MS=4800;
-const D3_NIGHT_IMAGE='assets/day3-night-bed.jpg';
+const D3_NIGHT_IMAGE='assets/day3-night-bed.jpg?v=20261011-rc4';
 STORY_CHOICES.push({id:'day3-night-story',title:'林晴的睡前故事',day:'第三日 · 深夜',chat:null},{id:'day3-night-storyChoice',title:'回应林晴的睡前故事',day:'第三日 · 深夜',chat:null});
 function d3Night(){return state.story.dayThreeNight}
 function d3NightGroupRows(){return [
@@ -14,15 +14,15 @@ function d3NightGroupRows(){return [
  ]}
 function d3NightAlive(key){return !reportDeparted(GROUP_SUSPECT_NAMES[key]||dayTwoPerson(key).name.replace(/[（(].*$/,''))}
 function d3NightStart(){if(d3Night()||state.game.day!==3||d3Evening()?.phase!=='done'||state.story.dayThreeReport?.groupResult?.target!=='jiangning'||state.game.survivalEnding)return;state.story.dayThreeNight={phase:'group',date:state.system.date,index:0,remaining:messageSendDelay(),decisions:{}};persist()}
-function d3NightWrite(who,text,index){const n=d3Night(),rows=state.messages[HG_ID]??=[],id='day3-night-group-'+index;if(rows.some(m=>m.id===id))return;const p=dayTwoPerson(who);text=d3EveningText(text);rows.push({id,type:'text',sender:p.avatar,name:p.name,hgWho:who,text,time:state.system.time,gameDate:n.date,status:'read'});const c=hgContact();if(c){c.preview=text;c.time=state.system.time;if(view!=='chat'||active!==HG_ID)c.unread=(c.unread||0)+1}persist();if(view==='chat'&&active===HG_ID)openChat(HG_ID);else {document.querySelector('#hg-notification')?.remove();hgNotice('group');playNotificationSound('message',document.querySelector('#hg-notification'))}}
+function d3NightWrite(who,text,index){const n=d3Night(),rows=state.messages[HG_ID]??=[],id='day3-night-group-'+index;if(rows.some(m=>m.id===id))return;const p=dayTwoPerson(who);text=d3EveningText(text);rows.push({id,type:'text',sender:p.avatar,name:p.name,hgWho:who,text,time:state.system.time,gameDate:n.date,status:'read'});const c=hgContact();if(c){c.preview=text;c.time=state.system.time;if(view!=='chat'||active!==HG_ID)c.unread=(c.unread||0)+1}persist();if(view==='chat'&&active===HG_ID)openChat(HG_ID);else {document.querySelector('#hg-notification')?.remove();hgNotice('group');const notice=document.querySelector('#hg-notification');playNotificationSound('message',document.querySelector('#hg-notification'))}}
 function d3NightPurchase(expired=false){const n=d3Night();if(!n||!['transition','explore','purchase-required','bed'].includes(n.phase)||postHasTomorrowSupplies())return false;if(expired){n.phase='purchase-required';n.remaining=0;persist();if(view==='day3-night')home();postOpenPurchase()}sheet('睡前储备物资','<p>明天的物资需要提前订购。睡觉前，先购买至少一件食物或饮用水。</p><button class="primary" data-action="post-purchase-open">前往购买</button><button class="secondary" data-action="close">再看看</button>');return true}
 function d3NightTransition(){const n=d3Night();n.phase='transition';n.remaining=2000;state.system.time='22:00';state.game.period='晚上';document.querySelectorAll('#hg-notification,#report-notification,#d3-evening-notice').forEach(e=>e.remove());d3NightRender()}
 function d3NightBed(){const n=d3Night();if(!n||d3NightPurchase(true))return;n.phase='bed';earlySleepButton.hidden=true;d3NightRender()}
 function d3NightSleep(){const n=d3Night();if(n?.phase!=='bed'||d3NightPurchase(true))return;n.phase='midnight-wait';n.remaining=1500;d3NightRender()}
-function d3FifthPublish(){const n=d3Night();if(n.rulesPublished)return;n.rulesPublished=true;n.phase='midnight-notice';state.system.date=deliveryDateNext(n.date);state.system.time='00:00';
+function d3FifthPublish(){const n=d3Night();if(!n||!['midnight-wait','midnight-notice','midnight-reading'].includes(n.phase))return;const reading=n.phase==='midnight-reading';n.rulesPublished=true;if(!reading)n.phase='midnight-notice';state.system.date=deliveryDateNext(n.date);state.system.time='00:00';
  // Day 4 morning has not been authored: the current night remains owned by Day 3.
  if(!state.forumPosts.some(p=>p.id===D3_FIFTH_RULE_ID))state.forumPosts.push({id:D3_FIFTH_RULE_ID,author:'campus-system',name:'',nightService:true,official:true,tag:'校园新规',category:'校园新规',title:'【校园新规-终章】',body:D3_FIFTH_RULE_BODY,date:state.system.date,time:'00:00',likes:0,replies:[]});
- const rows=state.messages[DAY_ONE_REPORT_ID]??=[];if(!rows.some(m=>m.id===D3_FIFTH_RULE_ID))rows.push({id:D3_FIFTH_RULE_ID,type:'text',sender:'chat_report_black',name:'',text:'校园墙 · 转发帖子：终章规则已发布',time:'00:00',gameDate:state.system.date});const c=reportContact();if(c){c.preview='终章规则已发布';c.time='00:00';c.unread=(c.unread||0)+1}persist();status();d3FifthNotice()}
+ const rows=state.messages[DAY_ONE_REPORT_ID]??=[],added=!rows.some(m=>m.id===D3_FIFTH_RULE_ID);if(added)rows.push({id:D3_FIFTH_RULE_ID,type:'text',sender:'chat_report_black',name:'',text:'校园墙 · 转发帖子：终章规则已发布',time:'00:00',gameDate:state.system.date});const c=reportContact();if(c){c.preview='终章规则已发布';c.time='00:00';if(!reading)c.unread=added?(c.unread||0)+1:Math.max(1,c.unread||0)}persist();status();if(!reading)d3FifthNotice()}
 function d3FifthNotice(){if(document.querySelector('#d3-fifth-notice'))return;const e=document.createElement('div');e.id='d3-fifth-notice';e.className='opening-message';e.innerHTML='<button class="opening-body" data-action="d3-fifth-open"><span>'+avatar('chat_report_black')+'</span><span><small>讯息 · 00:00</small><strong>校园墙 · 转发帖子</strong><span>终章规则已发布</span></span></button>';document.querySelector('#phone').append(e);playNotificationSound('message',e)}
 function d3FifthOpen(){const n=d3Night();if(!n||!['midnight-notice','midnight-reading'].includes(n.phase))return;n.phase='midnight-reading';document.querySelector('#d3-fifth-notice')?.remove();if(reportContact())reportContact().unread=0;d3NightInternal=true;try{postDetail(D3_FIFTH_RULE_ID)}finally{d3NightInternal=false}zeroChrome();refreshPhoneBack();persist()}
 function d3NightChoices(key){return {
@@ -41,9 +41,9 @@ function d3NightScript(key){const lin=text=>({speaker:'linqing',text:d3EveningTe
  doubt:{rows:['林晴这句话是什么意思？什么叫记不记得自己是怎么来这里的？','你不是一直在这里上学吗，是东川大学大二的学生吗？','舍友知道你的名字，你也认识她们，这不会错的。'],next:'meaning'},
  morning:{rows:[lin('你还记得9月7号的早上你在做什么吗？')],next:'memory'},
  class:{rows:[lin('哦哦')],next:'recall'},forgot:{rows:[lin('好吧')],next:'recall'},
- recall:{rows:['早上的事情你好像真的记不清了…','无论怎样回想，早晨的记忆都像被什么东西抹去了一样。','脑海里唯一清晰的，只有林晴发来的那句话——“你看到校园墙上的东西了吗？”','可为什么偏偏记不得早上发生的事？','是因为每天都按着课表上课，日复一日，连记忆也渐渐混在了一起吗？','不…这不对。'],next:'know'},
+ recall:{rows:['早上的事情你好像真的记不清了…','无论怎样回想，早晨的记忆都像被什么东西抹去了一样。','脑海里唯一清晰的，只有林晴发来的那句话：“你看到校园墙上的东西了吗？”','可为什么偏偏记不得早上发生的事？','是因为每天都按着课表上课，日复一日，连记忆也渐渐混在了一起吗？','不…这不对。'],next:'know'},
  offer:{rows:[lin('我还不确定'),lin('好了，不聊这些了'),lin('说不定就是最近压力太大了，再加上你还生病了'),lin('【玩家名字】，我给你讲个睡前故事吧？')],next:'storyChoice'},
- laugh:{rows:['林晴又被你逗笑了。面对你，她的笑点似乎总是那么低'],next:'pan'},
+ laugh:{rows:['林晴又被你逗笑了。面对你，她的笑点似乎总是那么低。'],next:'pan'},
  pan:{rows:[lin('你看过《彼得潘》吗？')],next:'read'},
  story:{rows:[lin('有一个永远不会长大的男孩，叫彼得潘。'),lin('他住在一个叫梦幻岛的地方。'),lin('后来，一个叫温蒂的孩子和其他人来到那里，陪他经历了很多事情'),me('然后呢？'),lin('后来他们都回家了，彼得潘还是留在梦幻岛'),lin('不过我小时候特别喜欢梦幻岛'),lin('那里不用上课，不会长大，每天都可以到处冒险'),lin('所以我以前一直不明白，温蒂最后为什么还要回去')],next:'home'},
  neverland:{rows:[lin('我小时候特别喜欢梦幻岛'),lin('那里不用上课，不会长大，每天都可以到处冒险'),lin('所以我以前一直不明白，温蒂最后为什么还要回去')],next:'home'},
@@ -68,7 +68,7 @@ function d3NightRender(){const n=d3Night();if(!n)return;const previous=captureSc
 let d3NightInternal=false,d3NightLastTick=0,d3NightLastSave=0;
 function d3NightBusy(){return !d3NightInternal&&['transition','bed','midnight-wait','midnight-notice','midnight-reading','cg','choice','blur','finished'].includes(d3Night()?.phase)}
 function d3NightTick(){const now=Date.now();if(d3Paused()){d3NightLastTick=0;const img=screen.querySelector('.d3-night-blur');if(img)img.style.animationPlayState='paused';return}const elapsed=d3NightLastTick?now-d3NightLastTick:0;d3NightLastTick=now;d3NightStart();const n=d3Night();if(!n)return;const img=screen.querySelector('.d3-night-blur');if(img)img.style.animationPlayState='running';
- if(n.phase==='group'&&n.index>0&&(view!=='chat'||active!==HG_ID))return;
+ if(n.phase==='group'&&n.index>0&&(view!=='chat'||active!==HG_ID)&&!window.StoryResumeRecovery?.allow('d3-night'))return;
  if(['group','group-wait','transition','explore','midnight-wait','blur'].includes(n.phase)){
  n.remaining=Math.max(0,n.remaining-elapsed);if(n.phase==='blur')n.blurElapsed=D3_NIGHT_BLUR_MS-n.remaining;if(n.remaining){if(now-d3NightLastSave>=1000){d3NightLastSave=now;persist()}return}
  if(n.phase==='group'){const rows=d3NightGroupRows();while(n.index<rows.length&&!d3NightAlive(rows[n.index][0]))n.index++;if(n.index>=rows.length){n.phase='group-wait';n.remaining=3000;persist();return}const i=n.index++,row=rows[i];n.remaining=messageSendDelay();const more=rows.slice(n.index).some(r=>d3NightAlive(r[0]));if(!more){n.phase='group-wait';n.remaining=3000}d3NightWrite(row[0],row[1],i)}

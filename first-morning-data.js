@@ -1,5 +1,5 @@
 window.FIRST_MORNING={
- doorImage:'assets/first-morning-door.jpg',
+ doorImage:'assets/first-morning-door.jpg?v=20261011-rc4',
  node:'day1-morning-pickup',
  choices:['我也去（结识更多人，获取更多信息）','我晚点自己去吧（我更想独自行动）'],
  invitation:[['08:33','zhao','我的物资到了'],['08:33','zhao','有人要一起去楼顶拿吗？'],['08:33','su','我也去'],['08:33','qin','我也一起去']],

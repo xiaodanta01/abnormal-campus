@@ -3,7 +3,7 @@
  const apps=['messages','wall','supply','notes','wallet','calendar','campus','phone'];
  const names=['讯息','校园墙','物资中心','备忘录','钱包','日历','校园通','电话'];
  const date='2045-09-09',time='09:33';
- const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3';
+ const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261011-rc4';
  const base={persist,home,status,openApp,chatList,openChat,forum,postDetail,shop,orders,cartSheet,checkout,pay,renderMessage,contactRow,cartLines,cartTotal,quantity,productCards,productArt,forumAvatar,zeroLock,resumeStoryScene,initializeChapter,savePersonalNotebook,playNotificationSound,checkSurvival,showNotebookNotice};
  let owner=null,entered=null;
  let callTimer=null,callTimerKey=null,callAudio=null,callTypingTimer=null;
@@ -29,7 +29,7 @@
     {name:'江晓',text:'已捐，后续如果还需要，可以再联系我'},
     {name:'陈妍',replyTo:'江晓',text:'你已经捐很多了，真的谢谢你'},
     {name:'江晓',replyTo:'陈妍',text:'没关系，希望她能醒过来'}]},
-   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
+   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261011-rc4',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
     {name:'周禾',text:'就你吃的最多'},
     {name:'陈妍',replyTo:'周禾',text:'太好吃了呀，震撼美味！'},
     {name:'周禾',replyTo:'陈妍',text:'下次多给【玩家名字】留点，她都没吃上几口'}]}
@@ -126,7 +126,7 @@
    const profile=p.contactProfiles[id];profile.signature=content.signature;
    for(const post of content.moments)if(!profile.moments.some(existing=>existing.id===post.id))profile.moments.push(structuredClone(post));
    const dinner=profile.moments.find(post=>post.id==='reality-chen-dinner');
-   if(dinner){dinner.image='assets/reality-chen-dinner.jpg';dinner.imageAlt='林晴做的一桌饭菜'}
+   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261011-rc4';dinner.imageAlt='林晴做的一桌饭菜'}
   }
   if(!p.zhouConcernAdded){
    const rows=p.messages.zhouhe??=[];
@@ -316,7 +316,7 @@
   phone.classList.remove('zero-immersive','cg-active','survey-active','survey-notifying','late-death-active','report-death-active','pickup16-active');
   for(const el of document.querySelectorAll('.opening-message,#identity-reward,#notebook-collected,#d4-delegation-notice'))if(el.id!=='hospital-reunion-notice')el.remove();
   for(const el of [earlySleepButton,midnightContinue,cgExitButton])el.hidden=true;
-  const dock=document.querySelector('#dock');if(dock.childNodes.length)dock.innerHTML='';syncMessageTabs();refreshPhoneBack();syncCall();
+  const dock=document.querySelector('#dock');if(dock.childNodes.length)dock.innerHTML='';syncMessageTabs();refreshPhoneBack();syncCall();syncMomentReplies();
  }
  function enter(){
   if(entered===state)return;entered=state;
@@ -372,9 +372,86 @@
   }
  }
  function contacts(){messageContacts()}
+ const momentPostBindings=new WeakMap();
  function moments(id){
   if(id){if(!state.contactProfiles[id])return;state.messageProfile=id;linMoments()}
-  else messageMoments();
+  else {
+   messageMoments();
+   const heading=screen.querySelector('.feed-heading');
+   const posts=Array.isArray(state.hospitalMoments)?state.hospitalMoments:[];
+   heading?.insertAdjacentHTML('afterend',posts.map((p,i)=>'<article class="friends-moment" data-hospital-moment="'+i+'">'+avatar('me')+'<div class="friend-post-content"><button type="button" class="friend-post-name">'+esc(state.profile.name)+'</button><p class="lin-moment-text">'+esc(p.text)+'</p><time>'+esc(momentDate(p.date))+'</time><div class="lin-existing-replies">'+p.replies.map(r=>'<p><strong>'+esc(r.name)+'</strong>'+(r.replyTo?'<span>回复</span><strong>'+esc(r.replyTo)+'</strong>':'')+'：'+esc(r.text)+'</p>').join('')+'</div></div></article>').join(''));
+   for(const el of screen.querySelectorAll('[data-hospital-moment]'))momentPostBindings.set(el,posts[Number(el.dataset.hospitalMoment)]);
+  }
+ }
+ function momentDate(value){return String(value||'').replace(/^(\d{4})-(\d{2})-(\d{2})/,(_,y,m,d)=>y+'年'+Number(m)+'月'+Number(d)+'日')}
+ let momentReplyTimer=null;
+ function syncMomentReplies(){
+  if(momentReplyTimer!==null){clearTimeout(momentReplyTimer);momentReplyTimer=null}
+  if(!isVisible()||document.hidden||storyRestoring)return;
+  const progress=root(),phone=data(),now=Date.now();let due=Infinity,changed=false;
+  for(const p of phone.hospitalMoments||[]){
+   if(!Array.isArray(p.pendingReplies))continue;
+   const pending=p.pendingReplies;
+   // Only the head can run. Start the next wait after this reply is inserted.
+   const r=pending[0];if(!r)continue;
+   if(!Number.isFinite(r.at)){r.at=now+(p.replyInterval===2000?2000:r.name==='林晴'?3000:1000);changed=true}
+   if(r.at<=now){
+    (p.replies??=[]).push({name:r.name,text:r.text,...(r.replyTo?{replyTo:r.replyTo}:{})});
+    pending.shift();changed=true;
+    if(pending[0])pending[0].at=now+(p.replyInterval===2000?2000:pending[0].name==='林晴'?3000:1000);
+   }
+   if(pending[0])due=Math.min(due,pending[0].at);
+  }
+  if(changed){
+   save();
+   if(view==='message-moments')for(const el of screen.querySelectorAll('[data-hospital-moment]')){
+    const p=momentPostBindings.get(el),replies=el.querySelector('.lin-existing-replies');
+    if(p&&phone.hospitalMoments.includes(p)&&replies)replies.insertAdjacentHTML('beforeend',p.replies.slice(replies.children.length).map(r=>'<p><strong>'+esc(r.name)+'</strong>'+(r.replyTo?'<span>回复</span><strong>'+esc(r.replyTo)+'</strong>':'')+'：'+esc(r.text)+'</p>').join(''));
+   }
+  }
+  if(Number.isFinite(due))momentReplyTimer=window.mobileNativeTimeout(()=>{momentReplyTimer=null;if(root()===progress&&isVisible())syncMomentReplies()},Math.max(0,due-Date.now()));
+ }
+ function composeTextMoment(){
+  composeMoment();screen.querySelector('[data-action="moment-photo"]')?.remove();
+ }
+ function sendTextMoment(){
+  if(view!=='moment-compose')return;
+  const text=String(screen.querySelector('#moment-draft')?.value||'').trim();
+  if(!text)return toast('写点什么再发送吧');
+  const phone=data();
+  if(!Array.isArray(phone.hospitalMoments))phone.hospitalMoments=[];
+  const posts=phone.hospitalMoments,count=posts.length,linAllowed=hospitalEndingId(root())==='023';
+  const original=[{name:'周禾',text:'还玩手机呢？快好好休息去'},{name:'林晴',replyTo:'周禾',text:'就让她玩吧'}];
+  // Older test posts have no replyKind: use the actual stored reply sequence as evidence.
+  const secondUsed=posts.some(p=>['second','second-comfort'].includes(p.replyKind)||[...(p.replies||[]),...(p.pendingReplies||[])].some(r=>r.name==='周禾'&&r.text==='你等我买完关东煮就上楼收你手机'));
+  const moodText=text.replace(/(?:不再|并不|没有|不)(?:难过|伤心|低落|迷茫|孤独|绝望|悲伤|沮丧)/g,'');
+  const lowMood=/难过|伤心|低落|迷茫|孤独|绝望|悲伤|沮丧|不开心|不快乐|想哭|好累|很累|撑不住|坚持不下去|没有方向|不知道.*(?:怎么办|何去何从|往哪|怎么走)|看不到希望/.test(moodText);
+  let replies,replyKind,replyGroupId;
+  const secondTurn=count>=1&&!secondUsed;
+  if(secondTurn){
+   const clock=/^(\d{1,2}):(\d{2})$/.exec(phone.system.time);
+   if(clock){const minutes=Number(clock[1])*60+Number(clock[2])+2;phone.system.time=String(Math.floor(minutes/60)%24).padStart(2,'0')+':'+String(minutes%60).padStart(2,'0')}
+   statusPhone();
+  }
+  if(lowMood&&secondTurn){
+   replyKind='second-comfort';replyGroupId='second-comfort';
+   replies=[{name:'周禾',text:'等我买完吃的就上楼，好吗？别多想'},{name:'林晴',text:'你这样，我会很担心你的……'}];
+  }else if(lowMood){
+   replyKind='comfort';replyGroupId='comfort';
+   replies=[{name:'周禾',text:'一切都会好起来的，我一直都在'},{name:'林晴',text:phone.profile.name+'，你怎么了？'}];
+  }else if(secondTurn){
+   replyKind='second';replyGroupId='second';
+   replies=[{name:'周禾',text:'……'},{name:'周禾',text:'你等我买完关东煮就上楼收你手机'},{name:'林晴',text:'哈哈，你把周禾姐姐气到啦'},{name:'周禾',replyTo:'林晴',text:'你就不气人吗？一个两个都不好好休息'}];
+  }else{
+   replyKind='ordinary';
+   const pool=[{id:'rest',rows:original}];
+   if(linAllowed)pool.push({id:'downstairs-023',rows:[{name:'周禾',text:'我刚下楼你就玩手机是吧'},{name:'林晴',replyTo:'周禾',text:'什么吃的，我也想吃'}]});
+   const group=count===0?pool[Math.floor(Math.random()*pool.length)]:pool[0];
+   replyGroupId=group.id;replies=group.rows;
+  }
+  const now=Date.now(),pendingReplies=replies.filter(r=>linAllowed||r.name!=='林晴'&&r.replyTo!=='林晴').map((r,i)=>({...r,at:i===0?now+2000:null}));
+  posts.unshift({text,date:momentDate(phone.system.date+' '+phone.system.time),replies:[],pendingReplies,replyInterval:2000,replyKind,replyGroupId});
+  state.momentDraft='';moments();
  }
  function forumPhone(){
   state.forumPosts.sort((a,b)=>(b.date+' '+b.time).localeCompare(a.date+' '+a.time));ordinaryPhoneUI.forum();screen.querySelector('[data-forum-category="校园新规"]')?.remove();
@@ -428,14 +505,19 @@
   const content=key==='student'?'<div class="setting-row">姓名<span>'+esc(state.profile.name)+'</span></div><div class="setting-row">学校<span>东川大学</span></div>':key==='card'?'<div class="setting-row">校园卡服务<span>正常</span></div>':key==='network'?['校园网络','校园卡服务','教务服务'].map(label=>'<div class="setting-row">'+label+'<span>正常</span></div>').join(''):'';
   sheet(title,content+'<button class="primary" data-action="close">返回</button>');
  }
+ function chatListPhone(){ordinaryPhoneUI.chatList()}
  function navigate(id){
-  closeSheet();if(id==='home')return homePhone();if(id==='messages')return ordinaryPhoneUI.chatList();if(id==='message-contacts')return contacts();if(id==='message-moments')return moments();
+  closeSheet();if(id==='home')return homePhone();if(id==='messages')return chatListPhone();if(id==='message-contacts')return contacts();if(id==='message-moments')return moments();
   if(id==='phone')return telephone();
   if(id==='wall')return forumPhone();if(id==='post')return post(active);if(id==='supply')return shopPhone();if(id==='orders')return ordersPhone();if(id==='wallet')return wallet();if(id==='notes')return notes();if(id==='calendar')return calendar();if(id==='campus')return campus();homePhone();
  }
  function back(){if(document.querySelector('#overlay .sheet'))return closeSheet();if(view==='chat'||view.startsWith('message-'))return navigate('messages');if(view==='post')return navigate('wall');if(view==='orders')return navigate('supply');navigate('home')}
  function click(button){
   const d=button.dataset;if(button.disabled)return;
+  if(d.action==='moment-compose')return composeTextMoment();
+  if(d.action==='moment-send')return sendTextMoment();
+  if(d.action==='moment-photo')return;
+
   if(button.hasAttribute('data-hospital-reunion-open'))return chat('zhouhe');
   if(d.hospitalReunionChoice!==undefined)return chooseReunionHope(Number(d.hospitalReunionChoice));
   if(d.action==='page-back'||button.id==='homebar')return back();
@@ -499,11 +581,11 @@
  playNotificationSound=function(...args){if(hospitalPhoneMode())return;return base.playNotificationSound(...args)};
  checkSurvival=function(...args){if(hospitalPhoneMode())return;return base.checkSurvival(...args)};
  showNotebookNotice=function(...args){if(hospitalPhoneMode()){notebookNoticeQueue.length=0;return}return base.showNotebookNotice(...args)};
- const replacements={home:homePhone,status:statusPhone,openApp:navigate,chatList:ordinaryPhoneUI.chatList,openChat:chat,forum:forumPhone,postDetail:post,shop:shopPhone,orders:ordersPhone,cartSheet:ordinaryPhoneUI.cartSheet,checkout:checkoutPhone,pay:payPhone,renderMessage:message,contactRow:contactRowPhone,cartLines:ordinaryPhoneUI.cartLines,cartTotal:ordinaryPhoneUI.cartTotal,quantity:ordinaryPhoneUI.quantity,productCards:ordinaryPhoneUI.productCards,productArt:ordinaryPhoneUI.productArt,forumAvatar:forumAvatarPhone};
+ const replacements={home:homePhone,status:statusPhone,openApp:navigate,chatList:chatListPhone,openChat:chat,forum:forumPhone,postDetail:post,shop:shopPhone,orders:ordersPhone,cartSheet:ordinaryPhoneUI.cartSheet,checkout:checkoutPhone,pay:payPhone,renderMessage:message,contactRow:contactRowPhone,cartLines:ordinaryPhoneUI.cartLines,cartTotal:ordinaryPhoneUI.cartTotal,quantity:ordinaryPhoneUI.quantity,productCards:ordinaryPhoneUI.productCards,productArt:ordinaryPhoneUI.productArt,forumAvatar:forumAvatarPhone};
  for(const [name,fn]of Object.entries(replacements))globalThis[name]=function(...args){if(isVisible()){if(!owner)enter();return context(()=>fn(...args))}return base[name](...args)};
  resumeStoryScene=function(snapshot,...args){
   disposeCall();
-  if(hospitalPhoneMode()){enter();const route={...data().route},socialBack=data().socialBack;context(()=>{statusPhone();if(route.view==='chat')chat(route.active);else if(route.view==='post')post(route.active);else if(route.view==='hospital-profile')contactProfile(route.active);else if(route.view==='lin-profile')linProfile(true);else if(route.view==='lin-moments')linMoments();else if(route.view==='moment-compose')composeMoment();else if(route.view==='message-moments')moments(route.active);else navigate(route.view);if(socialBack?.view===view){const button=screen.querySelector('.page-head button');if(button){button.dataset.action=socialBack.action;button.setAttribute('aria-label',socialBack.label)}}});return}
+  if(hospitalPhoneMode()){enter();const route={...data().route},socialBack=data().socialBack;context(()=>{statusPhone();if(route.view==='chat')chat(route.active);else if(route.view==='post')post(route.active);else if(route.view==='hospital-profile')contactProfile(route.active);else if(route.view==='lin-profile')linProfile(true);else if(route.view==='lin-moments')linMoments();else if(route.view==='moment-compose')composeTextMoment();else if(route.view==='message-moments')moments(route.active);else navigate(route.view);if(socialBack?.view===view){const button=screen.querySelector('.page-head button');if(button){button.dataset.action=socialBack.action;button.setAttribute('aria-label',socialBack.label)}}});return}
   document.querySelector('#phone').classList.remove('hospital-phone');return base.resumeStoryScene(snapshot,...args);
  };
  initializeChapter=function(...args){disposeCall();entered=null;document.querySelector('#phone').classList.remove('hospital-phone');return base.initializeChapter(...args)};
@@ -570,7 +652,9 @@
  new MutationObserver(chrome).observe(document.querySelector('#phone'),{childList:true,subtree:true});
  document.addEventListener('visibilitychange',()=>{if(isVisible())syncCall();else stopCallAudio()});
  window.addEventListener('pagehide',()=>{if(isVisible())save();clearCallTimer();clearCallTyping();stopCallAudio()});
- window.addEventListener('pageshow',()=>{if(isVisible())syncCall()});
+ window.addEventListener('pageshow',()=>{if(isVisible()){syncCall();syncMomentReplies()}});
+ window.addEventListener('visibilitychange',()=>syncMomentReplies());
+ window.addEventListener('pagehide',()=>{if(momentReplyTimer!==null)clearTimeout(momentReplyTimer);momentReplyTimer=null});
  window.addEventListener('storage',()=>{if(isVisible())syncCallAudio()});
  if(isVisible()){enter();context(homePhone)}
 })();

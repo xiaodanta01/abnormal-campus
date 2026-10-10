@@ -111,11 +111,11 @@ function captureStoryNode(id,checkpoint=state,details={}){
  if(typeof earlyChoiceSnapshotValid==='function'&&!earlyChoiceSnapshotValid(id,checkpoint))return false;
  ensureStoryTimeline(state);const records=nodeRecords(),old=records[id];
  if(checkpointIsCurrentRun(old,checkpoint)&&(!details.branchPoint||old.branchPoint)&&(typeof earlyChoiceSnapshotValid!=='function'||earlyChoiceSnapshotValid(id,old.checkpoint)))return false;
- const snapshot=structuredClone(checkpoint);ensureStoryTimeline(snapshot);
+ const snapshot=structuredClone(checkpoint),now=Date.now();ensureStoryTimeline(snapshot).snapshotAt=now;
  if(details.route)snapshot.story.route=structuredClone(details.route);
  if(snapshot.story.zero)snapshot.story.zero.menu=false;
  const {route,...metadata}=details;
- records[id]={...metadata,reachedAt:Date.now(),checkpoint:snapshot};saveNodes(records);return true;
+ records[id]={...metadata,reachedAt:now,snapshotAt:now,checkpoint:snapshot};saveNodes(records);return true;
 }
 // Only running clocks move. Message timestamps, transactions and acquired rewards stay historical.
 const STORY_RUNNING_CLOCKS=new Set(['due','deadline','inviteDue','productDue','groupDue','healthUnlockDue','nightDue','reactionDue','nextGrowth','nextPostAt','nsGrowthAt','surveySoundDue','firstDeathReadyAt','homeReadyAt','readyAt','reportReadyAt','soloChoicesReadyAt','blackUntil','exploreUntil','transitionUntil','morningTransitionUntil','readUntil','waterNoticeAt','waterNoticeDeadline','identityAt','identityFallbackAt','warningAt','accountStartedAt','friendRequestedAt','enteredAt','startedAt']);
@@ -124,6 +124,40 @@ function rebaseStoryClocks(progress,at){
  const offset=Date.now()-at;
  function walk(value){if(!value||typeof value!=='object')return;for(const [key,item] of Object.entries(value)){if(typeof item==='number'&&item>100000000000&&(STORY_RUNNING_CLOCKS.has(key)||key==='at'&&value.who))value[key]=item+offset;else if(item&&typeof item==='object')walk(item)}}
  walk(progress.story);
+}
+// Repair stale legacy snapshot clocks only when the owner is waiting for a chat row.
+// Never walk nested checkpoints or shorten authored pauses, choices or scene timers.
+function repairStoryMessageDue(progress){
+ const s=progress.story,now=Date.now(),delay=messageSendDelay();if(!s)return;
+ const special=row=>Array.isArray(row)?['typing','pause','linTyping','choice','system','notice'].includes(row[0])||['system','notice'].includes(row[1]):!!(row&&typeof row==='object'&&(row.typing||row.pause||row.choices||row.end||row.members));
+ function clamp(q){if(q&&!q.typing&&Number.isFinite(q.due)&&q.due>now+delay)q.due=now+delay}
+ function repair(q,rows,index=q?.index){
+  if(!q||q.typing||!Number.isFinite(q.due)||q.due<=now+delay||!Array.isArray(rows)||!Number.isInteger(index)||index<0)return;
+  const next=rows[index];if(!next||special(next)||special(rows[index-1]))return;
+  if(typeof next!=='string'&&!Array.isArray(next)&&typeof next.text!=='string')return;
+  clamp(q);
+ }
+ if(['invitation','accept','refuse','warning'].includes(s.zero?.phase)&&!(s.zero.script==='refuse'&&s.zero.step===4)&&typeof Z!=='undefined')repair(s.zero,Z.scripts[s.zero.script],s.zero.step);
+ if(['invitation','accept','refuse'].includes(s.firstMorning?.phase)&&typeof FM!=='undefined')repair(s.firstMorning,FM[s.firstMorning.phase],s.firstMorning.step);
+ if(s.helpGroup?.phase==='intro'&&typeof HG_INTRO!=='undefined')repair(s.helpGroup,HG_INTRO,s.helpGroup.step);
+ if(s.helpGroup?.phase==='event'&&typeof HG_EVENT!=='undefined')repair(s.helpGroup,HG_EVENT,s.helpGroup.step);
+ if(s.helpGroup?.phase==='closing'&&[0,1].includes(s.helpGroup.step))clamp(s.helpGroup);
+ if(s.jiangxiao&&typeof JX!=='undefined'){
+  const q=s.jiangxiao;
+  if(['greeting','warning'].includes(q.phase))repair(q,[JX[q.phase]],0);
+  if(q.phase==='reply'&&Array.isArray(JX.replies[q.choice]))repair(q,[...JX.replies[q.choice],...JX.closing],q.step);
+ }
+ if(s.roleDiscussion?.phase==='running'&&typeof ROLE_DISCUSSION!=='undefined')repair(s.roleDiscussion,ROLE_DISCUSSION.lines,s.roleDiscussion.step);
+ if(s.eveningAnomaly?.phase==='messages'&&typeof EVENING_ROWS!=='undefined')repair(s.eveningAnomaly,EVENING_ROWS);
+ if(s.postReportEvening?.phase==='chat'&&typeof POST_SCRIPTS!=='undefined')repair(s.postReportEvening,POST_SCRIPTS[s.postReportEvening.script]?.rows);
+ if(s.pickupRecordDiscussion?.phase==='script'&&typeof RECORD_SCRIPTS!=='undefined')repair(s.pickupRecordDiscussion,RECORD_SCRIPTS[s.pickupRecordDiscussion.script]);
+ for(const free of [s.freeAction,s.dayTwoFreeAction,s.dayThreeFreeAction])if(free?.run?.phase==='script'&&typeof FA_SCRIPTS!=='undefined')repair(free.run,FA_SCRIPTS[free.run.script]);
+ for(const q of [s.jiangAliveMorning,s.mengshuLeakConfrontation,s.linAfterConflict,s.dayTwoEvening]){
+  if(q?.phase!=='chat')continue;
+  if(q.dayTwoVersion&&typeof DAY_TWO_AUTHORED!=='undefined')repair(q,DAY_TWO_AUTHORED[q.script]?.rows);
+  else if(typeof LEAK_SCRIPTS!=='undefined')repair(q,LEAK_SCRIPTS[q.script]?.rows);
+ }
+ if(s.mengErrorBranch?.phase==='chat')repair(s.mengErrorBranch,s.mengErrorBranch.rows);
 }
 function migrateStoryNode(snapshot,id,record){
  const restored=SaveSchema.normalize(structuredClone(snapshot));
@@ -164,6 +198,7 @@ function restoreStorySnapshot(snapshot){
  if(restored.story.route?.view==='day2-report-start'&&restored.story.dayTwoReport?.phase==='open')restored.story.route={view:'report-chat',active:'mandatory-day1-report'};
  for(const migrate of storySnapshotMigrations)migrate(restored);
  if(typeof syncNpcDepartures==='function')syncNpcDepartures(restored);
+ repairStoryMessageDue(restored);
  applyPermanentStorySettings(restored);restored.timeline.snapshotAt=Date.now();return restored;
 }
 function cleanupStoryTimeline(){

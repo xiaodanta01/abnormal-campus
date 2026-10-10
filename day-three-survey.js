@@ -1,11 +1,71 @@
 /* Day three starts after reading chapter four; all answers belong to the story snapshot. */
+const d3WallWritePost=actions['write-post'];
+actions['write-post']=function(...args){
+ if(state.game.day>=3&&!hospitalPhoneMode()){toast('错误：无法连接');return}
+ return d3WallWritePost.apply(this,args);
+};
+STORY_CHOICES.push({id:'day3-start',title:'第三日开始',day:'第三日 · 早晨',chat:null});
 const D3_SURVEY_NODE='day3-survey-before-notice';
 STORY_CHOICES.push({id:D3_SURVEY_NODE,title:'留校资格申请',day:'第三日 · 09:00',chat:null});
 function d3Morning(){return state.story.dayThreeMorning}
 function d3Survey(){return state.story.dayThreeSurvey}
+const D3_SURVEY_HISTORY_KEY=STORAGE_KEY+'-day3-questionnaire-history';
+let d3SurveyReplayEntry=null;
+function d3SurveyRememberSuccess(progress){
+ const q=progress?.story?.dayThreeSurvey;
+ if(progress?.story?.dayThreeSurveyComplete!==true||q?.failed||q&&q.phase!=='done')return;
+ try{GameStorage.setItem(D3_SURVEY_HISTORY_KEY,JSON.stringify({version:1,completed:true}))}catch{}
+}
+function d3SurveyHasSuccess(){
+ const has=()=>{try{const h=JSON.parse(GameStorage.getItem(D3_SURVEY_HISTORY_KEY)||'null');return h?.version===1&&h.completed===true}catch{return false}};
+ if(has())return true;
+ d3SurveyRememberSuccess(state);
+ for(const key of [STORAGE_KEY,STORAGE_KEY+'-continue']){try{d3SurveyRememberSuccess(JSON.parse(GameStorage.getItem(key)||'null'))}catch{}}
+ try{for(const record of Object.values(nodeRecords()||{}))d3SurveyRememberSuccess(record?.checkpoint)}catch{}
+ return has();
+}
+function d3SurveyReplayStart(q){
+ return !!q&&!q.failed&&(['notice','instructions'].includes(q.phase)||q.phase==='question'&&q.question===0)&&!(q.answers||[]).length&&!(q.writing||[]).length;
+}
+function d3SurveyReplayCheck(){
+ const q=d3Survey();
+ if(d3SurveyReplayEntry&&(d3SurveyReplayEntry.q!==q||d3SurveyReplayEntry.state!==state)){document.querySelector('#d3-survey-replay')?.remove();d3SurveyReplayEntry=null}
+ if(storyRestoring||d3Paused()||storyEndingOwner()||view!=='day3-survey'||!d3SurveyReplayStart(q))return false;
+ if(!d3SurveyReplayEntry)d3SurveyReplayEntry={q,state,offered:false,open:false,nextCheck:0};
+ const entry=d3SurveyReplayEntry;
+ if(entry.offered)return entry.open;
+ if(Date.now()<entry.nextCheck)return false;
+ entry.nextCheck=Date.now()+1000;
+ if(!d3SurveyHasSuccess())return false;
+ document.querySelector('#d3-survey-notice')?.remove();
+ surveyModal('问卷','检测到已完成的问卷记录。','d3-replay-skip','跳过问卷');
+ const modal=document.querySelector('#survey-notice'),card=modal.firstElementChild;
+ modal.id='d3-survey-replay';
+ card.style.cssText='background:#080808;color:#fff;border:1px solid #777;border-radius:2px';
+ card.querySelector('small').remove();
+ const skip=card.querySelector('button');skip.removeAttribute('data-survey-action');skip.dataset.d3Action='replay-skip';
+ card.insertAdjacentHTML('beforeend','<button data-d3-action="replay-restart">重新作答</button>');
+ card.querySelectorAll('button').forEach(button=>button.style.cssText='background:#111;color:#fff;border:1px solid #888;border-radius:0;margin-top:10px');
+ entry.offered=true;entry.open=true;
+ return true;
+}
 function d3SurveyLocked(){return !storyInputDormant()&&!!d3Survey()&&d3Survey().phase!=='done'}
 function d3Paused(){return window.mobileLaunch||document.hidden||state.game.survivalEnding||['game-menu','nodes','zero-death'].includes(view)}
 let d3Internal=false,d3LastTick=0,d3LastSave=0;
+let d3MorningClockOwner=null;
+function d3RepairMorningWait(){
+ const m=d3Morning();if(!m||!['chat','survey-wait'].includes(m.phase))return;
+ // Repair only this pending sequence; an existing questionnaire must never restart.
+ if(d3Survey()){m.phase='done';return}
+ const rows=d3MorningRows();
+ if(!Number.isInteger(m.index)||m.index<0){
+  const sent=new Set((state.messages[HG_ID]||[]).map(row=>row.id));
+  m.index=0;while(m.index<rows.length&&sent.has('day3-morning-'+m.index))m.index++;
+ }
+ if(m.phase==='chat'&&m.index>=rows.length){m.phase='survey-wait';m.remaining=2000}
+ const delay=m.phase==='survey-wait'?2000:messageSendDelay();
+ if(!Number.isFinite(m.remaining)||m.remaining<0||m.remaining>delay)m.remaining=delay;
+}
 function d3Call(fn,...args){const previous=d3Internal;d3Internal=true;try{return fn(...args)}finally{d3Internal=previous}}
 const d3LockBase=zeroLock;zeroLock=function(){return !d3Internal&&(d3SurveyLocked()||d3ReadingRules()||['sleep','transition'].includes(d3Morning()?.phase))||d3LockBase()};
 const d3HomeBase=home;home=function(...args){if((d3SurveyLocked()||d3ReadingRules())&&!d3Internal)return;return d3HomeBase(...args)};
@@ -20,7 +80,7 @@ function d3StartMorning(){
  if(d3Morning()||d2Night()?.phase!=='midnight-reading'||state.game.survivalEnding)return;
  state.story.dayThreeMorning={phase:'sleep',date:state.system.date,remaining:1000,index:0,jiangAlive:!reportDeparted('江晓')};
  midnightContinue.hidden=true;
- d3LastTick=0;persist();d3RenderSleep();
+ d3LastTick=0;persist();d3RenderSleep();d2Capture('day3-start',{view:'day3-sleep',active:null});
 }
 function d3RenderSleep(){
  const previous=captureSceneSnapshot(screen);closeSheet();stopReading();clearInterval(cgTypingTimer);
@@ -40,8 +100,7 @@ function d3RenderMorningTransition(){
 }
 function d3MorningRows(){return [
  ...(d3Morning().jiangAlive?[['remove','江晓'],['zhoumo','……']]:[['shen','看来昨天他们选的是其他宿舍楼的人']]),
- ['shen','有件事我要和你们说一下'],['shen','我们和其他宿舍楼的联系被切断了，不知道是什么原因'],
- ['xianing','这个黑头像到底是什么来头？'],['xianing','我们现在校外的人联系不上'],['xianing','其他宿舍楼为什么也联系不上'],['shen','我也不清楚']
+ ['shen','有件事我要和你们说一下'],['shen','校园墙现在发不了消息了'],['shen','我不知道是什么原因'],['xianing','我们现在校外的人联系不上'],['xianing','唯一能和校内其他宿舍楼联系的校园墙也不行了？？'],['yelin','其他宿舍楼的群呢，加不了吗'],['xianing','我加了，她们现在关闭了进群功能'],['shen','她们也没有来联系我们'],['yelin','服了……']
  ]}
 function d3RemoveJiang(){
  const m=d3Morning();if(m.removalApplied)return;m.removalApplied=true;
@@ -58,10 +117,10 @@ function d3MorningSend(){
  const [who,text]=entry,id='day3-morning-'+m.index,person=who==='remove'?null:dayTwoPerson(who);
  if(who==='remove')d3RemoveJiang();
  const messages=state.messages[HG_ID]??=[],inside=view==='chat'&&active===HG_ID;
- if(!messages.some(row=>row.id===id))messages.push({id,type:who==='remove'?'system':'text',sender:person?.avatar,hgWho:who,name:who==='xianing'?'夏宁（101）':person?.name,text:who==='remove'?'沈可欣已将江晓移出群聊':text,time:'08:56',gameDate:m.date,status:'read'});
+ const added=!messages.some(row=>row.id===id);if(added)messages.push({id,type:who==='remove'?'system':'text',sender:person?.avatar,hgWho:who,name:who==='xianing'?'夏宁（101）':person?.name,text:who==='remove'?'沈可欣已将江晓移出群聊':text,time:'08:56',gameDate:m.date,status:'read'});
  m.index++;m.remaining=m.index===rows.length?2000:messageSendDelay();m.phase=m.index===rows.length?'survey-wait':'chat';
- const group=hgContact();if(group){group.preview=messages.at(-1).text;group.time='08:56';if(!inside)group.unread=(group.unread||0)+1}
- persist();if(inside)openChat(HG_ID);else hgNotice('group');status();d3ZhouEnsure();
+ const group=hgContact();if(group){group.preview=messages.at(-1).text;group.time='08:56';if(!inside&&added)group.unread=(group.unread||0)+1}
+ persist();if(inside)openChat(HG_ID);else if(added)hgNotice('group');status();d3ZhouEnsure();
 }
 function d3MorningReady(){
  const m=d3Morning();state.game.day=3;state.game.period='上午';state.system.time='08:56';
@@ -142,6 +201,7 @@ function d3StartSurvey(){
  d3RenderSurvey();persist();d2Capture(D3_SURVEY_NODE,{view:'day3-survey',active:null});playNotificationSound('system');
 }
 function d3SurveyCleanup(){
+ document.querySelector('#d3-survey-replay')?.remove();d3SurveyReplayEntry=null;
  document.querySelectorAll('#morning-title,.ending-morning-veil').forEach(el=>el.remove());
  document.querySelector('#d3-survey-notice')?.remove();document.querySelector('#phone').classList.remove('survey-active','survey-notifying');
  d3LastTick=0;
@@ -174,9 +234,9 @@ function d3ReflectionContinue(){
  q.submittedAt=Date.now();state.story.dayThreeApplication={date:q.date,answers:[...q.answers],writing:[...q.writing],assessment:structuredClone(q.assessment),submittedAt:q.submittedAt,reviewStatus:'pending'};
  d3SurveySet('submitted');
 }
-function d3FinishSurvey(){
- const q=d3Survey();if(!['submitted','result'].includes(q?.phase))return;
- q.phase='done';q.remaining=0;state.story.dayThreeSurveyComplete=true;d3SurveyCleanup();persist();d3Call(home);applyGameBgm();persist();d2Capture('day3-survey-complete',{view:'home',active:null});d3ZhouNotice();
+function d3FinishSurvey(replay=false){
+ const q=d3Survey();if(!q||!(['submitted','result'].includes(q.phase)||replay&&d3SurveyReplayEntry?.q===q&&d3SurveyReplayEntry.state===state&&d3SurveyReplayEntry.open&&d3SurveyReplayStart(q)&&!storyRestoring&&!window.mobileLaunch))return;
+ q.phase='done';q.remaining=0;state.story.dayThreeSurveyComplete=true;d3SurveyRememberSuccess(state);d3SurveyCleanup();persist();d3Call(home);applyGameBgm();persist();d2Capture('day3-survey-complete',{view:'home',active:null});d3ZhouNotice();
 }
 function d3AssessmentMarkup(){
  const q=d3Survey(),result=q.assessment||d3SurveyAssessment(q.answers),type=D3_SURVEY_TYPES[result.type];
@@ -184,12 +244,14 @@ function d3AssessmentMarkup(){
 }
 function d3RenderSurvey(){
  const q=d3Survey();if(!q||q.phase==='done')return;
+ if(d3SurveyReplayCheck())return;
  // Older checkpoints may still be waiting for a written answer to the reflection.
  if(q.phase==='writing'&&q.writeIndex===1){q.phase='reflection';q.remaining=2000;q.draft='';q.writing=q.writing.slice(0,1)}
  document.querySelector('#d3-survey-notice')?.remove();closeSheet();stopReading();clearInterval(cgTypingTimer);
  const phone=document.querySelector('#phone');
  if(q.phase==='notice'){
   d3Call(home);view='day3-survey';active=null;rememberRoute();phone.classList.add('survey-notifying');
+  if(d3SurveyReplayCheck())return;
   surveyModal('校园通','你有一份必须完成的问卷','d3-open','点击查看');
   const modal=document.querySelector('#survey-notice');modal.id='d3-survey-notice';modal.querySelector('button').dataset.d3Action='open';persist();return;
  }
@@ -211,12 +273,22 @@ function d3RenderSurvey(){
 }
 function d3TypePrompt(){const q=d3Survey(),el=screen.querySelector('[data-d3-prompt]');if(!q||!el)return;const text=D3_SURVEY_WRITING[q.writeIndex];el.textContent=q.phase==='writing'?text:text.slice(0,Math.floor(Math.max(0,text.length*110+(q.writeIndex===0?400:0)-q.remaining)/110))}
 function d3Tick(){
+ // Loading and terminal screens cannot consume this sequence's foreground time.
+ if(storyRestoring||(['chat','survey-wait'].includes(d3Morning()?.phase)&&(storyEndingOwner()||['ending-gallery','ending-detail'].includes(view)))){d3LastTick=0;return}
+ if(d3MorningClockOwner!==d3Morning()){d3MorningClockOwner=d3Morning();d3LastTick=0}
  const now=Date.now();if(d3Paused()){d3LastTick=0;return}const elapsed=d3LastTick?Math.max(0,now-d3LastTick):0;d3LastTick=now;
+ if(d3SurveyReplayCheck()){d3LastTick=0;return}
  if(!d3Morning()){d3RulesContinue();return}
  const m=d3Morning(),q=d3Survey();d3ZhouEnsure();d3ZhouTick(elapsed);
  if(m.phase==='sleep'){m.remaining=Math.max(0,m.remaining-elapsed);if(!m.remaining){m.phase='transition';m.remaining=4500;d3RenderMorningTransition()}}
  else if(m.phase==='transition'){m.remaining=Math.max(0,m.remaining-elapsed);if(!m.remaining)d3MorningReady()}
- else if(['chat','survey-wait'].includes(m.phase)&&view==='chat'&&active===HG_ID){m.remaining=Math.max(0,m.remaining-elapsed);if(!m.remaining){if(m.phase==='survey-wait')d3StartSurvey();else d3MorningSend()}}
+ else if(['chat','survey-wait'].includes(m.phase)){
+  d3RepairMorningWait();
+  if(['chat','survey-wait'].includes(m.phase)){
+   m.remaining=Math.max(0,m.remaining-elapsed);
+   if(!m.remaining){if(m.phase==='survey-wait')d3StartSurvey();else d3MorningSend()}
+  }
+ }
  if(q&&view==='day3-survey'&&['fade','typing','reflection'].includes(q.phase)){
   q.remaining=Math.max(0,q.remaining-elapsed);
   if(q.phase==='typing')d3TypePrompt();
@@ -238,6 +310,12 @@ window.addEventListener('click',event=>{
  }
  event.preventDefault();event.stopImmediatePropagation();if(!button)return;
  const q=d3Survey();
+ if(d3SurveyReplayEntry?.open){
+  if(storyRestoring||window.mobileLaunch||d3SurveyReplayEntry.q!==q||d3SurveyReplayEntry.state!==state)return;
+  if(button.dataset.d3Action==='replay-skip')d3FinishSurvey(true);
+  else if(button.dataset.d3Action==='replay-restart'){d3SurveyReplayEntry.open=false;document.querySelector('#d3-survey-replay')?.remove();d3RenderSurvey()}
+  return;
+ }
  if(button.hasAttribute('data-d3-choice'))return d3Choose(Number(button.dataset.d3Choice),Number(button.dataset.d3Question));
  const action=button.dataset.d3Action;
  if(action==='open'&&q.phase==='notice')d3SurveySet('instructions');
@@ -252,6 +330,7 @@ const d3ResumeBase=resumeStoryScene;resumeStoryScene=function(snapshot){
  const m=snapshot?.story?.dayThreeMorning,q=snapshot?.story?.dayThreeSurvey,zhou=snapshot?.story?.dayThreeZhou;
  if(!m||m.phase==='done'&&(!q||q.phase==='done')&&(!zhou||zhou.phase==='done'))return d3ResumeBase(snapshot);
  d3LastTick=0;
+ d3RepairMorningWait();
  if(q&&q.phase!=='done')d3RenderSurvey();else if(m.phase==='sleep')d3RenderSleep();else if(m.phase==='transition')d3RenderMorningTransition();else if(snapshot.story.route?.view==='day3-zhou-friend')d3ZhouFriend();else if(snapshot.story.route?.view==='chat'&&[HG_ID,FA_PEOPLE.zhoumo.contact].includes(snapshot.story.route.active))openChat(snapshot.story.route.active);else {d3Call(home);if(zhou&&zhou.phase!=='done')d3ZhouNotice();else if(m.phase!=='done')hgNotice('group')}
  persist();
 };

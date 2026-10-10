@@ -6,7 +6,7 @@ function freeRecoveryReady(){if(![1,2].includes(state.game.day))return false;con
 function freeRecoveryPrompt(){
  const f=freeState();if(!freeRecoveryReady()||(state.game.spirit??100)>5||f.recoveryPromptSeen)return false;
  f.recoveryPromptSeen=true;f.promptSeen=true;persist();
- sheet('你的精神状态很差','<p>你现在的精神值已经不足以继续探索。<br>建议先吃点东西，或者睡一觉恢复精神。</p><button class="primary" data-action="free-recovery-health">打开健康背包</button><button class="secondary" data-action="free-recovery-sleep">选择睡觉休息</button>');return true;
+ sheet('你的精力状态很差','<p>你现在的精力值已经不足以继续探索。<br>建议先吃点东西，或者睡一觉恢复精力值。</p><button class="primary" data-action="free-recovery-health">打开健康背包</button><button class="secondary" data-action="free-recovery-sleep">选择睡觉休息</button>');return true;
 }
 function freeRecoveryHealthBack(){
  if(view!=='health'||!freeRecoveryReady()||!freeState().recoveryHealthReturn)return;

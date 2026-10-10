@@ -29,6 +29,7 @@ if(discovered['death-day2-code'])discovered['death-003']=true;
 if(discovered['hidden-stay'])discovered['020']=true;
 let selectedDay=0,transform={x:24,y:0,scale:.8},graph=null,dragged=false;
 const positions={};
+let legacyDayStarts={};
 function mark(id){if(discovered[id])return;discovered[id]=true;try{GameStorage.setItem(discoveryKey,JSON.stringify(discovered))}catch{}}
 function questionnaireOwnsFailure(progress){
  const death=progress?.story?.lateDayDeath;
@@ -64,7 +65,7 @@ function rememberBranches(progress){
  const s=progress?.story;if(!s)return;
  rememberDayTwoMilestones(progress);
  rememberDayFiveMilestones(progress);
- if(progress.game?.day>=4)mark('day4-start');
+ for(const day of [2,3,4])if(progress.game?.day>=day)mark('day'+day+'-start');
  for(const [phase,index]of Object.entries(s.dayFourPickup?.mealChoices||{}))mark(phase+'-option-'+index);
  if(Number.isInteger(s.dayFourCounterattack?.choice))mark('day4-counter-choice-option-'+s.dayFourCounterattack.choice);
  for(const [key,index]of Object.entries(s.dayFourFinal?.decisions||{}))if(Number.isInteger(index))mark('day4-final-'+key+'-option-'+index);
@@ -193,6 +194,8 @@ function makeGraph(day){
   node('day1-before-pickup','前往取件',12.5);edge('day1-free-action-start','day1-before-pickup');node('tree-skip-pickup','跳过取件',12.5,1.5);edge('day1-free-action-start','tree-skip-pickup');edge('tree-skip-pickup','tree-noodles');
   bubble('code-wrong','取件码错误',13.5,-1.5,'day1-before-pickup');bubble('code-right','取件码正确',13.5,0,'day1-before-pickup');
   node('death-003','被请离 · 结局003',14.5,-1.5,'death');node('tree-noodles','拿出泡面',14.5);
+  node('day1-publish-pickup-record','把取件记录发到群里',14.5,.85);
+  edge('code-right','day1-publish-pickup-record');edge('day1-publish-pickup-record','tree-noodles');
   edge('day1-before-pickup','code-wrong');edge('code-wrong','death-003');edge('day1-before-pickup','code-right');edge('code-right','tree-noodles');
   bubble('has-water','有水',15.5,0,'tree-noodles');bubble('no-water','没水',15.5,1.5,'tree-noodles');
   node('noodle-choice-borrow','借烧水壶',16.5);node('noodle-choice-noWaterChoice','收起泡面',16.5,1.5);
@@ -209,6 +212,9 @@ function makeGraph(day){
   ['songjia','zhao','wen','cheng'].forEach((key,i)=>{const id='tree-result-'+key;node(id,['宋出局','赵出局','温出局','程出局'][i],26.9,(i-1.5)*.85);edge('day1-report-results-issued',id);edge(id,'meng-private-first-choice')});
   node('tree-next-day','第一日夜间结算',29.8);options('meng-private-first-choice','tree-next-day',29.2,[-.42,.42],['她没和我说过什么','如实回答']);
   node('death-014','学生会清理 · 结局014',31,-1.1,'death');edge('tree-next-day','death-014');
+  // Leave a full card column for the new, real pre-publication checkpoint.
+  for(const n of g.nodes)if(n.id!=='day1-publish-pickup-record'&&n.x>=72+14.5*STEP)n.x+=1.4*STEP;
+  for(const section of g.sections)if(section.x>=72+14.5*STEP)section.x+=1.4*STEP;
  }else if(day===1&&typeof makeDayTwoWorldline==='function'){
   return makeDayTwoWorldline();
  }else if(day===2&&typeof makeDayThreeWorldline==='function'){
@@ -247,6 +253,8 @@ function captureDayTwoWorldline(){
   if(n.checkpoint==='eveningExplore'&&state.story.dayTwoEvening?.exploreStarted)route={view:'home',active:null};
   if(n.checkpoint==='eveningHelp'&&state.story.dayTwoEvening?.helpStarted)route={view:'home',active:null};
   const evening=state.story.dayTwoEvening;
+  // Capture the real private-chat cursor, never reconstruct it from later flags.
+  if(n.checkpoint==='eveningZhouHelp'&&evening?.script==='eveningZhouHelp'&&evening.phase==='chat'&&evening.jiangAlive===false)route={view:'chat',active:'zhoumo'};
   if(n.eveningScript&&evening?.script===n.eveningScript&&evening.phase==='choice')route={view:'chat',active:'linqing'};
   if(n.checkpoint==='eveningReflection'&&evening&&(evening.reflectionIndex!==undefined||evening.toldLin))route={view:'day2-evening-cg',active:null};
   if(n.checkpoint==='eveningGive'&&evening?.decisions?.eveningLinFood===0)route={view:'chat',active:'linqing'};
@@ -294,7 +302,24 @@ const basePersist=persist;persist=function(...args){
  if(state.game.day===2&&p?.done&&p.elevatorSolved&&!p.failed)mark('tree-day2-finish');
  return basePersist(...args);
 };
-function unlocked(n,records){return n.kind==='start'?true:n.kind==='death'?(!n.routeRecord||!!discovered[n.routeRecord])&&(!!discovered[n.id]||!!window.endingGalleryHas?.(n.id)):n.kind==='bubble'?!!discovered[n.id]:n.replayable===false?!!discovered[n.id]||!!records[n.record]?.checkpoint:!!records[n.record]?.checkpoint}
+// Old releases did not capture day-start snapshots. Discovery is still valid,
+// but a later snapshot must never be rewritten to pretend it is the opening.
+function legacyDayStartGraph(full,records){
+ legacyDayStarts={};
+ for(const key of [STORAGE_KEY,GAME_CONTINUE_KEY]){
+  try{const saved=JSON.parse(GameStorage.getItem(key)||'null');if(saved?.story?.started)for(const day of [2,3,4])if(saved.game?.day>=day)mark('day'+day+'-start')}catch{}
+ }
+ const day=selectedDay+1,id='day'+day+'-start';
+ if(![2,3,4].includes(day)||records[id]?.checkpoint||!discovered[id])return full;
+ // Only alias a real, already replayable checkpoint from this day's graph.
+ // Loading its original ID retains its own timeline, route and restore guards.
+ const candidates=full.nodes.filter(n=>n.id!==id&&n.kind==='story'&&n.replayable!==false&&n.record&&records[n.record]?.checkpoint?.game?.day===day&&records[n.record]?.checkpoint?.story?.started);
+ candidates.sort((a,b)=>a.x-b.x||a.y-b.y);
+ const source=candidates[0];
+ if(source)legacyDayStarts[id]={sourceId:source.record,title:source.title};
+ return {...full,nodes:full.nodes.map(n=>n.id===id?{...n,legacyReached:true,legacyLabel:source?'已到达 · 旧档最早记录':'已到达 · 无开场快照',replayable:!!source}:n)};
+}
+function unlocked(n,records){return n.legacyReached?true:n.kind==='start'?true:n.kind==='death'?(!n.routeRecord||!!discovered[n.routeRecord])&&(!!discovered[n.id]||!!window.endingGalleryHas?.(n.id)):n.kind==='bubble'?!!discovered[n.id]:n.replayable===false?!!discovered[n.id]||!!records[n.record]?.checkpoint:!!records[n.record]?.checkpoint}
 function visibleGraph(full,records){
  // All unexplored routes have the same neutral frontier. Nothing beyond its first lock is rendered.
  const known=new Set(full.nodes.filter(n=>unlocked(n,records)).map(n=>n.id));
@@ -336,12 +361,12 @@ function render(){
  refreshReached();view='nodes';active=null;rememberRoute();graph=makeGraph(selectedDay);
  graph.nodes=graph.nodes.map(n=>n.kind==='bubble'?n:{...n,title:treeEventTitle(n.title)});
  graph.sections=graph.sections.map(section=>({...section,label:treeEventTitle(section.label)}));
- const records=nodeRecords(),byId={};Object.values(records).forEach(r=>rememberBranches(r.checkpoint));rememberBranches(state);graph=visibleGraph(graph,records);graph.nodes.forEach(n=>byId[n.id]=n);
+ const records=nodeRecords(),byId={};Object.values(records).forEach(r=>rememberBranches(r.checkpoint));rememberBranches(state);graph=legacyDayStartGraph(graph,records);graph=visibleGraph(graph,records);graph.nodes.forEach(n=>byId[n.id]=n);
  const lines=treeConnectors(graph).map(e=>{const b=byId[e.to],reached=e.from.some(id=>unlocked(byId[id],records))&&unlocked(b,records);return `<path class="${reached?'reached':'unexplored'} ${b.category==='hidden'?'hidden-ending':b.category==='survival'?'survival':b.kind==='death'?'death':''}" d="${e.d}"/>`}).join('');
  const cards=graph.nodes.map(n=>{
-  const ready=unlocked(n,records),isBubble=n.kind==='bubble'||n.kind==='hidden',death=n.kind==='death',jumpable=ready&&!death&&n.kind!=='start'&&n.replayable!==false,title=ready?n.title:'尚未解锁';
+  const ready=unlocked(n,records),isBubble=n.kind==='bubble'||n.kind==='hidden',death=n.kind==='death',jumpable=ready&&!death&&n.kind!=='start'&&n.replayable!==false,title=ready?n.title:'尚未解锁',endingLink=ready&&death&&typeof window.endingGalleryOpenFromTree==='function';
   if(isBubble)return `<span class="choice-tree-bubble ${ready?'visited':'locked'}" style="left:${n.x}px;top:${n.y-BH/2}px" tabindex="0" role="img" aria-label="${esc(title)}" data-tip="${esc(title)}">${ready?chatSVG:lockSVG}</span>`;
-  return `<button type="button" class="choice-tree-node ${ready?'visited':'locked'} ${death?(n.category==='hidden'?'hidden-ending':n.category==='survival'?'death survival':'death'):''}" style="left:${n.x}px;top:${n.y-H/2}px" ${jumpable?`data-tree-jump="${esc(n.record)}"`:'disabled'} aria-label="${esc(title+(death?'，结局终点，不能跳转':''))}"><i class="tree-dot">${ready?(n.category==='hidden'?'♥':''):lockSVG}</i><span><small>${death?(n.category==='hidden'?'END · 隐藏结局':'END · 无法跳转'):selectedDay===0?(n.x<72+6*STEP?'第零日':'第一日'):groups[selectedDay]}</small><strong>${ready?esc(n.title):'？'}</strong></span>${jumpable?'<b aria-hidden="true">›</b>':''}</button>`;
+  return `<button type="button" class="choice-tree-node ${ready?'visited':'locked'} ${death?(n.category==='hidden'?'hidden-ending':n.category==='survival'?'death survival':'death'):''}" style="left:${n.x}px;top:${n.y-H/2}px" ${endingLink?`data-tree-ending="${esc(n.id)}"`:jumpable?`data-tree-jump="${esc(n.record)}"`:'disabled'} aria-label="${esc(title+(death?(endingLink?'，查看结局详情':'，尚未解锁'):''))}"><i class="tree-dot">${ready?(n.category==='hidden'?'♥':''):lockSVG}</i><span><small>${n.legacyLabel?esc(n.legacyLabel):death?(endingLink?'END · 查看结局':n.category==='hidden'?'END · 隐藏结局':'END · 未解锁'):selectedDay===0?(n.x<72+6*STEP?'第零日':'第一日'):groups[selectedDay]}</small><strong>${ready?esc(n.title):'？'}</strong></span>${jumpable?'<b aria-hidden="true">›</b>':''}</button>`;
  }).join('');
  screen.innerHTML=`<section class="choice-tree-page"><header class="choice-tree-top"><div class="choice-tree-heading"><div><h1>再一次抉择</h1><p>从左向右，重走曾经抵达的故事。</p></div></div><nav class="choice-tree-days" style="grid-template-columns:1.65fr repeat(${availableDays.length-1},minmax(0,1fr))" aria-label="按天切换剧情导图">${availableDays.map(i=>`<button type="button" data-tree-day="${i}" aria-current="${selectedDay===i}">${groups[i]}</button>`).join('')}</nav>${treeSectionDirectory(graph)}</header><div class="choice-tree-viewport"><div class="choice-tree-canvas" style="width:${graph.width}px;height:${graph.height}px"><svg class="choice-tree-lines" width="${graph.width}" height="${graph.height}" aria-hidden="true">${lines}</svg>${graph.sections.map(s=>`<div class="choice-tree-section" style="left:${s.x}px"><span>${s.label}</span><i></i></div>`).join('')}${cards}${graph.placeholder?'<p class="choice-tree-pending">故事尚未抵达这一天</p>':''}</div><div class="choice-tree-legend"><span>已抵达</span><span>未解锁</span><span>结局终点</span></div><div class="choice-tree-controls"><button type="button" data-tree-zoom="in" aria-label="放大">＋</button><button type="button" data-tree-zoom="out" aria-label="缩小">－</button><button type="button" class="tree-reset" data-tree-reset>回到起点</button></div><div class="choice-tree-direction">拖动查看 · 双指缩放 <span>时间向右 →</span></div></div><footer class="choice-tree-footer"><button type="button" class="secondary" data-action="zero-menu">返回主页</button></footer></section>`;
  bind();requestAnimationFrame(()=>{if(positions[selectedDay]){transform={...positions[selectedDay]};apply()}else reset()});
@@ -350,6 +375,13 @@ function apply(){const canvas=screen.querySelector('.choice-tree-canvas');if(can
 function reset(){const el=screen.querySelector('.choice-tree-viewport');if(!el)return;transform={scale:.82,x:18,y:el.clientHeight*.48-(graph?.focusY||420)*.82};apply()}
 function zoom(factor,x,y){const el=screen.querySelector('.choice-tree-viewport');if(!el)return;x=x??el.clientWidth/2;y=y??el.clientHeight/2;const old=transform.scale,next=Math.max(.3,Math.min(1.6,old*factor));transform.x=x-(x-transform.x)*next/old;transform.y=y-(y-transform.y)*next/old;transform.scale=next;apply()}
 function jump(id){
+ const legacy=legacyDayStarts[id];
+ if(view==='nodes'&&legacy){
+  const day=selectedDay;
+  sheet('旧存档回溯','<p>旧版本未保存这一天的开场快照。将从本日现存最早的读档点「'+esc(legacy.title)+'」继续，保留该存档当时的剧情和数值。</p><button type="button" class="primary" data-legacy-day-load>进入此读档点</button><button type="button" class="secondary" data-action="close">取消</button>');
+  document.querySelector('[data-legacy-day-load]').onclick=()=>{if(view!=='nodes'||selectedDay!==day||legacyDayStarts[id]!==legacy)return;closeSheet();loadStoryNode(legacy.sourceId)};
+  return;
+ }
  if(id==='tree-next-day'){
   if(view==='nodes'&&availableDays.includes(1)){positions[selectedDay]={...transform};selectedDay=1;delete positions[1];render()}
   return;
@@ -364,7 +396,16 @@ function bind(){
  el.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2&&pinch){dragged=true;const [a,b]=[...pointers.values()],box=el.getBoundingClientRect();zoom(pinch.scale*Math.hypot(a.x-b.x,a.y-b.y)/pinch.distance/transform.scale,(a.x+b.x)/2-box.left,(a.y+b.y)/2-box.top)}else if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>6)dragged=true;if(dragged){el.setPointerCapture(e.pointerId);transform.x=drag.tx+dx;transform.y=drag.ty+dy;apply()}}});
  const end=e=>{pointers.delete(e.pointerId);pinch=null;if(pointers.size===1){const p=[...pointers.values()][0];drag={x:p.x,y:p.y,tx:transform.x,ty:transform.y}}else{drag=null;el.classList.remove('dragging')}};
  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
- el.addEventListener('click',e=>{const b=e.target.closest('[data-tree-jump]');if(b&&!dragged)jump(b.dataset.treeJump)});
+ el.addEventListener('click',e=>{
+  const b=e.target.closest('[data-tree-jump],[data-tree-ending]');if(!b||dragged||view!=='nodes')return;
+  if(!b.dataset.treeEnding){jump(b.dataset.treeJump);return}
+  positions[selectedDay]={...transform};
+  const nodes=Array.from(screen.childNodes),scrolls=[screen,...screen.querySelectorAll('*')].filter(node=>node.scrollTop||node.scrollLeft).map(node=>({node,top:node.scrollTop,left:node.scrollLeft}));
+  window.endingGalleryOpenFromTree?.(b.dataset.treeEnding,()=>{
+   closeSheet();view='nodes';active=null;screen.replaceChildren(...nodes);rememberRoute();zeroChrome();
+   screen.scrollTop=0;screen.scrollLeft=0;scrolls.forEach(({node,top,left})=>{node.scrollTop=top;node.scrollLeft=left});b.focus({preventScroll:true});
+  });
+ });
  screen.querySelectorAll('[data-tree-section]').forEach(b=>b.onclick=()=>{const next=treeSectionPosition(graph,Number(b.dataset.treeSection),el.clientHeight,transform.scale);if(next){transform=next;apply()}});
  screen.querySelectorAll('[data-tree-day]').forEach(b=>b.onclick=()=>{positions[selectedDay]={...transform};selectedDay=Number(b.dataset.treeDay);render()});
  screen.querySelector('[data-tree-zoom="in"]').onclick=()=>zoom(1.2);screen.querySelector('[data-tree-zoom="out"]').onclick=()=>zoom(.82);screen.querySelector('[data-tree-reset]').onclick=reset;

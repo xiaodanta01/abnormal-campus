@@ -1,5 +1,5 @@
 /* Final-day rebuttal and report. Cursors, read gates and effects rewind with the save. */
-const D4_FINAL_CG='assets/day4-final-bed-phone.jpg';
+const D4_FINAL_CG='assets/day4-final-bed-phone.jpg?v=20261011-rc4';
 const D4_FINAL_REPORTERS={shen:'沈可欣',yeshu:'蒋小雪',gunian:'顾念',heyu:'何雨',yuwei:'余薇',baizhi:'白栀'};
 const D4_FINAL_SCRIPTS={
  opening:{rows:[],options:['你们刚才说，我申请成为委托人，是为了骗走普通生的票，对吧？'],next:'claim'},
@@ -35,8 +35,8 @@ const D4_FINAL_FAREWELL=[
 const D4_FINAL_NARRATION=[
  '你看着屏幕上的消息，忽然觉得这一切荒唐得可笑。',
  '人的价值可以被问卷评分，决定别人命运的权力可以随手委托，一个人的消失，也只需要轻描淡写地写成“请离”。',
- '这场游戏先给每个人贴上“普通生”或“学生会”的标签，再逼着所有人只凭这个标签判断善恶。',
- '沈可欣从获得学生会身份的那一刻起，她过去的每一次提醒都会变成笼络，每一次帮助都会变成算计。仿佛一个后来才获得的身份，真能穿过时间，把从前的她也一并改写。',
+ '这场游戏先给每个人贴上“普通生”或“学生会”的标签，再逼着所有人只凭这个标签评判善恶。',
+ '沈可欣从获得学生会身份的那一刻起，她过去的每一次提醒都会变成笼络，每一次帮助都会变成算计。',
  '只是比起承认人会矛盾、会改变，人们似乎更愿意相信一个简单的标签。'
 ];
 function d4Final(){return state.story.dayFourFinal}
@@ -110,7 +110,7 @@ function d4FinalConfirm(restoring=false){
 function d4FinalMarkDeparted(key,name){
  state.game.departedNpcs??={};state.game.departedNpcs[key]??={date:state.system.date,cause:'day4-final-report'};
  const p=reportPerson(key);
- for(const c of state.contacts)if(c.id===key||c.id===p?.contact||c.name?.replace(/[（(].*$/,'').trim()===name){c.status='已请离';c.online=false}
+ for(const c of state.contacts)if(c.id===key||c.id===p?.contact||c.name?.replace(/[（(].*$/,'').trim()===name){c.status='已离校';c.online=false}
 }
 function d4FinalSubmit(){
  const q=d4Final();if(q?.phase!=='confirm'||q.submittedAt)return;const person=reportStudent(q.confirmName);if(!person){q.phase='report';d4FinalReport();return}
@@ -157,7 +157,7 @@ let d4FinalLastTick=0,d4FinalLastSave=0;
 function d4FinalTick(){
  if(d3Paused()||state.game.day!==4){d4FinalLastTick=0;return}d4FinalBegin();const q=d4Final();if(!q)return;
  const now=Date.now(),elapsed=d4FinalLastTick?Math.min(500,now-d4FinalLastTick):0;d4FinalLastTick=now;
- if(q.phase==='chat'&&d4FinalInside()&&!document.querySelector('#overlay .sheet')){
+ if(q.phase==='chat'&&(d4FinalInside()||window.StoryResumeRecovery?.allow('d4-final'))&&!document.querySelector('#overlay .sheet')){
   q.remaining=Math.max(0,q.remaining-elapsed);if(!q.remaining){const def=D4_FINAL_SCRIPTS[q.script],row=def.rows[q.index];
    if(row){const i=q.index++,who=d4DebateWho(row[0]);q.remaining=messageSendDelay();if(d4DebatePresent(who))d4FinalWrite(who,row[1],'d4-final-'+q.script+'-'+i,row[2]==='identity'?{type:'d4-lin-identity'}:{});else persist()}
    else if(def.votes)d4FinalTransfer();else if(def.options){q.phase='choice';persist();d4FinalDecorate()}else d4FinalGo(def.next);
@@ -173,7 +173,7 @@ function d4FinalTick(){
    else d4FinalReadHuang();
   }
  }
- else if(q.phase==='farewell-wait'||q.phase==='farewell'&&d4FinalInside()){
+ else if(q.phase==='farewell-wait'||q.phase==='farewell'&&(d4FinalInside()||window.StoryResumeRecovery?.allow('d4-farewell'))){
   q.remaining=Math.max(0,q.remaining-elapsed);if(!q.remaining){const row=D4_FINAL_FAREWELL[q.index];
    if(row){const i=q.index++;q.remaining=messageSendDelay();if(row[0]==='shen'||d4DebatePresent(row[0])){q.phase='farewell';d4FinalWrite(row[0],row[1],'d4-final-farewell-'+i);if(!d4FinalInside())d4FinalGroupNotice()}else persist()}
    else {q.phase='cg';q.cgIndex=0;persist();d4FinalNarrate()}
@@ -190,7 +190,7 @@ Object.assign(actions,{
  'd4-final-lin-open':()=>openChat('linqing')
 });
 const d4FinalChatBase=openChat;openChat=function(id,...args){const result=d4FinalChatBase(id,...args);if(state.game.day===4&&d4Final()){if(id===HG_ID)d4FinalDecorate();if(id===D4_A_GROUP)d4FinalReadA();if(id===D4_HUANG)d4FinalReadHuang();if(id==='linqing'&&d4FinalInside('linqing'))document.querySelector('#d4-final-lin-notice')?.remove()}return result};
-const d4FinalMessageBase=renderMessage;renderMessage=function(m,c){let html=d4FinalMessageBase(m,c);if(c.id===HG_ID&&d4Final()?.correct&&d4Final().target==='shen'&&m.hgWho==='shen'){html=html.replace(/<small class="zero-left-status">[^<]*<\/small>/g,'');html=html.replace(/(<div class="sender-name">[^<]*)(<\/div>)/,'$1<small class="zero-left-status">已请离</small>$2')}return html};
+const d4FinalMessageBase=renderMessage;renderMessage=function(m,c){let html=d4FinalMessageBase(m,c);if(c.id===HG_ID&&d4Final()?.correct&&d4Final().target==='shen'&&m.hgWho==='shen'){html=html.replace(/<small class="zero-left-status">[^<]*<\/small>/g,'');html=html.replace(/(<div class="sender-name">[^<]*)(<\/div>)/,'$1<small class="zero-left-status">已离校</small>$2')}return html};
 function d4FinalRestoreView(route=state.story.route){
  const q=d4Final();if(!q)return;
  if(q.phase==='farewell-wait'&&q.index===0&&!q.huangRead){q.phase='huang-wait';q.huangIndex=0;q.remaining=messageSendDelay()}

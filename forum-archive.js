@@ -11,7 +11,7 @@ registerForumAccount('gossip-early-class','今天也不想早八','female');
 function repairChengRoomReferences(progress){
  for(const rows of Object.values(progress.messages||{}))for(const message of rows){
   if(message.text==='你以前说自己住316，为什么现在备注是602？')message.text='你以前说自己住318，为什么现在备注是602？';
-  if(message.type==='forum-shot'&&message.src==='assets/p1.jpg')message.src='assets/p1-room318.jpg';
+  if(message.type==='forum-shot'&&message.src==='assets/p1.jpg?v=20261011-rc4')message.src='assets/p1-room318.jpg?v=20261011-rc4';
  }
  for(const f of [progress.story?.freeAction,progress.story?.dayTwoFreeAction,progress.story?.dayThreeFreeAction])for(const clue of f?.clues||[])if(clue.id==='cheng'||clue.result==='cheng'){
   if(clue.title==='316与602')clue.title='318与602';

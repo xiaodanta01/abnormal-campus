@@ -1,7 +1,7 @@
 /* DAY02cg和自由行动: the author's midday dialogue and conditional investigations. */
-const D2_CG_IMAGES={desk:'assets/day2-midday-desk.jpg',lin:'assets/day2-midday-linqing.jpg',knit:'assets/day2-midday-knitting.jpg'};
+const D2_CG_IMAGES={desk:'assets/day2-midday-desk.jpg?v=20261011-rc4',lin:'assets/day2-midday-linqing.jpg?v=20261011-rc4',knit:'assets/day2-midday-knitting.jpg?v=20261011-rc4'};
 const D2_CG={
- intro:{image:'desk',rows:['早上发生的事情太多了，现在只觉得脑子里乱糟糟的。','你放下了手机，抬手揉了揉太阳穴。',{speaker:'linqing',text:'嘶……'}],next:'needle'},
+ intro:{image:'desk',rows:['早上发生的事情太多了，你现在只觉得脑子里乱糟糟的。','你放下了手机，抬手揉了揉太阳穴。',{speaker:'linqing',text:'嘶……'}],next:'needle'},
  needle:{image:'lin',rows:['旁边突然传来一声很轻的抽气声。',{speaker:'me',text:'怎么了？'},{speaker:'linqing',text:'没事，不小心被针扎了一下'}],next:'knitIntro'},
  knitIntro:{image:'knit',rows:['你起身走到林晴旁边，这才注意到林晴手里拿着毛线和织针。'],next:'knitChoice'},
  knitChoice:{image:'knit',choices:[['你在织什么？','scarf'],['你还会这个？','skill']]},

@@ -1,6 +1,6 @@
 /* Fixed public messaging identifiers; friendship permissions stay story-controlled. */
 const CONTACT_SOCIAL_PROFILES={
- hean:{signature:'无法与食物分手的女人',moments:[{date:'2045年7月30日 20:20',text:'鸡翅太好吃了……',image:'assets/hean-chicken-wings.jpg',imageAlt:'一锅鸡翅',replies:[]}]},
+ hean:{signature:'无法与食物分手的女人',moments:[{date:'2045年7月30日 20:20',text:'鸡翅太好吃了……',image:'assets/hean-chicken-wings.jpg?v=20261011-rc4',imageAlt:'一锅鸡翅',replies:[]}]},
  huangyiyi:{signature:'点开我资料干啥，暗恋我？',moments:[{date:'2045年9月4日 21:01',text:'我妈说我们现在日子过得好，都是无人机配送到柜，她那时候天天被偷外卖哈哈哈哈哈哈哈哈哈',replies:[]}]},
  zhoumo:{signature:'小幸运',moments:[{date:'2045年8月25日 00:02',text:'要和晓晓做一辈子的好朋友！',replies:[{name:'江晓',text:'那肯定呀'}]}]},
  yelin:{signature:'最烦装X的人',moments:[{date:'2045年7月21日 23:23',text:'哇 我居然是ESTJ',replies:[]}]}

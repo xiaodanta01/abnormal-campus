@@ -1,6 +1,6 @@
 /* Shen Kexin's personal profile and read-only moments. */
 const SHEN_PROFILE={name:'沈可欣',signature:'天气是时光机。',moments:[
- {id:'shen-birthday',date:'2045年1月7日 21:34',text:'今天又长大一岁了。自己买给自己的蛋糕，新的一岁希望自己不要再下意识讨好任何人了。',image:'assets/shen-cream-cake.jpg',imageAlt:'桌上的普通奶油蛋糕'}
+ {id:'shen-birthday',date:'2045年1月7日 21:34',text:'今天又长大一岁了。自己买给自己的蛋糕，新的一岁希望自己不要再下意识讨好任何人了。',image:'assets/shen-cream-cake.jpg?v=20261011-rc4',imageAlt:'桌上的普通奶油蛋糕'}
 ]};
 let shenOrigin={chat:'shen-friend',members:false};
 function shenAvatarButton(){return `<button class="npc-avatar-button" data-action="zero-shen-profile" aria-label="查看沈可欣个人资料">${avatar('shen')}</button>`}

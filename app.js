@@ -1,3 +1,111 @@
+// Presentation-only DOM reconciliation; never stored with story snapshots.
+const presentationPages=new WeakMap(),messagePositions=new WeakMap(),messageMarkupSources=new WeakMap();
+const presentationFrame=window.requestAnimationFrame.bind(window);
+// Explicit chat entry follows the newest message once; redraws and page returns
+// retain their existing position policy. This marker never enters a save.
+let chatEntryNavigation=null;
+window.addEventListener('click',event=>{
+ const control=event.target.closest('.opening-body,[data-contact]');
+ if(!control||control.disabled||control.closest('.opening-close'))return;
+ const ticket={state,chat:control.getAttribute('data-contact')||null,element:null};
+ chatEntryNavigation=ticket;
+ // Notifications which open a post, a form, or are blocked cannot leak a marker
+ // into an unrelated later chat update.
+ queueMicrotask(()=>{if(chatEntryNavigation===ticket&&!ticket.element)chatEntryNavigation=null});
+},true);
+function patchPresentationNode(old,node){
+ if(old.isEqualNode(node))return;
+ if(old.nodeType!==node.nodeType||old.nodeName!==node.nodeName){old.replaceWith(node.cloneNode(true));return}
+ if(old.nodeType!==1){if(old.nodeValue!==node.nodeValue)old.nodeValue=node.nodeValue;return}
+ for(const a of [...old.attributes])if(!node.hasAttribute(a.name))old.removeAttribute(a.name);
+ for(const a of [...node.attributes])if(old.getAttribute(a.name)!==a.value)old.setAttribute(a.name,a.value);
+ patchPresentationChildren(old,node);
+}
+function patchPresentationChildren(host,next){
+ const keyed=new Map([...host.children].filter(n=>n.hasAttribute('data-ui-message-key')).map(n=>[n.getAttribute('data-ui-message-key'),n]));
+ let cursor=host.firstChild;
+ for(const node of [...next.childNodes]){
+  const key=node.nodeType===1?node.getAttribute('data-ui-message-key'):null;
+  let old=key!==null?keyed.get(key):cursor;
+  if(key===null&&old?.nodeType===1&&old.hasAttribute('data-ui-message-key'))old=null;
+  if(!old){const added=node.cloneNode(true);host.insertBefore(added,cursor);if(key!==null)messageMarkupSources.set(added,node.outerHTML);continue}
+  if(old!==cursor)host.insertBefore(old,cursor);
+  const after=old.nextSibling;if(key===null||messageMarkupSources.get(old)!==node.outerHTML){patchPresentationNode(old,node);if(key!==null&&old.parentNode===host)messageMarkupSources.set(old,node.outerHTML)}cursor=after;
+ }
+ while(cursor){const after=cursor.nextSibling;cursor.remove();cursor=after}
+}
+function messageMarkup(rows,c){
+ return rows.map((m,i)=>{
+  const template=document.createElement('template');template.innerHTML=renderMessage(m,c);
+  [...template.content.children].forEach((el,j)=>el.setAttribute('data-ui-message-key',JSON.stringify([m.id??('position-'+i),j])));
+  return template.innerHTML;
+ }).join('');
+}
+function captureMessagePosition(el=document.querySelector('#messages')){
+ if(!el)return null;
+ let entry=messagePositions.get(el);
+ if(!entry){entry={top:el.scrollTop,bottom:el.scrollHeight-el.clientHeight-el.scrollTop<=8,queued:false};messagePositions.set(el,entry)}
+ return entry;
+}
+function queueMessagePosition(el=document.querySelector('#messages')){
+ const entry=captureMessagePosition(el);if(!entry||entry.queued)return;
+ entry.queued=true;presentationFrame(()=>flushMessagePosition(el,entry));
+}
+function flushMessagePosition(el,entry=messagePositions.get(el)){
+  // Layout observers may settle this entry before its queued frame runs.
+  if(!entry||messagePositions.get(el)!==entry)return;
+  messagePositions.delete(el);
+  const ticket=entry.navigation;
+  if(chatEntryNavigation===ticket)chatEntryNavigation=null;
+  if(!el.isConnected||document.querySelector('#messages')!==el)return;
+  const latest=!!ticket&&ticket.state===state&&view==='chat'&&ticket.chat===active&&ticket.element===el;
+  // One write after all synchronous decorators and choice removal, before paint.
+  const top=latest||entry.bottom?Math.max(0,el.scrollHeight-el.clientHeight):entry.top;
+  if(el.scrollTop!==top)el.scrollTop=top;
+  // A scoped caller can include an option panel in this same positioning pass.
+  const reveal=entry.reveal;
+  if(reveal?.isConnected&&screen.contains(reveal)){
+   const bottom=reveal.getBoundingClientRect().bottom,viewport=screen.getBoundingClientRect();
+   if(bottom>viewport.bottom)screen.scrollTop+=bottom-viewport.bottom;
+  }
+}
+function renderPresentationPage(html,key,stage=''){
+ const template=document.createElement('template');template.innerHTML=html;
+ const page=screen.firstElementChild,previous=page&&presentationPages.get(page),same=previous?.key===key;
+ const main=same?page.querySelector('.reason-main'):null,top=main?.scrollTop||0;
+ const focus=same&&page.contains(document.activeElement)?document.activeElement:null;
+ const focusAttrs=focus?[...focus.attributes].filter(a=>a.name==='id'||a.name.startsWith('data-')):[];
+ if(same){
+  if(key.startsWith('chat:'))captureMessagePosition();
+  patchPresentationChildren(screen,template.content);
+ }else{screen.innerHTML=html;for(const el of screen.querySelectorAll('[data-ui-message-key]'))messageMarkupSources.set(el,el.outerHTML)}
+ const current=screen.firstElementChild;if(!current)return;
+ presentationPages.set(current,{key,stage});
+ if(key.startsWith('chat:')){
+  const messages=current.querySelector('#messages');
+  if(messages){
+   messages.style.overflowAnchor='none';messages.style.scrollBehavior='auto';
+   if(!same)messagePositions.set(messages,{top:0,bottom:true,queued:false});
+   const ticket=chatEntryNavigation,id=key.slice(5);
+   if(ticket&&ticket.state===state&&(!ticket.chat||ticket.chat===id)){
+    ticket.chat=id;ticket.element=messages;captureMessagePosition(messages).navigation=ticket;
+   }
+   queueMessagePosition(messages);
+  }
+ }else{
+  const sameStage=same&&previous.stage===stage;
+  if(sameStage){current.classList.add('reason-stable-update');if(focus&&!focus.isConnected&&focusAttrs.length){const target=[...current.querySelectorAll('button,input,[tabindex]')].find(n=>n.tagName===focus.tagName&&focusAttrs.every(a=>n.getAttribute(a.name)===a.value));target?.focus({preventScroll:true})}}
+  else current.classList.remove('reason-stable-update');
+  const body=current.querySelector('.reason-main');if(body)body.scrollTop=sameStage?top:0;
+ }
+}
+document.addEventListener('click',event=>{
+ if(view!=='chat'||!event.target.closest('button'))return;
+ const entry=captureMessagePosition();
+ const button=event.target.closest('button');
+ if(entry&&!button.disabled&&(button.closest('.zero-choices,[data-story-reply-box]')||button.hasAttribute('data-story-reply')||[...button.attributes].some(a=>/^data-.*(?:choice|reply)$/.test(a.name))))entry.bottom=true;
+ queueMessagePosition();
+},true);
 const C=window.CAMPUS_CONFIG;const icons={chat:'M5 5h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-6 4V7a2 2 0 0 1 2-2z M8 10h8 M8 14h5',phone:'M7 3l3 5-3 3c2 3 3 4 6 6l3-3 5 3c0 4-3 5-6 4C8 18 4 14 3 7 2 4 4 2 7 3',text:'M4 4h16v14H9l-5 4z M8 9h8 M8 13h6',card:'M3 5h18v14H3z M7 9h3v4H7z M14 9h4 M14 13h3',wall:'M4 4h7v7H4z M14 4h6v5h-6z M4 14h7v6H4z M14 12h6v8h-6z',bell:'M6 9a6 6 0 0 1 12 0v6l3 3H3l3-3z M10 21h4',wallet:'M3 6h17v14H3z M3 6l14-3v3 M15 11h6v5h-6z',box:'M3 7l9-4 9 4v11l-9 4-9-4z M3 7l9 4 9-4 M12 11v11 M7 5l9 4',truck:'M3 5h12v12H3z M15 9h4l3 4v4h-7 M6 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4 M18 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4',map:'M3 5l6-2 6 3 6-2v16l-6 2-6-3-6 2z M9 3v16 M15 6v16',photo:'M3 4h18v16H3z M3 16l6-6 5 5 3-3 4 4 M16 8h.01',camera:'M3 7h4l2-3h6l2 3h4v13H3z M16 13a4 4 0 1 1-8 0 4 4 0 0 1 8 0',globe:'M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0 M2 12h20 M12 2c6 7 6 13 0 20-6-7-6-13 0-20',note:'M5 3h14v18H5z M9 8h6 M9 12h6 M9 16h4',calendar:'M3 5h18v16H3z M3 10h18 M7 3v4 M17 3v4 M8 14h2 M14 14h2 M8 17h2',mail:'M3 5h18v14H3z M3 5l9 8 9-8',heart:'M12 21L3 12C-3 3 9-1 12 7c3-8 15-4 9 5z',settings:'M19.02 9.09 L19.41 10.29 L21.85 10.26 L21.85 13.74 L19.41 13.71 L19.02 14.91 L18.45 16.03 L20.19 17.74 L17.74 20.19 L16.03 18.45 L14.91 19.02 L13.71 19.41 L13.74 21.85 L10.26 21.85 L10.29 19.41 L9.09 19.02 L7.97 18.45 L6.26 20.19 L3.81 17.74 L5.55 16.03 L4.98 14.91 L4.59 13.71 L2.15 13.74 L2.15 10.26 L4.59 10.29 L4.98 9.09 L5.55 7.97 L3.81 6.26 L6.26 3.81 L7.97 5.55 L9.09 4.98 L10.29 4.59 L10.26 2.15 L13.74 2.15 L13.71 4.59 L14.91 4.98 L16.03 5.55 L17.74 3.81 L20.19 6.26 L18.45 7.97 Z M15.2 12a3.2 3.2 0 1 1-6.4 0 3.2 3.2 0 0 1 6.4 0',lock:'M5 10h14v11H5z M8 10V6a4 4 0 0 1 8 0v4',unknown:'M8 7a4 4 0 1 1 6 4l-2 2v2 M12 19h.01',back:'M15 5l-7 7 7 7',search:'M16 10a6 6 0 1 1-12 0 6 6 0 0 1 12 0 M15 15l6 6',plus:'M12 4v16 M4 12h16',send:'M3 3l18 9-18 9 4-9z M7 12h14',mic:'M9 4a3 3 0 0 1 6 0v9a3 3 0 0 1-6 0z M5 11v2a7 7 0 0 0 14 0v-2 M12 20v3',smile:'M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0 M8 9h.01 M16 9h.01 M7 14q5 7 10 0',video:'M3 5h12v14H3z M15 9l6-4v14l-6-4',more:'M5 12h.01 M12 12h.01 M19 12h.01',user:'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 22v-3a8 8 0 0 1 16 0v3',file:'M5 2h9l5 5v15H5z M14 2v6h5 M8 12h8 M8 16h6',robot:'M4 7h16v13H4z M12 3v4 M8 12h.01 M16 12h.01 M8 16h8 M1 11v5 M23 11v5',moon:'M20 15A9 9 0 0 1 9 3a9 9 0 1 0 11 12',wifi:'M2 8q10-9 20 0 M5 12q7-6 14 0 M8 16q4-3 8 0 M12 20h.01',mute:'M4 10h4l5-5v14l-5-5H4z M17 9l5 6 M22 9l-5 6',signal:'M4 20v-3 M9 20v-7 M14 20V9 M19 20V4',check:'M5 12l4 4L20 5'};
 const icon=n=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${icons[n]||icons.unknown}"/></svg>`;const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORAGE_KEY=new URLSearchParams(location.search).get('dev')==='1'?'afterclass-day1-test':'afterclass-v1';let saved={};saved=SaveSchema.normalize(JSON.parse(GameStorage.getItem(STORAGE_KEY)||'{}'));let state={profile:null,accent:'#477f73',system:{...C.system},game:structuredClone(C.initialState),contacts:structuredClone(C.contacts),messages:structuredClone(C.messages),...saved};let view='home',active=null;const screen=document.querySelector('#screen');function persist(){if(window.mobileLaunch||(typeof storyRestoring!=='undefined'&&storyRestoring))return;try{if(['game-menu','nodes'].includes(view)){if(typeof savePermanentStorySettings==='function')savePermanentStorySettings(state);return}const snapshot=typeof prepareCurrentStorySave==='function'?prepareCurrentStorySave(state):state;if(snapshot===null)return;GameStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot))}catch(error){GameStorage.report(error,toast)}}function totalUnread(){return state.contacts.reduce((n,c)=>n+c.unread,0)}function appButton(a){const n=a.id==='messages'?totalUnread():a.unread;return `<button class="app-button ${a.locked&&!state.game.unlockedApps.includes(a.id)?'locked':''}" data-app="${a.id}" aria-label="${a.name}"><span class="app-icon ${a.tone}">${icon(a.icon)}${n?`<b class="badge">${n}</b>`:''}</span><span>${a.name}</span></button>`}function signalIcon(n){return `<svg viewBox="0 0 24 24" aria-label="信号 ${n} 格">${[0,1,2,3].map(i=>`<path d="M${4+i*5} 20v-${3+i*4}" opacity="${i<n?1:.2}"/>`).join('')}</svg>`}function status(){document.querySelector('#status').innerHTML=`<span>${esc(state.system.time)}</span><div class="status-icons">${state.system.silent?icon('mute'):''}<span style="opacity:${state.system.signal?1:.3}">${signalIcon(state.system.signal)}</span>${state.system.wifi?icon('wifi'):''}<span class="battery">${state.system.battery}<span style="border:1px solid #94a3ad;border-radius:3px;padding:2px;width:21px;height:11px;display:inline-block"><span style="display:block;background:#b5c8c0;height:5px;width:${state.system.battery}%"></span></span></span></div>`;document.querySelector('#dock').innerHTML=C.dock.map(id=>appButton(C.apps.find(a=>a.id===id))).join('')}function home(){view='home';active=null;status();const visible=C.apps.filter(a=>a.visible!==false||state.game.unlockedApps.includes(a.id));const main=C.homeLayout.main.map(id=>visible.find(a=>a.id===id)).filter(Boolean);screen.innerHTML=`<section class="home personal-home"><div class="home-greeting"><span>${esc(state.profile?.name||'同学')}的手机 <span class="tiny-star">✧</span></span><span class="date-chip">${esc(state.system.date.slice(5).replace('-',' / '))}</span></div><div class="home-title"><div><div class="home-clock">${esc(state.system.time)}</div><div class="date">${esc(state.system.time>='12:00'&&state.system.time<'18:00'?'下午':state.game.period)} · 留一点时间给自己</div></div><div class="night"><span class="moon-drawing">${icon('moon')}<i>✦</i></span><span>晴，18°</span></div></div><div class="widgets"><button class="widget campus-widget" data-app="campus"><span class="eyebrow">今日校园 <span>↗</span></span><span class="campus-name">东川大学</span><strong><i class="live-dot"></i>校园运行正常</strong><small>一切如常，安心晚归。</small><span class="campus-sticker" aria-hidden="true">✳</span></button><button class="widget wallet-widget" data-app="wallet"><span class="eyebrow">我的小金库 <span>↗</span></span><strong class="amount"><small>¥</small> ${state.game.wallet.toFixed(2)}</strong><small>可用余额</small><span class="wallet-art" aria-hidden="true">${icon('wallet')}</span></button></div><div class="home-section"><span>我的日常</span><span>✧ &nbsp; MY SPACE</span></div><div class="app-grid">${main.map(appButton).join('')}</div><div class="home-footnote"><span></span> 点击设置可返回游戏主页 <span></span></div></section>`}function toast(s){const el=document.querySelector('#toast');el.textContent=s;el.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.remove('show'),2600)}document.addEventListener('click',e=>{const b=e.target.closest('[data-app]');if(b)openApp(b.dataset.app)});document.querySelector('#homebar').onclick=()=>home();home();
@@ -23,8 +131,8 @@ function contactRow(c){return `<button class="contact ${c.pinned?'pinned':''} ${
 function chatList(){view='messages';active=null;screen.innerHTML=`<section class="app-page"><header class="page-head"><button class="icon-button" data-action="home" aria-label="返回桌面">${icon('back')}</button><button class="self-avatar list-self" data-action="profile" aria-label="修改我的头像">${avatar('me')}</button><h1>讯息<span class="subtle" style="margin-left:10px;font-size:13px">${totalUnread()?`(${totalUnread()})`:''}</span></h1><button class="icon-button" data-action="new-chat" aria-label="新建聊天">${icon('plus')}</button></header><label class="search">${icon('search')}<input id="search" placeholder="搜索联系人和消息" aria-label="搜索联系人和消息"></label><div class="list-label"><span>全部讯息</span><span>校内加密连接</span></div><div id="contact-list">${[...state.contacts].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)).map(contactRow).join('')}</div><div class="list-footer">所有消息已同步至本机</div></section>`;document.querySelector('#search').oninput=e=>{let q=e.target.value.trim().toLowerCase();document.querySelector('#contact-list').innerHTML=state.contacts.filter(c=>(c.name+c.preview).toLowerCase().includes(q)).map(contactRow).join('')||'<div class="empty-app subtle">未找到相关联系人</div>'}}
 const messageRenderers={text:m=>esc(m.text),image:m=>m.src?`<img class="image-message" src="${esc(m.src)}" alt="${esc(m.text||'图片')}">`:'[图片待载入]',voice:m=>`<div class="attachment-card">${icon('mic')}<span>语音消息 · ${Number(m.duration)||12}″</span></div>`,file:m=>`<div class="attachment-card">${icon('file')}<span>${esc(m.text)}<small>${esc(m.detail||'文件待载入')}</small></span></div>`,transfer:m=>`<div class="attachment-card">${icon('wallet')}<span>¥ ${Number(m.amount||0).toFixed(2)}<small>${esc(m.text||'转账')}</small></span></div>`,location:m=>`<div class="attachment-card">${icon('map')}<span>${esc(m.text||'校园位置')}</span></div>`,contact:m=>`<div class="attachment-card">${icon('user')}<span>${esc(m.text)}<small>联系人名片</small></span></div>`,reply:m=>`<div class="quote">${esc(m.quote)}</div>${esc(m.text)}`,ephemeral:m=>`${esc(m.text)}<div class="emoji-status">◷ ${m.expiresAt?'限时消息':'自动销毁消息 · 等待计时'}</div>`,unknown:m=>`<div class="unknown-message">无法识别的消息<br><small>${esc(m.text||'数据格式不受支持')}</small></div>`};
 function renderMessage(m,c){if(m.type==='system'||m.type==='recalled')return `<div class="system-msg">${esc(m.text||'消息已撤回')}</div>`;if(m.type==='ephemeral'&&m.expiresAt&&Date.now()>=m.expiresAt)return '<div class="system-msg">限时消息已销毁</div>';let mine=m.sender==='me';return `<div class="message ${mine?'mine':''}">${mine?`<button class="self-avatar" data-action="profile" aria-label="修改我的头像">${avatar('me')}</button>`:avatar(currentAvatarId(m.sender||c.avatar,false,m.name||c.name))}<div class="message-main">${m.name&&!mine&&c.members?`<div class="sender-name">${esc(m.name)}</div>`:''}<div class="bubble">${(messageRenderers[m.type]||messageRenderers.unknown)(m)}</div><div class="message-meta">${esc(m.time||state.system.time)} ${mine?`<span class="${m.status==='read'?'read':''}">${({sent:'✓ 已发送',delivered:'✓✓ 已送达',read:'✓✓ 已读'})[m.status]||'✓ 已发送'}</span>`:''}</div></div></div>`}
-function openChat(id){const c=state.contacts.find(c=>c.id===id);if(!c)return;active=id;view='chat';c.unread=0;persist();closeSheet();status();screen.innerHTML=`<section class="chat-page"><header class="chat-head"><button class="icon-button" data-action="list" aria-label="返回聊天列表">${icon('back')}</button>${c.id==='linqing'?`<button class="npc-avatar-button" data-action="zero-lin-profile" aria-label="查看林晴个人资料">${avatar('linqing')}</button>`:avatar(c.avatar,'',c.members)}<div class="person"><strong>${esc(c.name)}</strong><small>${esc(c.status)}</small></div><button class="icon-button" data-action="voice-call" aria-label="语音通话">${icon('phone')}</button><button class="icon-button" data-action="video-call" aria-label="视频通话">${icon('video')}</button><button class="icon-button" data-action="chat-options" aria-label="更多选项">${icon('more')}</button></header><div class="messages" id="messages">${(state.messages[id]||[]).map(m=>renderMessage(m,c)).join('')}</div>${c.typing?'<div class="typing">对方正在输入…</div>':''}<form class="composer" id="composer" inert aria-disabled="true"><button type="button" class="icon-button" disabled aria-label="语音消息">${icon('mic')}</button><textarea id="message-input" placeholder="发送讯息…" aria-label="消息输入栏，暂不可输入" maxlength="4000" disabled readonly tabindex="-1"></textarea><button type="button" class="icon-button" disabled aria-label="表情">${icon('smile')}</button><button type="button" class="icon-button" disabled aria-label="附件">${icon('plus')}</button><button class="icon-button send" id="send" type="button" disabled aria-label="发送">${icon('send')}</button></form></section>`;document.querySelector('#composer').onsubmit=e=>e.preventDefault();scrollMessages()}
-const drafts={};function scrollMessages(){const el=document.querySelector('#messages');if(el)el.scrollTop=el.scrollHeight}function sendMessage(id,text){text=String(text).trim();if(!text||text.length>4000)return false;const c=state.contacts.find(c=>c.id===id);if(!c)return false;const m={id:'m'+Date.now(),type:'text',sender:'me',text,time:state.system.time,status:'sent'};(state.messages[id]??=[]).push(m);c.preview='我：'+text;c.time=state.system.time;drafts[id]='';persist();if(active===id)openChat(id);storyTimeout(()=>{m.status='delivered';persist();if(active===id)refreshMessages()},700);if(c.online)storyTimeout(()=>{m.status='read';persist();if(active===id)refreshMessages()},1800);return true}function refreshMessages(){const c=state.contacts.find(c=>c.id===active);if(!c)return;document.querySelector('#messages').innerHTML=``+(state.messages[active]||[]).map(m=>renderMessage(m,c)).join('');scrollMessages()}
+function openChat(id){const c=state.contacts.find(c=>c.id===id);if(!c)return;active=id;view='chat';c.unread=0;persist();closeSheet();status();renderPresentationPage(`<section class="chat-page"><header class="chat-head"><button class="icon-button" data-action="list" aria-label="返回聊天列表">${icon('back')}</button>${c.id==='linqing'?`<button class="npc-avatar-button" data-action="zero-lin-profile" aria-label="查看林晴个人资料">${avatar('linqing')}</button>`:avatar(c.avatar,'',c.members)}<div class="person"><strong>${esc(c.name)}</strong><small>${esc(c.status)}</small></div><button class="icon-button" data-action="voice-call" aria-label="语音通话">${icon('phone')}</button><button class="icon-button" data-action="video-call" aria-label="视频通话">${icon('video')}</button><button class="icon-button" data-action="chat-options" aria-label="更多选项">${icon('more')}</button></header><div class="messages" id="messages">${messageMarkup(state.messages[id]||[],c)}</div>${c.typing?'<div class="typing">对方正在输入…</div>':''}<form class="composer" id="composer" inert aria-disabled="true"><button type="button" class="icon-button" disabled aria-label="语音消息">${icon('mic')}</button><textarea id="message-input" placeholder="发送讯息…" aria-label="消息输入栏，暂不可输入" maxlength="4000" disabled readonly tabindex="-1"></textarea><button type="button" class="icon-button" disabled aria-label="表情">${icon('smile')}</button><button type="button" class="icon-button" disabled aria-label="附件">${icon('plus')}</button><button class="icon-button send" id="send" type="button" disabled aria-label="发送">${icon('send')}</button></form></section>`,'chat:'+id);document.querySelector('#composer').onsubmit=e=>e.preventDefault();scrollMessages()}
+const drafts={};function scrollMessages(){queueMessagePosition()}function sendMessage(id,text){text=String(text).trim();if(!text||text.length>4000)return false;const c=state.contacts.find(c=>c.id===id);if(!c)return false;const m={id:'m'+Date.now(),type:'text',sender:'me',text,time:state.system.time,status:'sent'};(state.messages[id]??=[]).push(m);c.preview='我：'+text;c.time=state.system.time;drafts[id]='';persist();if(active===id)openChat(id);storyTimeout(()=>{m.status='delivered';persist();if(active===id)refreshMessages()},700);if(c.online)storyTimeout(()=>{m.status='read';persist();if(active===id)refreshMessages()},1800);return true}function refreshMessages(){const c=state.contacts.find(c=>c.id===active);if(!c)return;const el=document.querySelector('#messages');if(!el)return;captureMessagePosition(el);const template=document.createElement('template');template.innerHTML=messageMarkup(state.messages[active]||[],c);patchPresentationChildren(el,template.content);scrollMessages()}
 let lastFocus=null;function sheet(title,body){lastFocus=document.activeElement;document.querySelector('#overlay').innerHTML=`<div class="sheet-backdrop"><section class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-header"><h2>${title}</h2><button class="icon-button" data-action="close" aria-label="关闭">×</button></div>${body}</section></div>`;document.querySelector('.sheet button,.sheet input')?.focus()}function closeSheet(){document.querySelector('#overlay').innerHTML='';lastFocus?.focus();lastFocus=null}let chosenAvatar='student0';
 function profileSetup(){chosenAvatar=C.playerAvatars.some(a=>a.id===state.profile?.avatar)?state.profile.avatar:C.playerAvatars[0].id;lastFocus=document.activeElement;document.querySelector('#overlay').innerHTML=`<div class="sheet-backdrop"><section class="sheet profile-sheet" role="dialog" aria-modal="true" aria-label="个人资料设置"><div class="setup-kicker">AFTERCLASS / 个人终端</div><h2>${state.story?.started===false?'晚上好，同学。':state.profile?'编辑个人资料':'晚上好，同学。'}</h2><p>设置你的昵称和头像，让这台手机属于你。</p><form id="profile-form"><label class="field-label" for="nickname">你的昵称</label><input class="nickname" id="nickname" maxlength="16" required placeholder="怎么称呼你？" value="${esc(state.profile?.name||'')}" autocomplete="nickname"><span class="field-label">选择头像</span><div class="avatar-grid">${C.playerAvatars.map(a=>`<button type="button" class="avatar-choice ${a.id===chosenAvatar?'selected':''}" data-avatar="${a.id}" aria-label="头像 ${a.name}" aria-pressed="${a.id===chosenAvatar}">${avatar(a.id)}</button>`).join('')}</div><button class="primary" type="submit">${state.story?.started===false?'进入校园':state.profile?'保存修改':'进入校园'} →</button>${state.profile&&state.story?.started!==false?'<button class="secondary" type="button" data-action="close">取消</button>':''}</form></section></div>`;document.querySelector('#profile-form').onsubmit=e=>{e.preventDefault();const name=document.querySelector('#nickname').value.trim();if(!name){document.querySelector('#nickname').focus();toast('请输入昵称');return}if(!C.playerAvatars.some(a=>a.id===chosenAvatar))return;state.profile={...state.profile,name,avatar:chosenAvatar};window.DayOne?.profileSaved();persist();closeSheet();if(view==='settings')settings();else if(view==='chat')openChat(active);else if(view==='messages')chatList();else if(view==='home')home();toast('个人资料已保存')};document.querySelector('#nickname').focus()}
 function setColor(color){state.accent=color;document.documentElement.style.setProperty('--accent',color);persist();settings();appearance()}
@@ -53,14 +161,46 @@ if(state.profile&&!C.playerAvatars.some(a=>a.id===state.profile.avatar)){state.p
 
 
 // Forum and shop content is configured independently in CAMPUS_CONFIG.
+// Campus-wall position belongs to the current UI session, not a save snapshot.
+let wallBrowsePosition=null,wallPositionFrame=0,wallPositionRestoring=false;
+function wallPositionOwner(){return state.hospitalPhoneData?state:typeof hospitalPhoneMode==='function'&&hospitalPhoneMode()?state.story?.dayFourSleep?.phone||state:state}
+function captureWallPosition(){
+ if(view!=='wall'||wallPositionRestoring)return;
+ const page=screen.querySelector('.forum-page');if(!page)return;
+ wallBrowsePosition={owner:wallPositionOwner(),category:screen.querySelector('[data-forum-category].current')?.dataset.forumCategory||forumCategory,top:screen.scrollTop,pageTop:page.scrollTop};
+}
+function prepareWallPosition(){
+ if(view==='wall')captureWallPosition();
+ const saved=wallBrowsePosition?.owner===wallPositionOwner()?wallBrowsePosition:null;
+ if(saved)forumCategory=saved.category;
+ wallPositionRestoring=true;return saved;
+}
+function restoreWallPosition(saved){
+ const token=++wallPositionFrame,page=screen.querySelector('.forum-page'),owner=wallPositionOwner();
+ presentationFrame(()=>{
+  if(token!==wallPositionFrame)return;
+  wallPositionRestoring=false;
+  if(view!=='wall'||owner!==wallPositionOwner()||!page?.isConnected)return;
+  screen.scrollTop=Math.min(saved?.top||0,Math.max(0,screen.scrollHeight-screen.clientHeight));
+  page.scrollTop=Math.min(saved?.pageTop||0,Math.max(0,page.scrollHeight-page.clientHeight));
+  captureWallPosition();
+ });
+}
+document.addEventListener('click',event=>{
+ const b=event.target.closest('button');if(!b||b.disabled)return;
+ if(b.dataset.app==='wall'||b.hasAttribute('data-forum-category')){
+  wallBrowsePosition=null;wallPositionRestoring=true;wallPositionFrame++;
+ }else if(view==='wall')captureWallPosition();
+},true);
 let forumCategory='全部',shopCategory='全部',shopQuery='';
+screen.addEventListener('scroll',captureWallPosition,true);
 state.forumPosts??=structuredClone(C.forumPosts);
 state.cart??={};state.orders??=[];state.preferences??={notifications:true};
 const money=n=>(n/100).toFixed(2);
 // Ordinary phone renderers, before story modules decorate them with rules and tasks.
 const ordinaryPhoneUI={home,status,openApp,chatList,contactRow,openChat,renderMessage,forum,postDetail,writePost,shop,productCards,cartLines,cartTotal,quantity,cartSheet,orders,productArt,notebookPageMarkup};
 const ordinaryPhoneCatalog={products:structuredClone(C.products),posts:structuredClone(C.forumPosts)};
-function forum(){view='wall';active=null;screen.innerHTML=`<section class="app-page forum-page">${head('校园墙')}<div class="forum-intro"><span>东川大学 · 校内论坛</span><button class="pill-button" data-action="write-post">＋ 发帖</button></div><div class="category-tabs">${['全部','校园新规','校园日常','互助问答','失物招领'].map(x=>`<button data-forum-category="${x}" class="${forumCategory===x?'current':''}">${x}</button>`).join('')}</div><div class="forum-banner"><span>置顶</span> 社区公约：友善交流，保护个人信息</div><div id="forum-feed">${state.forumPosts.filter(p=>forumCategory==='全部'||p.category===forumCategory).map(p=>`<button class="forum-post" data-post="${p.id}"><div class="post-author">${forumAvatar(p.author,p.name,p.gender)}<span>${esc(p.author==='me'?state.profile.name:p.name)}<small>${esc(wallDateLabel(p))} · ${esc(p.category)}</small></span></div><h2>${esc(p.title)}</h2><p>${esc(p.body)}</p><div class="post-foot"><span>♡ ${p.likes||0}</span><span>${icon('chat')} ${p.replies.length} 回复</span><span>查看讨论 ›</span></div></button>`).join('')||'<p class="empty-app subtle">这里还没有帖子，来聊点什么吧。</p>'}</div></section>`}
+function forum(){const browsePosition=prepareWallPosition();view='wall';active=null;screen.innerHTML=`<section class="app-page forum-page">${head('校园墙')}<div class="forum-intro"><span>东川大学 · 校内论坛</span><button class="pill-button" data-action="write-post">＋ 发帖</button></div><div class="category-tabs">${['全部','校园新规','校园日常','互助问答','失物招领'].map(x=>`<button data-forum-category="${x}" class="${forumCategory===x?'current':''}">${x}</button>`).join('')}</div><div class="forum-banner"><span>置顶</span> 社区公约：友善交流，保护个人信息</div><div id="forum-feed">${state.forumPosts.filter(p=>forumCategory==='全部'||p.category===forumCategory).map(p=>`<button class="forum-post" data-post="${p.id}"><div class="post-author">${forumAvatar(p.author,p.name,p.gender)}<span>${esc(p.author==='me'?state.profile.name:p.name)}<small>${esc(wallDateLabel(p))} · ${esc(p.category)}</small></span></div><h2>${esc(p.title)}</h2><p>${esc(p.body)}</p><div class="post-foot"><span>♡ ${p.likes||0}</span><span>${icon('chat')} ${p.replies.length} 回复</span><span>查看讨论 ›</span></div></button>`).join('')||'<p class="empty-app subtle">这里还没有帖子，来聊点什么吧。</p>'}</div></section>`;restoreWallPosition(browsePosition)}
 function postDetail(id){const p=state.forumPosts.find(p=>p.id===id);if(!p)return;view='post';active=id;screen.innerHTML=`<section class="app-page forum-page"><header class="page-head"><button class="icon-button" data-action="forum" aria-label="返回校园墙">${icon('back')}</button><h1>帖子详情</h1></header><article class="post-detail"><div class="post-author">${forumAvatar(p.author,p.name,p.gender)}<span>${esc(p.author==='me'?state.profile.name:p.name)}<small>${esc(wallDateLabel(p))} · ${esc(p.category)}</small></span></div><h2>${esc(p.title)}</h2><p>${esc(p.body)}</p><button class="pill-button ${p.liked?'liked':''}" data-like="${p.id}">${p.liked?'♥ 已赞':'♡ 点赞'} ${p.likes||0}</button></article><h3 class="reply-title">全部回复 · ${p.replies.length}</h3>${p.replies.map(r=>`<div class="forum-reply ${r.replyTo?'archive-nested':''}">${forumAvatar(r.author,r.name,r.gender)}<div><strong>${esc(r.author==='me'?state.profile.name:r.name)}</strong><p>${r.replyTo?'回复 '+esc(r.replyTo)+'：':''}${esc(r.text)}</p><small>${esc(wallDateLabel(r,p.date))}</small></div></div>`).join('')||'<p class="subtle">还没有回复，来坐沙发。</p>'}<form id="reply-form" class="reply-form"><input name="reply" aria-label="回复内容" placeholder="友善地说两句…" required maxlength="500"><button class="pill-button" type="submit">回复</button></form></section>`;document.querySelector('#reply-form').onsubmit=e=>{e.preventDefault();const text=e.target.elements.reply.value.trim();if(!text)return;p.replies.push({author:'me',name:state.profile.name,text,date:state.system.date,time:state.system.time});persist();postDetail(id)}}
 function writePost(){sheet('发布帖子',`<form id="post-form" class="post-form"><label>分区<select name="category">${['校园日常','互助问答','失物招领'].map(x=>`<option>${x}</option>`).join('')}</select></label><input name="title" placeholder="标题，说说你想聊的事" aria-label="帖子标题" required maxlength="60"><textarea name="body" placeholder="写下正文…" aria-label="帖子正文" required maxlength="2000"></textarea><button class="pill-button forum-publish" type="submit">发布</button></form>`);document.querySelector('#post-form').closest('.sheet').classList.add('forum-compose-sheet');document.querySelector('#post-form').onsubmit=e=>{e.preventDefault();const f=e.target.elements,title=f.title.value.trim(),body=f.body.value.trim();if(!title||!body)return;state.forumPosts.unshift({id:'post-'+Date.now(),author:'me',name:state.profile.name,title,body,category:f.category.value,date:state.system.date,time:state.system.time,likes:0,replies:[]});persist();closeSheet();forumCategory='全部';forum();toast('已发布')}}
 function cartLines(){return C.products.filter(p=>Number.isInteger(state.cart[p.id])&&state.cart[p.id]>0).map(p=>({...p,quantity:state.cart[p.id]}))}

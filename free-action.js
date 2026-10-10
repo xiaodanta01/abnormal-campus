@@ -1,7 +1,7 @@
 /* Four investigations per day; shared schedule for prompts and settlement. */
 const FREE_ACTION_LIMIT=4;
 const FREE_ACTION_TIMES=['13:00','14:00','15:00','16:00'];
-const FREE_REST_ACTION={id:'d2sleep',name:'睡一觉',description:'休息一下，精神+20',icon:'moon'};
+const FREE_REST_ACTION={id:'d2sleep',name:'睡一觉',description:'休息一下，精力值+20',icon:'moon'};
 const FREE_ACTIONS=[
  {id:'cheng',name:'在群内和程昕对峙',description:'查看群内的讨论',icon:'chat'},
  {id:'door',name:'查看408智能门锁',description:'查看宿舍门锁信息',icon:'lock'},

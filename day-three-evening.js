@@ -54,7 +54,7 @@ function d3EveningChoose(key,id,custom){
 }
 function d3EveningCG(){
  const q=d3Evening();if(q?.phase!=='cg')return;const previous=captureSceneSnapshot(screen);closeSheet();stopReading();document.querySelector('#d3-evening-notice')?.remove();view='day3-evening-cg';active=null;rememberRoute();zeroChrome();
- screen.innerHTML='<section class="rd-cg"><img src="assets/bed-phone-evening-screen-off.jpg" alt="宿舍床上的手机"></section>';
+ screen.innerHTML='<section class="rd-cg"><img src="assets/bed-phone-evening-screen-off.jpg?v=20261011-rc4" alt="宿舍床上的手机"></section>';
  CGDialogue.present(screen.firstElementChild,['你的直觉告诉你，林晴似乎还有更多的事情瞒着你。','可她为什么总是不愿意告诉你，话总是说得那么模棱两可。','这种无法追问到底的感觉，让你格外难受。'],{index:q.cgIndex||0,onIndex:i=>{if(d3Evening()===q){q.cgIndex=i;persist()}},onComplete:()=>{if(d3Evening()!==q||q.phase!=='cg')return;q.phase='report-wait';q.remaining=2000;state.system.time='20:59';persist();home();d3EveningLastTick=Date.now();d2Capture('day3-before-report',{view:'home',active:null})}});cgScreenCrossfade(previous);persist();
 }
 function startDayThreeReport(){
@@ -76,8 +76,8 @@ function d3EveningTick(){
  if(!d3Evening()){if(state.story.dayThreePickup?.done&&!state.story.dayThreePickup.noOrder)d3EveningStart();return}
  const q=d3Evening();if(q.phase==='report'){d3EveningAfterVote();return}
  if(!['home-wait','report-wait','chat','cg-wait'].includes(q.phase))return;
- if(q.phase==='chat'&&q.index>0&&!d3EveningInside())return;
- q.remaining=Math.max(0,q.remaining-elapsed);if(q.remaining){if(now-d3EveningLastSave>1000){d3EveningLastSave=now;persist()}return}
+ if(q.phase==='chat'&&q.index>0&&!d3EveningInside()&&!window.StoryResumeRecovery?.allow('d3-evening'))return;
+ q.remaining=Math.max(0,q.remaining-elapsed);if(window.ReadHistory?ReadHistory.waiting('day3-evening',q,'remaining','remaining'):q.remaining){if(now-d3EveningLastSave>1000){d3EveningLastSave=now;persist()}return}
  if(q.phase==='home-wait'){state.system.time='19:01';if(view==='home')home();else status();q.phase='chat';q.script='intro';q.index=0;q.remaining=0;persist();return}
  if(q.phase==='report-wait'){startDayThreeReport();return}
  if(q.phase==='cg-wait'){q.phase='cg';q.cgIndex=0;persist();d3EveningCG();return}

@@ -1,5 +1,5 @@
 /* Final-night private chat. Choices, drafts and clocks belong to the current timeline. */
-const D4_LIN_ODEN_IMAGE='assets/day4-night-oden.jpg';
+const D4_LIN_ODEN_IMAGE='assets/day4-night-oden.jpg?v=20261011-rc4';
 const D4_LIN_ODEN_ROWS=[
  '林晴又出门给你买吃的了，她带回来的关东煮还是一如既往地好吃。',
  '你不明白，她为什么宁愿冒着被发现的风险，也要出去给你带喜欢的食物。',
@@ -33,11 +33,11 @@ const D4_LIN_NIGHT_SCRIPTS={
 const D4_LIN_NIGHT_TOPICS=[['我想知道你的爱好是什么？','hobbies'],['你有喜欢听的歌吗？','song'],['你觉得我是一个什么样的人？','impression']];
 const D4_RELEASE_POST='day4-one-am-release';
 const D5_RELEASE_BODY='解除后可自由活动，明日假期将至，今日可提前出校回家';
-const D4_HOSPITAL_IMAGES={ceiling:'assets/day4-hospital-ceiling.jpg',nurse:'assets/day4-hospital-nurse.jpg',zhouhe:'assets/day4-hospital-zhouhe.jpg'};
-C.avatars.push({id:'hospital_nurse',name:'护士',src:'assets/hospital-nurse-avatar.jpg'});
-const D5_FOLLOW_IMAGES={road:'assets/day5-lin-night-road.jpg',bench:'assets/day5-lin-night-bench.jpg',gate:'assets/day5-campus-gate.jpg'};
-const D5_STAY_IMAGES={later:'assets/day5-lin-stay-later.jpg',love:'assets/day5-lin-stay-love.jpg'};
-const D5_REUNION_IMAGES={wheelchair:'assets/day5-hospital-wheelchair.jpg',door:'assets/day5-hospital-1207.jpg',lin:'assets/day5-hospital-lin.jpg',hands:'assets/day5-hospital-hands.jpg'};
+const D4_HOSPITAL_IMAGES={ceiling:'assets/day4-hospital-ceiling.jpg?v=20261011-rc4',nurse:'assets/day4-hospital-nurse.jpg?v=20261011-rc4',zhouhe:'assets/day4-hospital-zhouhe.jpg?v=20261011-rc4'};
+C.avatars.push({id:'hospital_nurse',name:'护士',src:'assets/hospital-nurse-avatar.jpg?v=20261011-rc4'});
+const D5_FOLLOW_IMAGES={road:'assets/day5-lin-night-road.jpg?v=20261011-rc4',bench:'assets/day5-lin-night-bench.jpg?v=20261011-rc4',gate:'assets/day5-campus-gate.jpg?v=20261011-rc4'};
+const D5_STAY_IMAGES={later:'assets/day5-lin-stay-later.jpg?v=20261011-rc4',love:'assets/day5-lin-stay-love.jpg?v=20261011-rc4'};
+const D5_REUNION_IMAGES={wheelchair:'assets/day5-hospital-wheelchair.jpg?v=20261011-rc4',door:'assets/day5-hospital-1207.jpg?v=20261011-rc4',lin:'assets/day5-hospital-lin.jpg?v=20261011-rc4',hands:'assets/day5-hospital-hands.jpg?v=20261011-rc4'};
 function d4HospitalScripts(){
  const lin=text=>({speaker:'linqing',text}),nurse=text=>({speaker:'nurse',name:'护士',avatar:'hospital_nurse',text}),zhou=text=>({speaker:'zhouhe',name:'周禾',text:d3EveningText(text)}),me=text=>({speaker:'me',text});
  const scripts={
@@ -46,19 +46,19 @@ function d4HospitalScripts(){
   'follow-awake':{dark:true,rows:['你没有立刻闭上眼睛。','黑暗中，时间一分一秒地过去。片刻后，你隐约听见床板轻轻响了一下。','过了一会儿，宿舍门被人小心翼翼地拉开，又轻轻合上。'],next:'follow-rise'},
   'follow-rise':{dark:true,action:true,options:[['起来跟上她','follow-corridor']]},
   'follow-corridor':{dark:true,rows:['你看见林晴独自走在昏暗的走廊里，她没有带手机，也没有拿任何东西。','你也说不清自己为什么一定要追出来。'],next:'follow-road'},
-  'follow-road':{image:D5_FOLLOW_IMAGES.road,rows:['只是有一种强烈的不安攥住了你——如果这一次没有跟上她，你可能就再也见不到她了。','林晴最后停在了通往校门口的那条路上。'],next:'follow-bench'},
-  'follow-bench':{image:D5_FOLLOW_IMAGES.bench,rows:['夜风吹动林晴散落的头发，只见她在长椅上坐下，安静地望着校门口。',lin('你为什么要跟过来？'),'你猛地停住脚步。','还以为自己隐藏的特别好，原来早就被发现了。'],next:'follow-concern'},
+  'follow-road':{image:D5_FOLLOW_IMAGES.road,rows:['只是有一种强烈的不安感攥住了你——如果这一次没有跟上她，你可能就再也见不到她了。','林晴最后停在了通往校门口的那条路上。'],next:'follow-bench'},
+  'follow-bench':{image:D5_FOLLOW_IMAGES.bench,rows:['只见她在长椅上坐下，随后低着头看地上，不知道在想些什么。',lin('你为什么要跟过来？'),'你猛地停住脚步。','还以为自己隐藏的特别好，原来早就被发现了。'],next:'follow-concern'},
   'follow-concern':{image:D5_FOLLOW_IMAGES.bench,options:[['你为什么不睡觉，要来这里','follow-walk'],['我担心你','follow-worried',10]]},
   'follow-walk':{image:D5_FOLLOW_IMAGES.bench,rows:[lin('就是想散散心')],next:'follow-confession'},
-  'follow-worried':{image:D5_FOLLOW_IMAGES.bench,rows:['林晴没有回答你，她的头更低了'],next:'follow-confession'},
+  'follow-worried':{image:D5_FOLLOW_IMAGES.bench,rows:['林晴没有回答你，原本就垂着的头现在更低了。'],next:'follow-confession'},
   'follow-confession':{image:D5_FOLLOW_IMAGES.bench,rows:[lin('我……'),lin('我不知道这里究竟是什么地方。'),lin('可我也不想离开'),lin('明明已经决定留在这里了……'),lin('为什么一想到你会走，我就接受不了'),lin('我不想亲眼看着你从我面前消失')],next:'follow-stay-choice'},
   'follow-stay-choice':{image:D5_FOLLOW_IMAGES.bench,options:[['我留下来陪你，好不好？','stay-invited'],['和我一起走，好不好？','leave-invitation']]},
   'stay-invited':{image:D5_FOLLOW_IMAGES.bench,rows:[lin('留下来……陪我？')],next:'stay-promise-choice'},
   'stay-promise-choice':{image:D5_FOLLOW_IMAGES.bench,options:[['嗯，我会一直陪着你，直到你愿意离开这里为止','stay-wind'],['林晴，我也不想离开你','stay-wind']]},
   'stay-wind':{image:D5_FOLLOW_IMAGES.bench,rows:['夜风吹过空荡荡的校园。','林晴低着头，很久都没有说话。','长椅下积着一小片潮湿的水迹，路灯昏黄的光落在里面，随着风轻轻发颤。'],next:'stay-promise'},
-  'stay-promise':{image:D5_FOLLOW_IMAGES.bench,rows:[lin('如果我一直都不愿意离开呢？'),me('那我就一直等'),lin('如果留在这里太久，你会慢慢忘记外面的事呢？'),me('没关系'),lin('哪怕最后……你可能会消失？'),'她终于抬起头看向你。','你看见那双通红的眼睛里，藏着一点卑劣的期待。','她明明希望你拒绝，却又比任何人都渴望听见另一个答案。',lin('即使这样，你也愿意陪我吗？'),me('我愿意，我会一直陪着你的'),'听见你肯定的回答，林晴的眼泪一下子落了下来，可她此刻并不是伤心，而是高兴极了。',lin('那你不许后悔。'),me('不后悔'),'你知道，只要现在松开她，或许还来得及。','可林晴的手那么冷，又握得那么紧。','你好像也没法再回头了。',lin('我们回去吧。'),me('好')],next:'stay-gate'},
+  'stay-promise':{image:D5_FOLLOW_IMAGES.bench,rows:[lin('如果我一直都不愿意离开呢？'),me('那我就一直等'),lin('如果留在这里太久，你会慢慢忘记外面的事呢？'),me('没关系'),lin('哪怕最后……你可能会消失？'),'她终于抬起头看向你。','你看见那双通红的眼睛里，藏着一点卑劣的期待。','她明明希望你拒绝，却又比任何人都渴望听见另一个答案。',lin('即使这样，你也愿意陪我吗？'),me('我愿意，我会一直陪着你的'),'听见你肯定的回答，泪水一瞬间落了下来，可她此刻并不是伤心，而是高兴极了。',lin('那你不许后悔。'),me('不后悔'),'你知道只要现在松开她，或许反悔还来得及。','林晴的手……怎么握得那么紧。','直觉告诉你，你好像没法反悔自己刚刚说过的话了。',lin('我们回去吧。'),me('好')],next:'stay-gate'},
   'stay-gate':{image:D5_FOLLOW_IMAGES.bench,rows:['身后的校门缓缓合拢，发出一声沉闷的轻响。','手机上的时间永远停在了1:30。'],next:'stay-later'},
-  'stay-later':{image:D5_STAY_IMAGES.later,dark:true,rows:['后来，林晴每天都会问你：','“你不会走的，对吧？”','而你每一次都会告诉她：','“只要你不走，我就不走。”','你渐渐想不起校门外究竟有什么。','再后来，你会问林晴，你们究竟在这里待了多久？','她总会笑着岔开话题。',lin('时间很重要吗？'),lin('反正我们一直都在一起。'),'她的表情像是有些苦恼，苦恼你为什么会好奇这么多事情；又像在为此庆幸，庆幸你好像忘记了除了她以外的很多事情。'],next:'stay-love'},
+  'stay-later':{image:D5_STAY_IMAGES.later,dark:true,rows:['后来，林晴每天都会问你：','“你不会走的，对吧？”','而你每一次都会告诉她：','“只要你不走，我就不走。”','你渐渐想不起校门外究竟有什么。','再后来，你会问林晴，你们在这里待了多久？','她总会笑着岔开话题。',lin('时间很重要吗？'),lin('反正我们一直都在一起。'),'她的表情像是有些苦恼，苦恼你为什么会好奇这么多事情；又像在为此庆幸，庆幸你好像忘记了除了她以外的很多事情。'],next:'stay-love'},
   'stay-love':{image:D5_STAY_IMAGES.love,rows:[lin('怎么办……'),lin(d3EveningText('我好像越来越喜欢【玩家名字】了。'))],next:'stay-forgotten'},
   'stay-forgotten':{dark:true,rows:['你总觉得你本该想起些什么，你看着那些空着的床铺，那些似乎曾在宿舍里响起过的声音，无不在告诉你这里不对劲。','可每当你试着回忆，林晴总会在这时叫你的名字。','久而久之，那些模糊的痕迹也就不再重要了。','直到最后，你竟真开始觉得——','这里原本就只有你和林晴，没什么不对的。'],next:'stay-ending'},
   light:{rows:['白光吞没视野的瞬间，耳边的风声忽然变成了急促的仪器鸣响。',{text:'嘀——嘀——嘀——',monitor:true}],next:'wake'},
@@ -67,12 +67,12 @@ function d4HospitalScripts(){
   'nurse-question':{image:D4_HOSPITAL_IMAGES.nurse,options:[['林晴在哪里','ask-lin'],['我为什么在这里','cause']]},
   'ask-lin':{image:D4_HOSPITAL_IMAGES.nurse,rows:[me('林晴在哪里？'),nurse('什么？'),'护士似乎没有反应过来。',me('我的室友林晴，她不在吗？'),nurse('我们没有接到这个病人'),me('她就和我在一个宿舍，那她不在这在哪里'),nurse('可救援记录上写……'),nurse('救援人员进入你的宿舍408时，宿舍里只有你和陈妍两个人'),me('救援记录？')],next:'cause'},
   cause:{image:D4_HOSPITAL_IMAGES.nurse,rows:[nurse('你们学校地下的电缆管廊起火了'),nurse('电缆在地下持续阴燃，产生的有毒气体被B栋的新风系统吸了进去，又送到了附近的每一层寝室'),nurse('你们当时大部分人都还在熟睡，所以很多人吸入了过多有毒气体'),me('那其他人怎么样了？'),nurse('你们女生B栋受灾最严重，有些人已经醒了，还有几个人仍在重症监护室。'),nurse('女生A栋大部分人已经脱离危险。'),nurse('男生宿舍使用的是另一套通风系统，只有少数人出现中毒症状，情况相对较轻。'),me('所以有人没有救回来吗？'),nurse('具体情况还没有完全统计出来。'),nurse('当晚送来的学生太多，被分别送去了几家医院。'),nurse('你现在才刚醒，先不要想这些。')],next:'door'},
-  door:{image:D4_HOSPITAL_IMAGES.nurse,rows:[{text:'病房门忽然被人推开。',sfx:'doorOpen'},'周禾提着袋子站在门口，看见你睁着眼睛，她整个人都懵了一般。'],next:'visit'},
-  visit:{image:D4_HOSPITAL_IMAGES.zhouhe,rows:[zhou('你终于醒了……'),zhou('你知不知道你吓死我了？'),'她快步走到床边，又顾忌着你身上的输液管，伸出的手停在半空，最后只轻轻碰了碰你的手臂。',zhou('那天晚上我刚好不在学校。'),zhou('等我赶回来，你们已经全被送走了。')],next:'zhou-question'},
+  door:{image:D4_HOSPITAL_IMAGES.nurse,rows:[{text:'病房门忽然被人推开。',sfx:'doorOpen'},'周禾提着袋子站在门口，看见你睁着眼睛，她整个人都懵了。'],next:'visit'},
+  visit:{image:D4_HOSPITAL_IMAGES.zhouhe,rows:[zhou('你终于醒了……'),zhou('你知不知道你吓死我了？'),'她快步走到床边，轻轻碰了碰你的手臂。',zhou('那天晚上我刚好不在学校。'),zhou('等我赶回来，你们已经全被送走了。')],next:'zhou-question'},
   'zhou-question':{image:D4_HOSPITAL_IMAGES.zhouhe,options:[['周茉呢？','zhoumo'],['林晴呢？','linqing'],['叶琳呢？','yelin']]},
-  zhoumo:{image:D4_HOSPITAL_IMAGES.zhouhe,rows:[zhou('你怎么会认识周茉？'),me('啊？我认识啊'),zhou('哦哦'),zhou('周茉她……'),zhou('没能抢救回来'),'你张了张嘴，却什么声音也没有发出来。','原来，那些被“请离”的人，那些消失的人，都再也醒不来了。'],next:'end'},
+  zhoumo:{image:D4_HOSPITAL_IMAGES.zhouhe,rows:[zhou('你怎么会认识周茉？'),me('啊？我认识啊'),zhou('哦哦'),zhou('周茉她……'),zhou('没能抢救回来'),'你张了张嘴，却什么声音也没有发出来。','那些被“请离”的人，那些消失的人，是不是都再也醒不来了？不对，周禾也显示请离了，她还好好活着呢。'],next:'end'},
   linqing:{image:D4_HOSPITAL_IMAGES.zhouhe,rows:[zhou('林晴？'),zhou('【玩家名字】，你怎么了？你记不清事情了吗？'),zhou('林晴在那件事之后……一直都昏迷不醒'),'那件事？什么那件事？'],next:'recall-shake'},
-  recall:{image:D4_HOSPITAL_IMAGES.zhouhe,rows:['你终于想起来了。','早在一周前，林晴就曾试图结束自己的生命。','她被及时救了回来，却一直没有醒。','消息传开以后，许多女孩都自发为她捐了钱，你依稀记得，其中捐得最多的那个人，好像叫江晓。','江晓……','这个名字让你的呼吸猛地停了一瞬。','你记得她也出现在了那所学校里——一个可怕的念头隐约浮上心头，你却不敢再继续想下去。','够了。','就到这里吧。'],next:'end'},
+  recall:{image:D4_HOSPITAL_IMAGES.zhouhe,rows:['你终于想起来了。','早在一周前，林晴就曾试图结束自己的生命。','她被及时救了回来，却一直没有醒。','消息传开以后，许多女孩都自发为她捐了钱，你依稀记得其中捐得最多的那个人，好像叫江晓。','江晓……','这个名字让你的呼吸猛地停了一瞬。','你记得她也出现在了那所学校里——一个可怕的念头隐约浮上心头，你却不敢再继续想下去。','够了。','就到这里吧。'],next:'end'},
   yelin:{image:D4_HOSPITAL_IMAGES.zhouhe,rows:[zhou('叶琳？'),zhou('我不认识她诶'),me('就是108那个'),zhou('我帮你问问'),'大约三分钟后——',zhou('哦哦，她也刚醒没多久'),zhou('你怎么会认识一楼的人啊'),zhou('从来没听你提起过这号人'),me('我们就是网上认识没见过'),zhou('原来如此')],next:'end'}
  };
  Object.assign(scripts,{
@@ -85,13 +85,13 @@ function d4HospitalScripts(){
   'leave-high-gate':{image:D5_FOLLOW_IMAGES.gate,rows:['最后她终于牵住了你的手，你也带着她一起走向了校门。'],next:'leave-white'},
   'together-hand':{image:D5_REUNION_IMAGES.hands,rows:['你低下头，握住她的手。','你好害怕林晴又在骗你，你好害怕其实她根本离不开那个校园，你好害怕未来没有她的日子。'],next:'together-call-choice'},
   'together-call-choice':{image:D5_REUNION_IMAGES.hands,options:[['你是不是骗了我','together-awake'],['陪我去逛街吧','together-awake']]},
-  'together-awake':{image:D5_REUNION_IMAGES.hands,rows:['片刻后，你感受到掌心里的手指忽然动了一下。','幅度小到像是你的错觉。','紧接着，林晴的睫毛颤了颤，她像是在很远的地方听见了你的声音，挣扎了许久，终于缓慢地睁开了眼睛。','那双眼睛起初没有焦点——直到她看见你。',zhou('护士姐姐！医生！'),{text:'周禾边喊边转身跑出病房，走廊里很快响起急促的脚步声。',sfx:'runningSteps'},'而你仍然坐在床边，没有松开她的手。','这一次，你们都回来了。'],next:'end'},
-  'reunion-refusal':{image:D5_FOLLOW_IMAGES.bench,rows:['林晴怔了一下，抬眼望着你。','那一瞬间，她眼眶一下便红了，就像是听见了自己最想听见的话。','可她最终还是摇了摇头。',lin('不'),lin('我不要你因为我留在这里……'),lin('你应该去过自己的生活'),lin('那样才是对的')],next:'reunion-why'},
+  'together-awake':{image:D5_REUNION_IMAGES.hands,rows:['片刻后，你感受到掌心里的手指忽然动了一下。','幅度小到像是你的错觉。','随后你发现，林晴的睫毛颤了颤，她像是在很远的地方听见了你的声音，缓慢地睁开了眼睛。','那双眼睛起初没有焦点——直到她看见你。',zhou('护士姐姐！医生！'),{text:'周禾边喊边转身跑出病房，走廊里很快响起急促的脚步声。',sfx:'runningSteps'},'而你仍然坐在床边，没有松开她的手。','这一次，你们都回来了。'],next:'end'},
+  'reunion-refusal':{image:D5_FOLLOW_IMAGES.bench,rows:['林晴怔了一下，抬眼望着你。','你话音刚落，她眼眶一下便红了，就像是终于听见了自己最想听的话。','可她最终还是摇了摇头。',lin('不'),lin('我不要你因为我留在这里……'),lin('你应该去过自己的生活'),lin('那样才是对的')],next:'reunion-why'},
   'reunion-why':{image:D5_FOLLOW_IMAGES.bench,options:[['为什么？我就想留下来陪你','reunion-trapped'],['那你怎么办？','reunion-promise']]},
   'reunion-trapped':{image:D5_FOLLOW_IMAGES.bench,rows:[lin('如果这样'),lin('我只会觉得是我害了你，困住了你')],next:'reunion-promise'},
   'reunion-promise':{image:D5_FOLLOW_IMAGES.bench,rows:[lin('我只是还需要一点时间'),lin('你答应我，离开以后不要忘记我，好不好？'),me('好，我答应你'),lin('嗯'),me('你也答应我，别忘记我一直在等你'),lin(d3EveningText('【玩家名字】是我最好的朋友了')),lin('我不会忘记的'),'你突然感觉一阵天旋地转，面前的画面开始模糊了起来'],next:'reunion-fade'},
   'reunion-location':{image:D4_HOSPITAL_IMAGES.zhouhe,action:true,options:[['那林晴现在在哪？','reunion-rise']]},
-  'reunion-rise':{image:D4_HOSPITAL_IMAGES.zhouhe,rows:[me('那林晴现在在哪？'),zhou('她也在这，只不过是三号楼，神经内科病区的1207床'),'你几乎没有犹豫，撑着床沿便想坐起来。',{text:'可一阵强烈的眩晕迎面袭来，你整个人十分难受，甚至有些恶心想吐。',dizzy:true},'周禾连忙扶住你，将你重新按回床上。',zhou('你别乱动！')],next:'reunion-visit-choice'},
+  'reunion-rise':{image:D4_HOSPITAL_IMAGES.zhouhe,rows:[me('那林晴现在在哪？'),zhou('她也在这，只不过是三号楼，神经内科病区的1207床'),'你没有犹豫，撑着床沿便想坐起来。',{text:'可一阵强烈的眩晕袭来，一瞬间你整个人十分难受，甚至有些恶心想吐。',dizzy:true},'周禾连忙扶住你。',zhou('你别乱动！')],next:'reunion-visit-choice'},
   'reunion-visit-choice':{image:D4_HOSPITAL_IMAGES.zhouhe,options:[['我就是想去看看她','reunion-nurse'],['你让我去见见林晴','reunion-nurse']]},
   'reunion-nurse':{image:D4_HOSPITAL_IMAGES.zhouhe,rows:[zhou('我知道你想见她，但你现在什么情况你自己不清楚吗？'),zhou('我先去问问护士姐姐看她怎么说')],next:'reunion-wheelchair'},
   'reunion-wheelchair':{image:D5_REUNION_IMAGES.wheelchair,rows:['片刻后，周禾推着一辆轮椅回来了。',zhou('护士说可以去，但你不能自己走，也不能待太久。'),me('谢谢你，周禾')],next:'reunion-door'},
@@ -340,8 +340,33 @@ function d5FinishStayEnding(){
  // Keep the decision made at the branch, including older saves already on the hidden route.
  const chosenEnding=n?.stayDecision?.endingId||(n?.stayAffection>170?'020':null);
  if(n?.script!=='stay-forgotten'||n.phase!=='cg'||chosenEnding!=='020'||n.decisions['follow-stay-choice']!==0||![0,1].includes(n.decisions['stay-promise-choice']))return;
- n.phase='hidden-ending';n.endingId='020';n.monitor=false;n.remaining=0;
- state.system.time='01:30';d5RenderStayEnding();
+ n.phase='stay-message';n.endingId='020';n.monitor=false;n.remaining=0;
+ n.stayMessage={elapsed:0,sent:false,due:0};
+ state.system.time='01:30';d4SleepLastTick=0;d5RenderStayMessage();
+}
+function d5StayMessageText(){return Array.from(d3EveningText('明天【玩家名字】也还是不会离开我的，对吧？'))}
+function d5StayHeart(cls){return '<svg class="'+cls+'" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21S2 14.8 2 8.2C2 4.1 7.1 1.8 10 5L12 7.1 14 5C16.9 1.8 22 4.1 22 8.2 22 14.8 12 21 12 21Z"/></svg>'}
+function d5RenderStayMessage(){
+ const n=d4Sleep();if(n?.phase!=='stay-message')return;
+ n.stayMessage??={elapsed:0,sent:false,due:0};
+ closeSheet();stopReading();clearInterval(cgTypingTimer);d4HospitalStopSound();earlySleepButton.hidden=true;midnightContinue.hidden=true;
+ view='day4-sleep-ending';active=null;rememberRoute();zeroChrome();
+ screen.innerHTML='<section class="d5-stay-message">'+d5StayHeart('d5-stay-heart-bg')+'<div class="d5-stay-thread"><div class="d5-stay-incoming">'+avatar('linqing')+'<div class="d5-stay-copy"><strong>林晴</strong><p class="d5-stay-text"><span class="d5-stay-typed"></span></p></div></div><div class="d5-stay-answer" hidden><p>嗯，不离开你'+d5StayHeart('d5-stay-heart-icon')+'</p>'+avatar('me')+'</div></div><div class="d5-stay-options" aria-hidden="true"><button type="button" data-d5-stay-reply="stay">'+d5StayHeart('d5-stay-heart-icon')+'<span>嗯，不离开你</span></button><button type="button" data-d5-stay-reply="leave">'+d5StayHeart('d5-stay-heart-icon')+'<span>我明天要走了，对不起</span></button></div></section>';
+ d5UpdateStayMessage();persist();
+}
+function d5UpdateStayMessage(){
+ const n=d4Sleep(),host=screen.querySelector('.d5-stay-message');if(n?.phase!=='stay-message'||!host)return;
+ const q=n.stayMessage,letters=d5StayMessageText(),count=q.sent?letters.length:Math.min(letters.length,Math.floor((Number(q.elapsed)||0)/100));
+ const text=letters.slice(0,count).join(''),line=host.querySelector('.d5-stay-text'),typed=line.querySelector('.d5-stay-typed');
+ if(line.dataset.fullText!==letters.join(''))line.dataset.fullText=letters.join('');if(typed.textContent!==text)typed.textContent=text;
+ line.classList.toggle('is-typing',count<letters.length);
+ const options=host.querySelector('.d5-stay-options'),ready=!q.sent&&count===letters.length;
+ options.classList.toggle('is-visible',ready);options.setAttribute('aria-hidden',String(!ready));options.querySelectorAll('button').forEach(button=>{button.disabled=!ready});
+ host.querySelector('.d5-stay-answer').hidden=!q.sent;
+}
+function d5StayReply(){
+ const n=d4Sleep(),q=n?.stayMessage;if(d3Paused()||n?.phase!=='stay-message'||!screen.querySelector('.d5-stay-message')||!q||q.sent||q.elapsed<d5StayMessageText().length*100)return;
+ q.sent=true;q.due=0;d5UpdateStayMessage();persist();
 }
 function d5RenderStayEnding(){
  const n=d4Sleep();if(n?.phase!=='hidden-ending'||n.endingId!=='020')return;
@@ -369,6 +394,7 @@ function d4SleepRender(){
  // Resume older saves at this line with the new recall effect as well.
  if(n.phase==='blur'&&n.script==='linqing'&&!n.blurNext){n.phase='recall-shake';n.remaining=550}
  if(n.phase==='hidden-ending'){d5RenderStayEnding();return}
+ if(n.phase==='stay-message'){d5RenderStayMessage();return}
  const previous=captureSceneSnapshot(screen);closeSheet();stopReading();clearInterval(cgTypingTimer);earlySleepButton.hidden=true;midnightContinue.hidden=true;
  view='day4-sleep-ending';active=null;rememberRoute();zeroChrome();
  if(['cg','choice','blur','recall-shake'].includes(n.phase)){
@@ -406,6 +432,12 @@ function d4SleepTick(){
  const n=d4Sleep();if(!n||['done','hidden-ending'].includes(n.phase)){d4SleepLastTick=0;return}
  d4HospitalSyncSound();const img=screen.querySelector('.d4-hospital-scene .d3-night-blur,.d4-hospital-scene.d4-confront-shake>img');if(img)img.style.animationPlayState='running';
  const now=Date.now(),elapsed=d4SleepLastTick?now-d4SleepLastTick:0;d4SleepLastTick=now;
+ if(n.phase==='stay-message'){
+  if(document.hidden||view!=='day4-sleep-ending'||!screen.querySelector('.d5-stay-message'))return;
+  const q=n.stayMessage??={elapsed:0,sent:false,due:0};
+  if(!q.sent)q.elapsed=Math.min(d5StayMessageText().length*100,Math.max(0,Number(q.elapsed)||0)+elapsed);
+  d5UpdateStayMessage();if(now-d4SleepLastSave>=1000){d4SleepLastSave=now;persist()}return;
+ }
  if(!['sleep-wait','sleep-choice','white-wait','white-fade','blur','recall-shake','end-black'].includes(n.phase))return;
  n.remaining=Math.max(0,n.remaining-elapsed);
  if(!n.remaining){
@@ -423,7 +455,7 @@ const d4SleepLockBase=zeroLock;zeroLock=function(){return !d4SleepInternal&&d4Sl
 const d4SleepHomeBase=home;home=function(...args){if(d4SleepBusy()&&!d4SleepInternal&&!d3Paused())return;return d4SleepHomeBase(...args)};
 const d4SleepAppBase=openApp;openApp=function(...args){if(d4SleepBusy()&&!d4SleepInternal&&!d3Paused())return;return d4SleepAppBase(...args)};
 const d4SleepEarlyBase=earlySleepAvailable;earlySleepAvailable=function(){return state.game.day===4&&d4LinNight()?.phase==='explore'?!d3Paused():d4SleepEarlyBase()};
-const d4SleepPurchaseBase=postPurchasePrompt;postPurchasePrompt=function(...args){return state.game.day===4&&d4LinNight()?.phase==='explore'?false:d4SleepPurchaseBase(...args)};
+const d4SleepPurchaseBase=postPurchasePrompt;postPurchasePrompt=function(...args){return state.game.day===4?false:d4SleepPurchaseBase(...args)};
 const d4SleepEarlyConfirmBase=actions['post-early-sleep-confirm'];actions['post-early-sleep-confirm']=function(...args){if(state.game.day===4&&d4LinNight()?.phase==='explore'){if(d3Paused())return;d4LinNight().phase='done';closeSheet();d4SleepStart();return}return d4SleepEarlyConfirmBase(...args)};
 const d4SleepReadingBase=midnightRulesReading;midnightRulesReading=function(){return d4Sleep()?.phase==='sleep-choice'&&view==='day4-sleep-ending'||d4Sleep()?.phase==='reading'&&view==='post'&&active===D4_RELEASE_POST||d4SleepReadingBase()};
 const d4SleepContinueBase=midnightContinue.onclick;midnightContinue.onclick=function(event){if(d4Sleep()?.phase==='sleep-choice'&&view==='day4-sleep-ending'){d4SleepCommit();return}if(d4Sleep()?.phase==='reading'&&active===D4_RELEASE_POST){d4SleepGo('bedtime');return}return d4SleepContinueBase.call(this,event)};
@@ -441,6 +473,8 @@ actions['d5-hidden-menu']=()=>{
  d4SleepInternal=true;try{actions['zero-menu']()}finally{d4SleepInternal=false}
 };
 window.addEventListener('click',event=>{
+ const n=d4Sleep();if(n?.phase==='stay-message'&&n.stayMessage?.sent&&!d3Paused()&&event.target.closest('.d5-stay-message')){event.preventDefault();event.stopImmediatePropagation();n.phase='hidden-ending';d5RenderStayEnding();return}
+ const reply=event.target.closest('[data-d5-stay-reply]');if(reply){event.preventDefault();event.stopImmediatePropagation();if(reply.dataset.d5StayReply==='stay')d5StayReply();return}
  const b=event.target.closest('[data-d4-hospital-choice],[data-action="d4-release-open"],[data-action="d4-final-sleep"],[data-action="d4-continue-sleep"],[data-action="d5-hidden-menu"]');if(!b)return;
  event.preventDefault();event.stopImmediatePropagation();if(b.dataset.action)actions[b.dataset.action]();else d4SleepChoose(b.dataset.d4HospitalKey,Number(b.dataset.d4HospitalChoice));
 },true);
@@ -471,7 +505,7 @@ function makeDayFiveWorldline(){
  let from=D5_RELEASE_NODE,x=692;
  for(const id of ['day4-hospital-goodnight','day4-continue-sleep']){add(id,x,420);g.edges.push({from,to:id});from=id;x+=310}
  const split=from,branchX=x;
- g.sections.push({label:'第五日 · 梦与现实',x:branchX});
+ g.sections.push({label:'第五日 · “梦”与现实',x:branchX});
  for(const id of ['day4-hospital-nurse-question','day4-hospital-zhou-question']){add(id,x,240);g.edges.push({from,to:id});from=id;x+=310}
  g.nodes.push({id:'day5-mother-call',title:'妈妈来电',x,y:240,kind:'story',record:'day5-mother-call',replayable:!!nodeRecords()['day5-mother-call']?.checkpoint});g.edges.push({from,to:'day5-mother-call'});x+=310;
  g.nodes.push({id:'019',title:'结局019 · 你成功苏醒了。',x,y:240,kind:'death',category:'survival',record:null,replayable:false});g.edges.push({from:'day5-mother-call',to:'019'});

@@ -48,7 +48,7 @@ function dayTwoFinish(q,result){
  if(!optional)state.system.time='09:51';persist();if(view==='chat')openChat(active);
 }
 function dayTwoAdvance(q){
- if(!q||q.dayTwoVersion!==DAY_TWO_VERSION||q.phase!=='chat'||Date.now()<q.due||window.mobileLaunch||['game-menu','nodes','zero-death'].includes(view))return;
+ if(!q||q.dayTwoVersion!==DAY_TWO_VERSION||q.phase!=='chat'||(window.ReadHistory?ReadHistory.waiting('day2',q):Date.now()<q.due)||window.mobileLaunch||['game-menu','nodes','zero-death'].includes(view))return;
  const script=DAY_TWO_AUTHORED[q.script];if(!script)return;
  const row=script.rows[q.index];
  if(!row){

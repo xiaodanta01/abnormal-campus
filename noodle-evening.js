@@ -1,27 +1,27 @@
 /* Independent supplied artwork slots; cg6.5 is the uncovered noodle cup. */
-const NOODLE_CG_IMAGES={"cg1":"assets/noodle-cg/cg1-v1.jpg","cg2":"assets/noodle-cg/cg2-v1.jpg","cg3":"assets/noodle-cg/cg3-v1.jpg","cg4":"assets/noodle-cg/cg4-v1.jpg","cg5":"assets/noodle-cg/cg5-v1.jpg","cg6":"assets/noodle-cg/cg6-v1.jpg","cg6.5":"assets/noodle-cg/cg6.5-v1.jpg","cg7":"assets/noodle-cg/cg7-v1.jpg","cg8":"assets/noodle-cg/cg8-v1.jpg","cg9":"assets/noodle-cg/cg9-v1.jpg","cgLin":"assets/noodle-cg/cgLin-v1.jpg","cgWindow":"assets/noodle-cg/cg-window-v1.jpg"};
+const NOODLE_CG_IMAGES={"cg1":"assets/noodle-cg/cg1-v1.jpg?v=20261011-rc4","cg2":"assets/noodle-cg/cg2-v1.jpg?v=20261011-rc4","cg3":"assets/noodle-cg/cg3-v1.jpg?v=20261011-rc4","cg4":"assets/noodle-cg/cg4-v1.jpg?v=20261011-rc4","cg5":"assets/noodle-cg/cg4-v1.jpg?v=20261011-rc4","cg6":"assets/noodle-cg/cg6-v1.jpg?v=20261011-rc4","cg6.5":"assets/noodle-cg/cg6.5-v1.jpg?v=20261011-rc4","cg7":"assets/noodle-cg/cg7-v1.jpg?v=20261011-rc4","cg8":"assets/noodle-cg/cg8-v1.jpg?v=20261011-rc4","cg9":"assets/noodle-cg/cg9-v1.jpg?v=20261011-rc4","cgWindow":"assets/noodle-cg/cg-window-v1.jpg?v=20261011-rc4"};
 const noodleLine=(speaker,text)=>({speaker,text});
-function noodleScript(phase){const lied=state.story.noodleEvening.lied;return {
- noWaterIntro:{image:'cg1',rows:[{sfx:'tear',text:'你从柜子里翻出仅剩的一桶泡面。\n直到撕开包装，你才想起自己昨天根本没有买水。'},'你捏着调料包看了一会儿，最后还是把它重新放回泡面桶里。'],next:'noWaterChoice'},
+function noodleScript(phase,progress=state){const lied=progress.story.noodleEvening.lied;return {
+ noWaterIntro:{image:'cg1',rows:[{sfx:'tear',text:'你从抽屉里找到了自己仅剩的一桶泡面。\n直到撕开包装，你才想起自己昨天根本没有买水。'},'没有水就跑不了泡面，总不能干吃吧？你最后还是把它重新放回了抽屉里。'],next:'noWaterChoice'},
  noWaterChoice:{image:'cg1',choices:[['把泡面收起来','done',0]]},
- intro:{image:'cg3',rows:['你翻出了仅剩的一桶泡面。\n以前你一直去水房接热水，宿舍里没有准备可以烧水的电器。'],next:'kettle'},
+ intro:{image:'cg3',rows:['你从抽屉里找到了自己仅剩的一桶泡面。\n以前你一直去水房接热水，宿舍里没有准备可以烧水的电器。'],next:'kettle'},
  kettle:{image:'cg2',rows:['现在不能随意离开宿舍，你只能看向林晴桌上的烧水壶。'],next:lied?'lieReminder':'borrow'},
- lieReminder:{image:'cg3',rows:['可是不久前，你才告诉她自己已经没有吃的了。\n现在想要吃东西就必须向她借烧水壶，那个谎言显然瞒不下去了。'],next:'borrow'},
+ lieReminder:{image:'cg3',rows:['可是不久前，你才告诉她自己已经没有吃的了。\n现在想要吃东西就必须向她借烧水壶，你开始后悔之前为什么要撒谎了。'],next:'borrow'},
  borrow:{image:'cg2',choices:lied?[['继续掩饰','cover',-10],['实话实说','admit',5]]:[['你的烧水壶借我用一下呗','direct',0],['小晴，我想泡面，方便借一下烧水壶嘛？','gentle',5,true]]},
- direct:{image:'cgLin',rows:[noodleLine('me','你的烧水壶借我用一下呗。'),noodleLine('linqing','好。'),noodleLine('linqing','在我桌子上面，你自己拿吧。')],next:'boil'},
- gentle:{image:'cgLin',rows:[noodleLine('me','小晴，我想泡面，方便借一下烧水壶嘛'),noodleLine('me','用完我会洗干净的'),noodleLine('linqing','可以'),noodleLine('linqing','不用特意洗，烧完放回去就好。')],next:'boil'},
- cover:{image:'cgLin',rows:[noodleLine('me','我刚才突然发现我柜子里还有一桶泡面'),noodleLine('me','你的烧水壶可以借我用一下吗？'),'林晴看了看你手里的泡面，停顿片刻',noodleLine('linqing','这样啊'),noodleLine('linqing','在我桌子上面，你自己拿吧')],next:'boil'},
- admit:{image:'cgLin',rows:[noodleLine('me','对不起，我中午没有说实话'),noodleLine('me','我其实还剩一桶泡面'),noodleLine('me','当时我也不知道怎么想的，就下意识就撒谎了'),noodleLine('me','但是你给我递吃的后，我才发现我真是以小人之心度君子之腹了'),noodleLine('me','林晴，对不起'),noodleLine('linqing','我知道'),noodleLine('linqing','这种情况下，因为不安选择隐瞒一些事很正常'),noodleLine('linqing','烧水壶在我桌子上面，你拿吧')],next:'boil'},
+ direct:{image:'cg2',rows:[noodleLine('me','你的烧水壶借我用一下呗。'),noodleLine('linqing','好。'),noodleLine('linqing','在我桌子上面，你自己拿吧。')],next:'boil'},
+ gentle:{image:'cg2',rows:[noodleLine('me','小晴，我想泡面，方便借一下烧水壶嘛'),noodleLine('me','用完我会洗干净的'),noodleLine('linqing','可以'),noodleLine('linqing','不用特意洗，烧完放回去就好。')],next:'boil'},
+ cover:{image:'cg2',rows:[noodleLine('me','我刚才突然发现我柜子里还有一桶泡面'),noodleLine('me','你的烧水壶可以借我用一下吗？'),'林晴看了看你手里的泡面，抿了抿嘴唇。',noodleLine('linqing','这样啊'),noodleLine('linqing','在我桌子上面，你自己拿吧')],next:'boil'},
+ admit:{image:'cg2',rows:[noodleLine('me','对不起，我中午没有说实话'),noodleLine('me','我其实还剩一桶泡面'),noodleLine('me','当时我也不知道怎么想的，就下意识就撒谎了'),noodleLine('me','但是你给我递吃的后，我才发现我真是以小人之心度君子之腹了'),noodleLine('me','林晴，对不起'),noodleLine('linqing','我知道'),noodleLine('linqing','这种情况下，因为不安选择隐瞒一些事很正常'),noodleLine('linqing','烧水壶在我桌子上面，你拿吧')],next:'boil'},
  boil:{image:'cg4',rows:['水烧开以后，白色的热气从壶口涌了出来。'],next:'pour'},
- pour:{image:'cg5',rows:[{sfx:'pour',text:'你倒入调料包后把热水倒进了泡面桶。\n原本干硬的面饼一点点沉下去，咸香的热气随之散开。'}],next:'coverBowl'},
- coverBowl:{image:'cg6',rows:['林晴从桌边拿起一本旧习题册，替你压在泡面盖上。',noodleLine('linqing','这样就完美了。'),lied?'她没有再提之前发生的任何事，就好像根本不在意。\n林晴只是把烧水壶的电线收好，又顺手将一包纸巾推到你面前。':'她说完就去把烧水壶的电线收好，又顺手将一包纸巾推到你面前。'],next:'eat'},
- eat:{image:'cg6.5',rows:['三分钟后，你掀开泡面盖子。\n热气一下涌到脸上，调料的香味填满了安静的宿舍。','校园墙、失踪的人、那些互相怀疑的消息，似乎都被短暂隔在了宿舍门外。\n这一刻，你只是坐在自己的椅子上，吃着一桶刚泡好的面。\n好幸福。',noodleLine('linqing','味道怎么样？')],next:'taste'},
+ pour:{image:'cg5',rows:[{sfx:'pour',text:'你把调料包拆开倒入，结束后把热水也倒了进去。'}],next:'coverBowl'},
+ coverBowl:{image:'cg6',rows:['一旁的林晴从桌边拿起一本旧习题册，替你压在泡面上。',noodleLine('linqing','这样就完美了。'),lied?'她没有再提之前发生的任何事，就好像根本不在意。\n林晴只是把烧水壶的电线收好，又顺手将一包纸巾推到你面前。':'她说完就去把烧水壶的电线收好，又顺手将一包纸巾推到你面前。'],next:'eat'},
+ eat:{image:'cg6.5',rows:['三分钟后你拿开了那本书，热气瞬间裹着香味扑面而来。','校园墙、失踪的人和那些猜疑，仿佛都被暂时挡在门外。\n这一刻你只是坐在宿舍里，吃着一桶刚泡好的面……好幸福。',noodleLine('linqing','味道怎么样？')],next:'taste'},
  taste:{image:'cg6.5',question:'味道怎么样？',choices:[['很好吃','alone',0],['你要不要尝尝？','share',5]]},
- alone:{image:'cg6.5',rows:[noodleLine('me','很好吃'),'林晴看了你一眼，轻轻笑了一下。随后，她也拿出自己的食物，坐在桌边慢慢吃了起来。','平时根本不会在意的味道，此刻却带来一种近乎奢侈的满足感。'],next:'done'},
+ alone:{image:'cg6.5',rows:[noodleLine('me','很好吃'),'林晴看了你一眼，轻轻笑了一下。随后，她也拿出自己的食物，坐在桌边慢慢吃了起来。','不知道为什么，今天的泡面吃起来格外的好吃。'],next:'done'},
  share:{image:'cg6.5',rows:[noodleLine('me','你要不要尝尝？'),noodleLine('linqing','好啊')],next:'smallBowl'},
- smallBowl:{image:'cg7',rows:['她从柜子里拿出一只很小的碗，又拆了一双筷子。','明明是你主动邀请的，她还是只从碗里夹走了两根面条，连汤都没盛。\n两根面孤零零地躺在碗底，看起来甚至有些可怜。'],next:'more'},
- more:{image:'cg8',rows:['你看了她一眼，没有说话，直接又卷起一叉面放进她碗里。','林晴怔了一下。',noodleLine('linqing','太多了吧！'),noodleLine('me','哪多了？'),'她似乎想把面夹回来，筷子在碗边停了停，最后还是没有动。\n林晴低下头，吹散面条上的热气，小口尝了一下。',noodleLine('me','怎么样？'),noodleLine('linqing','嗯，很好吃！')],next:'together'},
- together:{image:'cgWindow',rows:['其实只是最普通的速食泡面。\n窗外依旧安静得反常，手机里还有一堆让人不安的消息。','但至少这几分钟里，你们只是两个被困在宿舍、凑在一起吃泡面的普通学生。','一桶泡面分成两份，谁都没有真正吃饱。\n可有人坐在旁边，总比一个人对着那些规则胡思乱想要好。'],next:'done'}
+ smallBowl:{image:'cg7',rows:['她从柜子里拿出一只很小的碗，又拆了一双筷子。','明明是她给你借了烧水壶，你才能吃上泡面，你邀请她尝尝，她就只夹了两根面条。'],next:'more'},
+ more:{image:'cg8',rows:['你看到林晴这样小心翼翼，想都没想，直接霸道的卷起一叉泡面放进她碗里。','林晴明显是愣住了，她呆呆的看着你，都没反应过来。',noodleLine('linqing','太多了吧！'),noodleLine('me','哪多了？'),'她似乎想把面夹回来，但最后还是没有动。\n只见她低下头吹散面条上的热气，小口尝了一下。',noodleLine('me','怎么样？'),noodleLine('linqing','嗯，很好吃！')],next:'together'},
+ together:{image:'cgWindow',rows:['一桶普通的泡面分成两份，其实谁也没吃饱。\n但至少这一刻，你还有朋友在身边陪伴着你，比只能一个人吃好多了。'],next:'done'}
  }[phase]}
 function noodleImageSlot(n,script){return n.phase==='more'&&n.index===script.rows.length-1?'cg9':script.image;}
 function noodleUpdateImage(host,n,script){const slot=noodleImageSlot(n,script);if(host.dataset.cgSlot===slot)return;host.dataset.cgSlot=slot;const picture=host.querySelector(':scope > img');if(picture){const previous=picture.cloneNode(true);picture.src=NOODLE_CG_IMAGES[slot];cgImageCrossfade(previous,picture);}}

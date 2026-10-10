@@ -21,7 +21,7 @@ const faChoice=(...options)=>({choices:options.map(([label,next,text])=>({label,
 const faEnd=result=>({end:result});
 const FA_SCRIPTS={
  cheng:[faChoice(['也许想法天真是你吧？ @程昕（602）','chengEvidence'])],
- chengEvidence:[{who:'me',type:'forum-shot',text:'p1',src:'assets/p1-room318.jpg'},{nextScript:'chengAsk'}],
+ chengEvidence:[{who:'me',type:'forum-shot',text:'p1',src:'assets/p1-room318.jpg?v=20261011-rc4'},{nextScript:'chengAsk'}],
  chengAsk:[faChoice(['你以前说自己住318，为什么现在备注是602？','chengReply'])],
  chengReply:[faSay('cheng','是我，怎么了？'),faSay('cheng','我开学以后调过宿舍，有些资料没同步而已。'),faSay('shen','你现在确实住602吗？'),faSay('cheng','我有必要把调宿舍记录也发给你们看吗？'),faSay('cheng','现在连搬过宿舍都要被审问？'),{who:'jiang',text:'我明明',recall:true},faSay('system','其他成员开始怀疑程昕。'),faEnd('cheng')],
  wen:[faSay('wen','有什么事吗？'),faChoice(['你早上换好衣服以后，没有出门吗？','wenAnswer'])],
@@ -43,9 +43,9 @@ wenPublic:[faSay('wen','赵诗雨，早上往取货平台走的人是不是你�
  linKind:[faSay('lin','没看见什么。'),faSay('lin','我当时在发呆，想一些事情。'),faChoice(['你是不是有什么心事？可以和我说。','linTrust'])],
  linTrust:[faSay('lin','真的可以和你说吗？'),faSay('lin','哪怕是负面的。'),faSay('lin','我不想把这些不好的东西传递给别人。'),faChoice(['当然了。','linEnd'])],linEnd:[faEnd('linKind')]
 };
-const FA_ZHAO_MOMENTS=[{date:'2045年9月4日 18:32',text:'亚米亚米 好吃',image:'assets/zhao-yellow-photo.jpg',imageAlt:'赵诗雨穿着黄色外套和日料合影',replies:[]},{date:'2045年9月2日 21:06',text:'于我而言 她很可爱',image:'assets/zhao-sumu-photo.jpg',imageAlt:'赵诗雨与苏沐的亲密合照',replies:[{name:'苏沐',text:'嘿嘿'},{name:'赵诗雨',replyTo:'苏沐',text:'别忘了给我拿外卖'}]}];
+const FA_ZHAO_MOMENTS=[{date:'2045年9月4日 18:32',text:'亚米亚米 好吃',image:'assets/zhao-yellow-photo.jpg?v=20261011-rc4',imageAlt:'赵诗雨穿着黄色外套和日料合影',replies:[]},{date:'2045年9月2日 21:06',text:'于我而言 她很可爱',image:'assets/zhao-sumu-photo.jpg?v=20261011-rc4',imageAlt:'赵诗雨与苏沐的亲密合照',replies:[{name:'苏沐',text:'嘿嘿'},{name:'赵诗雨',replyTo:'苏沐',text:'别忘了给我拿外卖'}]}];
 
-const FA_WEN_PROFILE={signature:'我学着不再为太遥远的事担心',moments:[{date:'2045年6月29日 09:11',text:'放暑假一大早就来拼豆 噢耶',image:'assets/wenning-beads.jpg',imageAlt:'拼豆材料陈列架',replies:[]}]};
+const FA_WEN_PROFILE={signature:'我学着不再为太遥远的事担心',moments:[{date:'2045年6月29日 09:11',text:'放暑假一大早就来拼豆 噢耶',image:'assets/wenning-beads.jpg?v=20261011-rc4',imageAlt:'拼豆材料陈列架',replies:[]}]};
 
 // Migrate only this split dialogue, preserving the active branch and existing progress.
 function migrateZhaoSplit(progress){

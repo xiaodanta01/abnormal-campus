@@ -15,20 +15,20 @@ function d4ConfrontInside(){return view==='chat'&&active===HG_ID}
 function d4ConfrontStart(){const q=d4Confront();if(state.game.day!==4||q?.phase!=='unlocked'||!d4ConfrontInside())return;Object.assign(q,{phase:'chat',index:0,remaining:messageSendDelay(),cgIndex:0});state.system.time='10:48';state.game.period='上午';status();persist()}
 function d4ConfrontCG(){const q=d4Confront();if(!q||!['cg','hold'].includes(q.phase))return;closeSheet();stopReading();document.querySelector('#hg-notification')?.remove();document.querySelector('#d3-reason-drawer')?.remove();view='day4-confrontation-cg';active=null;rememberRoute();zeroChrome();
  const shake=!q.shaken;q.shaken=true;
- screen.innerHTML='<section class="rd-cg'+(shake?' d4-confront-shake':'')+'"><img src="assets/bed-phone-day-screen-off.jpg" alt="宿舍床上握着手机"></section>';
+ screen.innerHTML='<section class="rd-cg'+(shake?' d4-confront-shake':'')+'"><img src="assets/bed-phone-day-screen-off.jpg?v=20261011-rc4" alt="宿舍床上握着手机"></section>';
  const host=screen.firstElementChild;if(q.phase==='hold')cgChoiceDialogue(host,D4_CONFRONT_NARRATION[D4_CONFRONT_NARRATION.length-1]);else CGDialogue.present(host,D4_CONFRONT_NARRATION,{index:q.cgIndex,onIndex:i=>{if(d4Confront()===q){q.cgIndex=i;persist()}},onComplete:()=>{if(d4Confront()!==q||q.phase!=='cg')return;q.phase='done';persist();d4AfterStart()}});persist();
 }
 let d4ConfrontLastTick=0,d4ConfrontLastSave=0;
 function d4ConfrontTick(){
- if(d3Paused()||state.game.day!==4||!d4ConfrontInside()||document.querySelector('#overlay .sheet')){d4ConfrontLastTick=0;return}
+ if(d3Paused()||state.game.day!==4||!d4ConfrontInside()&&!window.StoryResumeRecovery?.allow('d4-confront')||document.querySelector('#overlay .sheet')){d4ConfrontLastTick=0;return}
  d4ConfrontStart();const q=d4Confront();if(q?.phase!=='chat')return;const now=Date.now(),elapsed=d4ConfrontLastTick?Math.min(500,now-d4ConfrontLastTick):0;d4ConfrontLastTick=now;q.remaining=Math.max(0,q.remaining-elapsed);
  if(q.remaining){if(now-d4ConfrontLastSave>1000){d4ConfrontLastSave=now;persist()}return}
  const row=D4_CONFRONT_ROWS[q.index];if(!row){q.phase='cg';persist();d4ConfrontCG();return}
  const [who,text,type='text']=row,index=q.index;
  if(who==='me'&&storyReplyGate(HG_ID,text,'day4-confront:'+index,'d4ConfrontTick',index===0))return;
  const rows=state.messages[HG_ID]??=[],id='day4-confront-'+index,person=dayTwoPerson(who);
- if(!rows.some(m=>m.id===id))rows.push({id,type,sender:who==='me'?'me':person.avatar,name:who==='me'?state.profile.name:person.name,hgWho:who,text,time:'10:48',gameDate:state.system.date,status:'read',...(type==='image'?{src:'assets/day4-shen-logistics.svg'}:{})});
- q.index++;q.remaining=messageSendDelay();const c=hgContact();if(c){c.preview=type==='image'?'[图片]':text;c.time='10:48'}persist();openChat(HG_ID);
+ const added=!rows.some(m=>m.id===id);if(added)rows.push({id,type,sender:who==='me'?'me':person.avatar,name:who==='me'?state.profile.name:person.name,hgWho:who,text,time:'10:48',gameDate:state.system.date,status:'read',...(type==='image'?{src:'assets/day4-shen-logistics.svg?v=20261011-rc4'}:{})});
+ q.index++;q.remaining=messageSendDelay();const c=hgContact();if(c){c.preview=type==='image'?'[图片]':text;c.time='10:48';if(added&&!d4ConfrontInside())c.unread=(c.unread||0)+1}persist();if(d4ConfrontInside())openChat(HG_ID);else hgNotice('group');
 }
 const d4ConfrontChatBase=openChat;openChat=function(...args){const result=d4ConfrontChatBase(...args);d4ConfrontStart();if(d4ConfrontInside()&&d4Confront()?.phase==='chat'){renderStoryReply();scrollMessages()}return result};
 const d4ConfrontResumeBase=resumeStoryScene;resumeStoryScene=function(snapshot,...args){if(snapshot?.game?.day===4&&['cg','hold'].includes(snapshot.story?.dayFourConfrontation?.phase)){d4ConfrontCG();return}return d4ConfrontResumeBase(snapshot,...args)};
