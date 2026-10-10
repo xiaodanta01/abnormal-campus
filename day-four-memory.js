@@ -10,15 +10,15 @@ const D4_LIN_MEMORY_PAGES=[
 ['高中老师总说，考不上好大学，这辈子就完了。','我最后考上的，刚好也只是一所很普通的大学。','我身上背着那么多债，交不起学费，也没有生活费。','我的人生是不是已经看不到头了？','如果他从一开始就是个坏爸爸，我或许早就不再相信他了。','我也可以恨他，可以离开他，可以告诉自己，这个人不值得。','可他偏偏以前那么好。','好到我直到最后，都还在等他回来。','不过没关系，我都接受了']
 ];
 D4_MEAL_CHOICES['d4-meal-memory'].options=[['进入林晴回忆','d4-meal-memory-p1'],['跳过回忆','d4-meal-memory-merge']];
-D4_MEAL_CHOICES['d4-meal-memory-response']={title:'回应林晴的过去',image:'assets/day4-lin-memory-8.jpg?v=20261011-rc4',last:{speaker:'linqing',text:'不过没关系，我都接受了'},options:[['对不起，我不知道是这样的原因','d4-meal-memory-sorry'],['谁说看不到头？我会一直陪着你的','d4-meal-memory-stay'],['林晴，你该早点和我说的，我会帮你分担这些的','d4-meal-memory-share']]};
+D4_MEAL_CHOICES['d4-meal-memory-response']={title:'回应林晴的过去',image:'assets/day4-lin-memory-8.jpg?v=20261011-rc5',last:{speaker:'linqing',text:'不过没关系，我都接受了'},options:[['对不起，我不知道是这样的原因','d4-meal-memory-sorry'],['谁说看不到头？我会一直陪着你的','d4-meal-memory-stay'],['林晴，你该早点和我说的，我会帮你分担这些的','d4-meal-memory-share']]};
 D4_MEAL_CHOICES['d4-meal-taste']={title:'回应林晴询问食物味道',last:{speaker:'linqing',text:'【食物】好吃吗？'},options:[['嗯，很好吃！','d4-meal-taste-good'],['只要是你买的，不好吃也是好吃的','d4-meal-taste-you']]};
-function d4MemoryLastImage(){return state.story.dayFourPickup?.mealChoices?.['d4-meal-memory']===0?'assets/day4-lin-memory-8.jpg?v=20261011-rc4':null}
+function d4MemoryLastImage(){return state.story.dayFourPickup?.mealChoices?.['d4-meal-memory']===0?'assets/day4-lin-memory-8.jpg?v=20261011-rc5':null}
 const d4MemoryBaseRows=d4MealRows;
 d4MealRows=function(phase){
  const page=/^d4-meal-memory-p([1-8])$/.exec(phase);
- if(page){const n=Number(page[1]);return {image:'assets/day4-lin-memory-'+n+'.jpg?v=20261011-rc4',rows:D4_LIN_MEMORY_PAGES[n-1].map(text=>({speaker:'linqing',text,silentBlip:true})),next:n===8?'d4-meal-memory-response':'d4-meal-memory-p'+(n+1)}}
+ if(page){const n=Number(page[1]);return {image:'assets/day4-lin-memory-'+n+'.jpg?v=20261011-rc5',rows:D4_LIN_MEMORY_PAGES[n-1].map(text=>({speaker:'linqing',text,silentBlip:true})),next:n===8?'d4-meal-memory-response':'d4-meal-memory-p'+(n+1)}}
  const me=text=>({speaker:'me',text}),lin=text=>({speaker:'linqing',text});
- const reply=(text,rows)=>({image:'assets/day4-lin-memory-8.jpg?v=20261011-rc4',confirmed:true,rows:[me(text),...rows.map(text=>({...lin(text),silentBlip:true}))],next:'d4-meal-memory-merge'});
+ const reply=(text,rows)=>({image:'assets/day4-lin-memory-8.jpg?v=20261011-rc5',confirmed:true,rows:[me(text),...rows.map(text=>({...lin(text),silentBlip:true}))],next:'d4-meal-memory-merge'});
  return {
  'd4-meal-memory-sorry':reply('对不起，我不知道是这样的原因',['没关系的，这和你没关系']),
  'd4-meal-memory-stay':reply('谁说看不到头？我会一直陪着你的',['【玩家名字】，谢谢你','你还是那么好']),

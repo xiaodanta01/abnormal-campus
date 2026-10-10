@@ -2,7 +2,7 @@
 const D3_FIFTH_RULE_ID='chapter-five-midnight-rules';
 const D3_FIFTH_RULE_BODY="今晚，系统不接收本人提交的集体检举票。\n请在 21:00 前，指定一名仍在校的人作为你的「委托人」。\n注意：任何身份都可以成为委托人，同时任何人也可以申请成为委托人。\n21:00 时，委托人的检举对象，将同时成为你的检举对象。\n委托人21:00前可以更换；委托人的选择，在结算前对委托者保密。\n未指定委托人，视为放弃检举票。\n\n阵营结算将在今晚1点学生会行动后进行。";
 const D3_NIGHT_BLUR_MS=4800;
-const D3_NIGHT_IMAGE='assets/day3-night-bed.jpg?v=20261011-rc4';
+const D3_NIGHT_IMAGE='assets/day3-night-bed.jpg?v=20261011-rc5';
 STORY_CHOICES.push({id:'day3-night-story',title:'林晴的睡前故事',day:'第三日 · 深夜',chat:null},{id:'day3-night-storyChoice',title:'回应林晴的睡前故事',day:'第三日 · 深夜',chat:null});
 function d3Night(){return state.story.dayThreeNight}
 function d3NightGroupRows(){return [

@@ -26,7 +26,7 @@ window.SaveSchema=(()=>{
    // Correct authored display content in existing chat saves/checkpoints only.
    for(const row of s.messages[key])if(object(row)){
     if(row.id==='day4-confront-5'&&row.text==='\u7cb1音告诉我的')row.text='梁音告诉我的';
-    if(row.id==='day4-confront-8'&&row.hgWho==='shen'&&row.type==='image'&&row.src==='assets/day3-songyan-logistics.svg?v=20261011-rc4')row.src='assets/day4-shen-logistics.svg?v=20261011-rc4';
+    if(row.id==='day4-confront-8'&&row.hgWho==='shen'&&row.type==='image'&&row.src==='assets/day3-songyan-logistics.svg?v=20261011-rc5')row.src='assets/day4-shen-logistics.svg?v=20261011-rc5';
    }
   }
   for(const contact of s.contacts){

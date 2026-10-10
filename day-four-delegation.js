@@ -37,7 +37,7 @@ function d4DelegationNarrate(){
  const q=d4Delegation();if(!d4DelegationBusy())return;
  closeSheet();stopReading();clearInterval(cgTypingTimer);document.querySelector('#hg-notification')?.remove();
  view='day4-delegation-narration';active=null;rememberRoute();zeroChrome();
- screen.innerHTML='<section class="rd-cg delegation-narration"><img src="assets/bed-phone-day-screen-off.jpg?v=20261011-rc4" alt="坐在宿舍床上看着手机"></section>';
+ screen.innerHTML='<section class="rd-cg delegation-narration"><img src="assets/bed-phone-day-screen-off.jpg?v=20261011-rc5" alt="坐在宿舍床上看着手机"></section>';
  CGDialogue.present(screen.firstElementChild,D4_DELEGATION_NARRATION,{index:q.index||0,onIndex:i=>{if(d4Delegation()===q){q.index=i;persist()}},onComplete:()=>{
   if(d4Delegation()!==q||q.phase!=='narration')return;
   q.phase='ready';state.system.time='09:37';state.game.period='早晨';d4DelegationCapture();persist();home();

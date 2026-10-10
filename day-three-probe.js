@@ -27,7 +27,7 @@ function d3ProbeInside(){return view==='chat'&&active===HG_ID&&!hgContact()?.unr
 function d3ProbeWrite(who,text,id,type='text'){
  const rows=state.messages[HG_ID]??=[];if(rows.some(m=>m.id===id))return;
  const q=d3Probe(),person=dayTwoPerson(who),mine=who==='me';text=d3ProbeText(text);
- rows.push({id,type,sender:mine?'me':person.avatar,name:mine?state.profile.name:person.name,hgWho:who,text,time:q.time,gameDate:q.date,status:'read',...(type==='image'?{src:'assets/day3-songyan-logistics.svg?v=20261011-rc4'}:{})});
+ rows.push({id,type,sender:mine?'me':person.avatar,name:mine?state.profile.name:person.name,hgWho:who,text,time:q.time,gameDate:q.date,status:'read',...(type==='image'?{src:'assets/day3-songyan-logistics.svg?v=20261011-rc5'}:{})});
  if(type==='image')q.songyanRecordReceived=true;
  const c=hgContact();if(c){c.preview=type==='image'?'[图片]':mine?'我：'+text:text;c.time=q.time;if(view!=='chat'||active!==HG_ID)c.unread=(c.unread||0)+1}
  persist();if(view==='chat'&&active===HG_ID)openChat(HG_ID);else hgNotice('group');

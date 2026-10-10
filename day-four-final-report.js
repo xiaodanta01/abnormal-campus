@@ -1,5 +1,5 @@
 /* Final-day rebuttal and report. Cursors, read gates and effects rewind with the save. */
-const D4_FINAL_CG='assets/day4-final-bed-phone.jpg?v=20261011-rc4';
+const D4_FINAL_CG='assets/day4-final-bed-phone.jpg?v=20261011-rc5';
 const D4_FINAL_REPORTERS={shen:'沈可欣',yeshu:'蒋小雪',gunian:'顾念',heyu:'何雨',yuwei:'余薇',baizhi:'白栀'};
 const D4_FINAL_SCRIPTS={
  opening:{rows:[],options:['你们刚才说，我申请成为委托人，是为了骗走普通生的票，对吧？'],next:'claim'},

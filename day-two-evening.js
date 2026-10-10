@@ -123,7 +123,7 @@ function d2EveningReflection(){
  const e=d2Evening();if(!e||!d2EveningCGBusy())return;
  const previous=captureSceneSnapshot(screen);closeSheet();stopReading();document.querySelector('#day2-evening-notice')?.remove();
  view='day2-evening-cg';active=null;rememberRoute();zeroChrome();
- screen.innerHTML='<section class="rd-cg"><img src="assets/day2-evening-phone.jpg?v=20261011-rc4" alt="夜晚宿舍桌上的手机"></section>';
+ screen.innerHTML='<section class="rd-cg"><img src="assets/day2-evening-phone.jpg?v=20261011-rc5" alt="夜晚宿舍桌上的手机"></section>';
  const host=screen.firstElementChild;
  if(e.phase==='reflection-choice'){
   cgChoiceDialogue(host,D2_EVENING_REFLECTION.at(-1));

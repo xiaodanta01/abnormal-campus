@@ -12,7 +12,7 @@
   document.body.classList.add('web-preview');
   var stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = 'web-presentation.css?v=20261011-rc4';
+  stylesheet.href = 'web-presentation.css?v=20261011-rc5';
   document.head.appendChild(stylesheet);
   function update() {
     var hint = content.querySelector('.zero-menu.abnormal-game-menu .game-bgm-hint');

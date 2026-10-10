@@ -1,5 +1,5 @@
 /* Day 3 fever scene: shared dialogue renderer and whole-state checkpoints. */
-const D3_FEVER_IMAGES={desk:'assets/day2-midday-desk.jpg?v=20261011-rc4',lin:'assets/day3-fever-linqing-hd.jpg?v=20261011-rc4',medicine:'assets/day3-fever-medicine.jpg?v=20261011-rc4'};
+const D3_FEVER_IMAGES={desk:'assets/day2-midday-desk.jpg?v=20261011-rc5',lin:'assets/day3-fever-linqing-hd.jpg?v=20261011-rc5',medicine:'assets/day3-fever-medicine.jpg?v=20261011-rc5'};
 const D3_FEVER_NODES={answerChoice:'回应林晴的呼唤',revealChoice:'询问林晴出门的原因'};
 for(const [key,title] of Object.entries(D3_FEVER_NODES))STORY_CHOICES.push({id:'day3-fever-'+key,title,day:'第三日 · 午前',chat:null});
 function d3Fever(){return state.story.dayThreeFever}

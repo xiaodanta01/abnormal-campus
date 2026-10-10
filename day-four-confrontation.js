@@ -15,7 +15,7 @@ function d4ConfrontInside(){return view==='chat'&&active===HG_ID}
 function d4ConfrontStart(){const q=d4Confront();if(state.game.day!==4||q?.phase!=='unlocked'||!d4ConfrontInside())return;Object.assign(q,{phase:'chat',index:0,remaining:messageSendDelay(),cgIndex:0});state.system.time='10:48';state.game.period='上午';status();persist()}
 function d4ConfrontCG(){const q=d4Confront();if(!q||!['cg','hold'].includes(q.phase))return;closeSheet();stopReading();document.querySelector('#hg-notification')?.remove();document.querySelector('#d3-reason-drawer')?.remove();view='day4-confrontation-cg';active=null;rememberRoute();zeroChrome();
  const shake=!q.shaken;q.shaken=true;
- screen.innerHTML='<section class="rd-cg'+(shake?' d4-confront-shake':'')+'"><img src="assets/bed-phone-day-screen-off.jpg?v=20261011-rc4" alt="宿舍床上握着手机"></section>';
+ screen.innerHTML='<section class="rd-cg'+(shake?' d4-confront-shake':'')+'"><img src="assets/bed-phone-day-screen-off.jpg?v=20261011-rc5" alt="宿舍床上握着手机"></section>';
  const host=screen.firstElementChild;if(q.phase==='hold')cgChoiceDialogue(host,D4_CONFRONT_NARRATION[D4_CONFRONT_NARRATION.length-1]);else CGDialogue.present(host,D4_CONFRONT_NARRATION,{index:q.cgIndex,onIndex:i=>{if(d4Confront()===q){q.cgIndex=i;persist()}},onComplete:()=>{if(d4Confront()!==q||q.phase!=='cg')return;q.phase='done';persist();d4AfterStart()}});persist();
 }
 let d4ConfrontLastTick=0,d4ConfrontLastSave=0;
@@ -27,7 +27,7 @@ function d4ConfrontTick(){
  const [who,text,type='text']=row,index=q.index;
  if(who==='me'&&storyReplyGate(HG_ID,text,'day4-confront:'+index,'d4ConfrontTick',index===0))return;
  const rows=state.messages[HG_ID]??=[],id='day4-confront-'+index,person=dayTwoPerson(who);
- const added=!rows.some(m=>m.id===id);if(added)rows.push({id,type,sender:who==='me'?'me':person.avatar,name:who==='me'?state.profile.name:person.name,hgWho:who,text,time:'10:48',gameDate:state.system.date,status:'read',...(type==='image'?{src:'assets/day4-shen-logistics.svg?v=20261011-rc4'}:{})});
+ const added=!rows.some(m=>m.id===id);if(added)rows.push({id,type,sender:who==='me'?'me':person.avatar,name:who==='me'?state.profile.name:person.name,hgWho:who,text,time:'10:48',gameDate:state.system.date,status:'read',...(type==='image'?{src:'assets/day4-shen-logistics.svg?v=20261011-rc5'}:{})});
  q.index++;q.remaining=messageSendDelay();const c=hgContact();if(c){c.preview=type==='image'?'[图片]':text;c.time='10:48';if(added&&!d4ConfrontInside())c.unread=(c.unread||0)+1}persist();if(d4ConfrontInside())openChat(HG_ID);else hgNotice('group');
 }
 const d4ConfrontChatBase=openChat;openChat=function(...args){const result=d4ConfrontChatBase(...args);d4ConfrontStart();if(d4ConfrontInside()&&d4Confront()?.phase==='chat'){renderStoryReply();scrollMessages()}return result};

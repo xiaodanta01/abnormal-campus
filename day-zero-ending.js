@@ -1,5 +1,5 @@
 /* Day-zero closing scene; morning story is left for its own continuation. */
-const DAY_ZERO_BEDROOM='assets/day-zero-bedroom.jpg?v=20261011-rc4';
+const DAY_ZERO_BEDROOM='assets/day-zero-bedroom.jpg?v=20261011-rc5';
 function ending(){return state.story.dayZeroEnding??={phase:'waiting',shopOpenedAt:null,line:0}}
 const endingBase={shop,zeroLock,initializeChapter};
 shop=function(){const result=endingBase.shop();if(view==='supply'&&screen.querySelector('.shop-page'))showEndingWaterNotice();return result};

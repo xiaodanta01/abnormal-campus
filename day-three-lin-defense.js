@@ -1,6 +1,6 @@
 /* Day 3: the group questions Lin Qing after anonymous-review removal. */
-const D3_DEFENSE_IMAGE='assets/day3-linqing-confession.jpg?v=20261011-rc4';
-const D3_DEFENSE_DESK='assets/day2-midday-desk.jpg?v=20261011-rc4';
+const D3_DEFENSE_IMAGE='assets/day3-linqing-confession.jpg?v=20261011-rc5';
+const D3_DEFENSE_DESK='assets/day2-midday-desk.jpg?v=20261011-rc5';
 const D3_DEFENSE_NODES={opening:'回应对林晴的怀疑',proof:'回应自证要求',cgChoice:'回应群聊争论',secretChoice:'林晴的身份与隐瞒',reassure:'回应林晴的隐瞒'};
 const D3_DEFENSE_REPLAY_KEYS=['opening','reassure'];
 for(const [key,title] of Object.entries(D3_DEFENSE_NODES))if(D3_DEFENSE_REPLAY_KEYS.includes(key))STORY_CHOICES.push({id:'day3-lin-defense-'+key,title,day:'第三日 · 10:30',chat:['opening','proof'].includes(key)?HG_ID:null});

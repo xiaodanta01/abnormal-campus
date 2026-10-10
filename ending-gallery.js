@@ -370,7 +370,7 @@
  window.hospitalEndingInfoFor=(progress=state)=>{const id=hospitalEndingId(progress),ending=endings.find(e=>e.id===id);return {id,name:ending.name,category:ending.category,description:descriptions[id]}};
  function letterAvatar(name){
   if(name==='黑头像')return '<span class="ending-letter-avatar ending-letter-black" aria-hidden="true"></span>';
-  if(name==='作者')return '<span class="ending-letter-avatar ending-letter-author" aria-hidden="true"><img src="assets/ui-flower.svg?v=20261011-rc4" alt=""></span>';
+  if(name==='作者')return '<span class="ending-letter-avatar ending-letter-author" aria-hidden="true"><img src="assets/ui-flower.svg?v=20261011-rc5" alt=""></span>';
   const person=Object.values(FA_PEOPLE).find(p=>p.name===name);
   return avatar(person?.avatar||PORTRAIT_CHARACTERS[name]||'student0');
  }

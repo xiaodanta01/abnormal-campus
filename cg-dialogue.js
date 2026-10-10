@@ -5,7 +5,7 @@ function cgScreenCrossfade(previous){
  const selector='.rd-cg>img,.ending-scene>img,.zero-scene>.zero-cg';
  let before=previous?.querySelector(selector);const after=screen.querySelector(selector);
  if(!before?.naturalWidth)before=previous?.querySelector('.cg-outgoing-image')||before;
- if(!previous||!after)return;
+ if(!previous||!after||before?.getAttribute('src')===after.getAttribute('src'))return;
  if(before?.complete&&before.naturalWidth){cgImageCrossfade(before,after);return}
  zeroDissolve(previous,600);
 }
@@ -20,10 +20,10 @@ function cgFadeLayer(layer,image){
  CGImages.ready(image).then(ok=>{if(!image.isConnected||image.getAttribute('src')!==source){layer.remove();cleanup.disconnect();return}if(!ok){const old=layer.matches('img')?layer:layer.querySelector('img');if(old?.naturalWidth)image.src=old.src}start()});
 }
 function cgImageCrossfade(previous,current){
- if(!previous||!current)return;
+ if(!previous||!current||previous.getAttribute('src')===current.getAttribute('src'))return;
  const outgoing=current.parentElement.querySelector('.cg-outgoing-image');
  if(outgoing){if(!previous.complete||!previous.naturalWidth)previous=outgoing.cloneNode(true);outgoing.remove()}
- previous.removeAttribute('id');previous.classList.add('cg-outgoing-image');
+ current.style.animation='none';previous.removeAttribute('id');previous.classList.add('cg-outgoing-image');
  Object.assign(previous.style,{position:'absolute',inset:'0',width:'100%',height:'100%',objectFit:'cover'});
  current.after(previous);cgFadeLayer(previous,current);
 }

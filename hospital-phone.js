@@ -3,7 +3,7 @@
  const apps=['messages','wall','supply','notes','wallet','calendar','campus','phone'];
  const names=['讯息','校园墙','物资中心','备忘录','钱包','日历','校园通','电话'];
  const date='2045-09-09',time='09:33';
- const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261011-rc4';
+ const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261011-rc5';
  const base={persist,home,status,openApp,chatList,openChat,forum,postDetail,shop,orders,cartSheet,checkout,pay,renderMessage,contactRow,cartLines,cartTotal,quantity,productCards,productArt,forumAvatar,zeroLock,resumeStoryScene,initializeChapter,savePersonalNotebook,playNotificationSound,checkSurvival,showNotebookNotice};
  let owner=null,entered=null;
  let callTimer=null,callTimerKey=null,callAudio=null,callTypingTimer=null;
@@ -29,7 +29,7 @@
     {name:'江晓',text:'已捐，后续如果还需要，可以再联系我'},
     {name:'陈妍',replyTo:'江晓',text:'你已经捐很多了，真的谢谢你'},
     {name:'江晓',replyTo:'陈妍',text:'没关系，希望她能醒过来'}]},
-   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261011-rc4',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
+   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261011-rc5',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
     {name:'周禾',text:'就你吃的最多'},
     {name:'陈妍',replyTo:'周禾',text:'太好吃了呀，震撼美味！'},
     {name:'周禾',replyTo:'陈妍',text:'下次多给【玩家名字】留点，她都没吃上几口'}]}
@@ -126,7 +126,7 @@
    const profile=p.contactProfiles[id];profile.signature=content.signature;
    for(const post of content.moments)if(!profile.moments.some(existing=>existing.id===post.id))profile.moments.push(structuredClone(post));
    const dinner=profile.moments.find(post=>post.id==='reality-chen-dinner');
-   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261011-rc4';dinner.imageAlt='林晴做的一桌饭菜'}
+   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261011-rc5';dinner.imageAlt='林晴做的一桌饭菜'}
   }
   if(!p.zhouConcernAdded){
    const rows=p.messages.zhouhe??=[];

@@ -93,7 +93,7 @@ function stopCreationMonitor(){if(creationMonitorAudio){creationMonitorAudio.pau
 function playCreationMonitor(){
  if(!mobileCreating||state.story.started||mobileSounds.silent||document.hidden)return;
  stopCreationMonitor();
- if(!creationMonitorAudio){creationMonitorAudio=new Audio('assets/audio/creation-monitor-three.mp3?v=20261011-rc4');creationMonitorAudio.loop=false;creationMonitorAudio.volume=.5}
+ if(!creationMonitorAudio){creationMonitorAudio=new Audio('assets/audio/creation-monitor-three.mp3?v=20261011-rc5');creationMonitorAudio.loop=false;creationMonitorAudio.volume=.5}
  const playing=creationMonitorAudio.play();if(playing&&playing.catch)playing.catch(()=>{});
 }
 const creationMonitorNameStep=actions['mobile-name-step'];

@@ -1,5 +1,5 @@
 /* Both food branches join here. Scene text and report UI use the existing renderers. */
-const D2_VISIT_IMAGES={door408:'assets/day2-visit-408.jpg?v=20261011-rc4',lin:'assets/day2-visit-lin.jpg?v=20261011-rc4',down:'assets/day2-visit-down.jpg?v=20261011-rc4',door318:'assets/day2-visit-318.jpg?v=20261011-rc4',jiang:'assets/day2-visit-jiang-updated.jpg?v=20261011-rc4',zhou:'assets/day2-visit-zhou-updated.jpg?v=20261011-rc4',tears:'assets/day2-visit-tears-updated.jpg?v=20261011-rc4',back:'assets/day2-visit-back.jpg?v=20261011-rc4'};
+const D2_VISIT_IMAGES={door408:'assets/day2-visit-408.jpg?v=20261011-rc5',lin:'assets/day2-visit-lin.jpg?v=20261011-rc5',down:'assets/day2-visit-down.jpg?v=20261011-rc5',door318:'assets/day2-visit-318.jpg?v=20261011-rc5',jiang:'assets/day2-visit-jiang-updated.jpg?v=20261011-rc5',zhou:'assets/day2-visit-zhou-updated.jpg?v=20261011-rc5',tears:'assets/day2-visit-tears-updated.jpg?v=20261011-rc5',back:'assets/day2-visit-back.jpg?v=20261011-rc5'};
 function d2VisitLine(speaker,text,progress=state){const key=speaker==='linqing'?'lin':speaker,person=dayTwoPerson(key);return {speaker,text,name:speaker==='me'?progress.profile?.name:person.name.replace(/[（(].*$/,''),avatar:person.avatar}}
 function d2VisitScript(scene,progress=state){const line=(speaker,text)=>d2VisitLine(speaker,text,progress);return {
  door408:{image:'door408',rows:['林晴正在把要带过去的零食和水拿袋子装好。','你先走出了门，抬头看向门上的门牌号，它又变回了408。','真是奇怪，为什么好端端的门牌号可以随意变换呢？'],next:'lin'},
@@ -34,7 +34,7 @@ function syncVisitDescentSound(v){
  if(!v||v.done||v.scene!=='down'){stopVisitDescentSound();return}
  if(document.hidden||visitDescentOwner===v)return;visitDescentOwner=v;
  if(typeof mobileSounds!=='undefined'&&mobileSounds.silent)return;
- try{if(!visitDescentSound){visitDescentSound=new Audio('assets/audio/elevator-descent.mp3?v=20261011-rc4');visitDescentSound.volume=.5;visitDescentSound.loop=false}visitDescentSound.currentTime=0;const playing=visitDescentSound.play();if(playing&&playing.catch)playing.catch(()=>{})}catch(error){}
+ try{if(!visitDescentSound){visitDescentSound=new Audio('assets/audio/elevator-descent.mp3?v=20261011-rc5');visitDescentSound.volume=.5;visitDescentSound.loop=false}visitDescentSound.currentTime=0;const playing=visitDescentSound.play();if(playing&&playing.catch)playing.catch(()=>{})}catch(error){}
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopVisitDescentSound()});
 window.addEventListener('pagehide',stopVisitDescentSound);

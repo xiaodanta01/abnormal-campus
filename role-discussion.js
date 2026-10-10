@@ -1,5 +1,5 @@
 /* One-time follow-up to reading the public special-role notice. */
-const ROLE_DISCUSSION={member:'chengxin',name:'程昕（602）',avatar:'npc-chengxin',image:'assets/npc-chengxin.jpg?v=20261011-rc4',cgImage:null,lines:[
+const ROLE_DISCUSSION={member:'chengxin',name:'程昕（602）',avatar:'npc-chengxin',image:'assets/npc-chengxin.jpg?v=20261011-rc5',cgImage:null,lines:[
  ['chengxin','有特殊身份的不要过早暴露自己'],
  ['chengxin','可以找信得过的人私聊'],
  ['wen','你这样很可疑啊'],

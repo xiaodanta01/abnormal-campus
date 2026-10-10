@@ -1,5 +1,5 @@
 /* Evening accusation. All cursors and vote effects belong to the loaded snapshot. */
-const D4_COUNTER_PHOTO='assets/day4-lin-outside-evidence.jpg?v=20261011-rc4';
+const D4_COUNTER_PHOTO='assets/day4-lin-outside-evidence.jpg?v=20261011-rc5';
 const D4_COUNTER_SCRIPTS={
  opening:{rows:[['shen','我觉得有件事大家必须知道'],['shen','我不想看着大家相信一个错误的人'],['shen','我也不想看着大家被欺骗'],['shen','何雨，你来说吧'],['heyu','我在窗边看见林晴走出了宿舍楼'],['heyu','一开始我也不敢确定是她'],['heyu','可没过多久，她又从外面回来了'],['heyu','还拿着学校便利店的袋子'],['gunian','她真的离开宿舍楼了？'],['heyu','我看得很清楚'],['heyu','就是林晴'],['shen','林晴不但出去了'],['shen','还安然无恙地回来了'],['shen','这说明什么'],['shen','应该不用我替大家解释了吧？']],vote:'first',next:'accuse'},
  accuse:{rows:[['gunian','而且别忘了'],['gunian','【玩家名字】是一直和林晴在一起的'],['gunian','如果【玩家名字】是普通生，她怎么可能一点事都没有？'],['jiangning','难怪她一直护着林晴'],['supporter','我说呢']],vote:'second',next:'defend'},
