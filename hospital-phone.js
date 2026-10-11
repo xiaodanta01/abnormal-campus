@@ -3,7 +3,7 @@
  const apps=['messages','wall','supply','notes','wallet','calendar','campus','phone'];
  const names=['讯息','校园墙','物资中心','备忘录','钱包','日历','校园通','电话'];
  const date='2045-09-09',time='09:33';
- const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261011-rc9';
+ const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261011-rc10';
  const base={persist,home,status,openApp,chatList,openChat,forum,postDetail,shop,orders,cartSheet,checkout,pay,renderMessage,contactRow,cartLines,cartTotal,quantity,productCards,productArt,forumAvatar,zeroLock,resumeStoryScene,initializeChapter,savePersonalNotebook,playNotificationSound,checkSurvival,showNotebookNotice};
  let owner=null,entered=null;
  let callTimer=null,callTimerKey=null,callAudio=null,callTypingTimer=null;
@@ -29,7 +29,7 @@
     {name:'江晓',text:'已捐，后续如果还需要，可以再联系我'},
     {name:'陈妍',replyTo:'江晓',text:'你已经捐很多了，真的谢谢你'},
     {name:'江晓',replyTo:'陈妍',text:'没关系，希望她能醒过来'}]},
-   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261011-rc9',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
+   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261011-rc10',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
     {name:'周禾',text:'就你吃的最多'},
     {name:'陈妍',replyTo:'周禾',text:'太好吃了呀，震撼美味！'},
     {name:'周禾',replyTo:'陈妍',text:'下次多给【玩家名字】留点，她都没吃上几口'}]}
@@ -153,7 +153,7 @@
    const profile=p.contactProfiles[id];profile.signature=content.signature;
    for(const post of content.moments)if(!profile.moments.some(existing=>existing.id===post.id))profile.moments.push(structuredClone(post));
    const dinner=profile.moments.find(post=>post.id==='reality-chen-dinner');
-   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261011-rc9';dinner.imageAlt='林晴做的一桌饭菜'}
+   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261011-rc10';dinner.imageAlt='林晴做的一桌饭菜'}
   }
   if(!p.zhouConcernAdded){
    const rows=p.messages.zhouhe??=[];
@@ -547,11 +547,15 @@
   form.onsubmit=e=>{e.preventDefault();remember();const pending={...state.forumPostDraft};if(!pending.title.trim()||!pending.body.trim())return;
    let sent=false;withWallIdentity(()=>{if(sent)return;sent=true;
     state.forumPosts.unshift({id:'reality-post-'+storyRunId(),author:'me',name:state.forumIdentity.name,avatarId:state.forumIdentity.avatarId,preserveForumNames:true,...pending,title:pending.title.trim(),body:pending.body.trim(),date:state.system.date,time:state.system.time,likes:0,replies:[]});
-    delete state.forumPostDraft;closeSheet();forumCategory='全部';forumPhone();toast('已发布');
+    delete state.forumPostDraft;closeSheet();forumPhone('全部');toast('已发布');
    },writeWallPost);
   };
  }
- function forumPhone(){
+ function forumPhone(category=null){
+  if(['全部','校园日常','互助问答','失物招领'].includes(category)){
+   wallBrowsePosition=null;wallPositionRestoring=true;wallPositionFrame++;
+   forumCategory=category;
+  }
   state.awakeningWallSeen=true;
   state.forumPosts.sort((a,b)=>(b.date+' '+b.time).localeCompare(a.date+' '+a.time));ordinaryPhoneUI.forum();screen.querySelector('[data-forum-category="校园新规"]')?.remove();
   if(!wallIdentityReady())screen.querySelector('.page-head')?.insertAdjacentHTML('afterend','<button type="button" class="hospital-wall-identity-entry" data-action="hospital-wall-identity-open"><strong>设置校园墙身份</strong><span>填写匿名昵称，选择你的头像 ›</span></button>');
@@ -585,8 +589,12 @@
  function replyTo(id){
   const target=findComment(id);if(!target)return;
   if(!wallIdentityReady())return withWallIdentity(()=>replyTo(id),null,'确认并继续回复');
-  sheet('回复 '+esc(target.comment.name),'<form id="hospital-nested-reply" class="rule-comment-form"><input name="reply" aria-label="回复内容" required maxlength="500"><button class="pill-button">回复</button></form>');
-  const form=document.querySelector('#hospital-nested-reply'),key='comment:'+id;form.elements.reply.value=wallDraft(key);form.elements.reply.oninput=e=>wallDraft(key,e.target.value);
+  sheet('回复评论','<form id="hospital-nested-reply" class="post-form"><div class="hospital-reply-reference"><strong>'+esc(wallName(target.comment))+'</strong><p>'+esc(target.comment.text)+'</p></div><textarea name="reply" aria-label="回复内容" placeholder="写下你的回复…" required maxlength="500"></textarea><div class="hospital-reply-footer"><small>回复给 '+esc(wallName(target.comment))+'</small><button type="submit" class="pill-button forum-publish">发送回复</button></div></form>');
+  const form=document.querySelector('#hospital-nested-reply'),key='comment:'+id;
+  form.closest('.sheet').classList.add('forum-compose-sheet','hospital-reply-sheet');
+  form.elements.reply.value=wallDraft(key);
+  const updateReply=()=>{wallDraft(key,form.elements.reply.value);form.querySelector('[type="submit"]').disabled=!form.elements.reply.value.trim()};
+  form.elements.reply.oninput=updateReply;updateReply();
   form.onsubmit=e=>{e.preventDefault();const raw=form.elements.reply.value,text=raw.trim();if(!text)return;wallDraft(key,raw);let sent=false;
    withWallIdentity(()=>{if(sent)return;sent=true;target.parent.replies.push(newReply(raw,wallName(target.comment)));queueWallDreamReply(target,text);wallDraft(key,'');if(!state.expanded.includes(target.parent.id))state.expanded.push(target.parent.id);post(target.post.id)},()=>replyTo(id));
   };
@@ -604,7 +612,13 @@
  }
  function ordersPhone(){ordinaryPhoneUI.orders();const empty=screen.querySelector('.empty-app');if(empty)empty.innerHTML='暂无订单';screen.querySelectorAll('.order-card').forEach((el,i)=>{el.querySelector('.post-foot span:last-child').textContent=state.orders[i].status})}
  function wallet(){view='wallet';active=null;renderCampusWallet();const empty=screen.querySelector('.wallet-history-empty strong');if(empty)empty.textContent='暂无消费记录'}
- function notes(){view='notes';active=null;screen.innerHTML=ordinaryPhoneUI.notebookPageMarkup();screen.querySelector('.notebook-intro').insertAdjacentHTML('afterend','<article class="notebook-paper"><h3>'+esc(medicalAidNote.title)+'</h3>'+medicalAidNote.text.split('\n\n').map(text=>'<p>'+esc(text)+'</p>').join('')+'</article>');screen.querySelector('.notebook-paper-foot span').textContent='自动保存';screen.querySelector('#note-text').oninput=e=>{state.note=e.target.value}}
+ function notes(){
+  view='notes';active=null;screen.innerHTML=ordinaryPhoneUI.notebookPageMarkup();
+  const [recordDate,...title]=medicalAidNote.title.split('｜');
+  screen.querySelector('.notebook-intro').insertAdjacentHTML('afterend','<div class="fa-clues"><article class="notebook-paper"><small>'+esc(recordDate)+'</small><h3>【'+esc(title.join('｜'))+'】</h3>'+medicalAidNote.text.split('\n\n').map(text=>'<p>'+esc(text)+'</p>').join('')+'</article></div>');
+  screen.querySelector('.notebook-paper-foot span').textContent='自动保存';
+  screen.querySelector('#note-text').oninput=e=>{state.note=e.target.value};
+ }
  function calendar(){phoneCalendar();screen.querySelector('.calendar-today p').textContent=data().system.time}
  function campus(){
   view='campus';active=null;screen.innerHTML=campusPageMarkup(false);
@@ -645,7 +659,7 @@
   }
   if(d.identifierProfile)return identifierSearchProfile(d.identifierProfile);
   if(d.hospitalMoments)return moments(d.hospitalMoments);
-  if(d.forumCategory){forumCategory=d.forumCategory;return forumPhone()}if(d.shopCategory){shopCategory=d.shopCategory;return shopPhone()}
+  if(d.forumCategory)return forumPhone(d.forumCategory);if(d.shopCategory){shopCategory=d.shopCategory;return shopPhone()}
   if(d.like)return toggleWallLike(state.forumPosts.find(p=>p.id===d.like));
   if(d.hospitalCommentLike){const r=findComment(d.hospitalCommentLike);if(r){toggleWallLike(r.comment);post(active)}return}
   if(d.hospitalReply)return replyTo(d.hospitalReply);
@@ -707,6 +721,19 @@
  initializeChapter=function(...args){disposeCall();entered=null;document.querySelector('#phone').classList.remove('hospital-phone');return base.initializeChapter(...args)};
  const style=document.createElement('style');style.textContent='#phone.hospital-phone #dock,#phone.hospital-phone #post-early-sleep,#phone.hospital-phone #midnight-continue-sleep,#phone.hospital-phone #cg-recovery-home{display:none!important}#phone.hospital-phone #screen{height:calc(100% - 43px);padding-bottom:0}';document.head.append(style);
  style.textContent+=`
+ #overlay .hospital-reply-sheet{padding:22px;border-radius:24px;background:var(--wall-surface);border:1px solid var(--wall-border);color:var(--wall-text)}
+ #overlay .hospital-reply-sheet .sheet-header{padding-bottom:14px;margin-bottom:18px}
+ #overlay .hospital-reply-sheet .sheet-header h2{font-size:18px;font-weight:500;letter-spacing:.5px}
+ #overlay .hospital-reply-sheet .sheet-header .icon-button{width:30px;height:30px;border-radius:50%}
+ #hospital-nested-reply{display:flex;flex-direction:column;gap:16px;margin:0;padding:0;background:transparent;border:0}
+ .hospital-reply-reference{padding:2px 0 2px 12px;border-left:2px solid var(--wall-focus)}
+ .hospital-reply-reference strong{font-size:12px;font-weight:500;color:var(--wall-button-text)}
+ .hospital-reply-reference p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:7px 0 0;font-size:12px;line-height:1.7;color:var(--wall-muted);overflow-wrap:anywhere}
+ #hospital-nested-reply textarea{box-sizing:border-box;width:100%;height:132px;min-height:110px;max-height:230px;resize:vertical;padding:14px 15px;border:1px solid var(--wall-border);border-radius:14px;background:var(--wall-field);color:var(--wall-text);font:inherit;font-size:14px;line-height:1.8}
+ .hospital-reply-footer{display:flex;align-items:center;justify-content:space-between;gap:12px}
+ .hospital-reply-footer small{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--wall-muted)}
+ #hospital-nested-reply .forum-publish{flex-shrink:0;min-height:40px;padding:10px 18px;border-radius:12px;letter-spacing:0;background:var(--wall-button);color:var(--wall-button-text);border:1px solid var(--wall-border)}
+ #hospital-nested-reply .forum-publish:disabled{opacity:.4;cursor:default}
  .hospital-wall-identity-entry{display:flex;flex-direction:column;align-items:flex-start;gap:7px;width:100%;padding:15px 18px;margin:0 0 16px;border:1px solid #ffffff24;border-radius:14px;background:#ffffff08;color:inherit;text-align:left}
  .hospital-wall-identity-entry span{font-size:12px;opacity:.7}
  #hospital-wall-identity>label{display:grid;gap:10px}
