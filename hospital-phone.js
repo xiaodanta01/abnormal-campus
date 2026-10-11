@@ -3,7 +3,7 @@
  const apps=['messages','wall','supply','notes','wallet','calendar','campus','phone'];
  const names=['讯息','校园墙','物资中心','备忘录','钱包','日历','校园通','电话'];
  const date='2045-09-09',time='09:33';
- const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261011-rc8';
+ const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261011-rc9';
  const base={persist,home,status,openApp,chatList,openChat,forum,postDetail,shop,orders,cartSheet,checkout,pay,renderMessage,contactRow,cartLines,cartTotal,quantity,productCards,productArt,forumAvatar,zeroLock,resumeStoryScene,initializeChapter,savePersonalNotebook,playNotificationSound,checkSurvival,showNotebookNotice};
  let owner=null,entered=null;
  let callTimer=null,callTimerKey=null,callAudio=null,callTypingTimer=null;
@@ -29,7 +29,7 @@
     {name:'江晓',text:'已捐，后续如果还需要，可以再联系我'},
     {name:'陈妍',replyTo:'江晓',text:'你已经捐很多了，真的谢谢你'},
     {name:'江晓',replyTo:'陈妍',text:'没关系，希望她能醒过来'}]},
-   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261011-rc8',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
+   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261011-rc9',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
     {name:'周禾',text:'就你吃的最多'},
     {name:'陈妍',replyTo:'周禾',text:'太好吃了呀，震撼美味！'},
     {name:'周禾',replyTo:'陈妍',text:'下次多给【玩家名字】留点，她都没吃上几口'}]}
@@ -74,6 +74,10 @@
   rows[3].replies[2].replies=[comment('condolence','思绪','节哀。','睡不醒')];return rows;
  }
  function ensureAccidentDreamComment(posts){
+  for(const [id,likes]of [['1',2889],['2',678],['3',1973],['4',379]]){
+   const p=posts.find(p=>p.id==='reality-accident-'+id);
+   if(p&&p.accidentLikesBase!==likes){p.likes=likes+(p.liked?1:0);p.accidentLikesBase=likes}
+  }
   const post=posts.find(p=>p.id==='reality-accident-4');if(!post)return;
   const id='reality-accident-dream',rows=post.replies??=[];
   let comment=rows.find(c=>c.id===id);
@@ -87,6 +91,12 @@
    rows.unshift(comment);
   }
   comment.pinned=true;
+  comment.time='09:12';
+  if(comment.accidentLikesBase!==29){comment.likes=29+(comment.liked?1:0);comment.accidentLikesBase=29}
+  const stamp=items=>{for(const row of items||[]){if(row.author!=='me'&&row.id!=='reality-accident-dream-response')row.time='09:13';stamp(row.replies)}};
+  stamp(rows.filter(row=>row!==comment));stamp(comment.replies);
+  const dumpling=comment.replies.find(r=>r.id===id+'-dumpling');
+  if(dumpling&&dumpling.accidentLikesBase!==10){dumpling.likes=10+(dumpling.liked?1:0);dumpling.accidentLikesBase=10}
   const index=rows.indexOf(comment);if(index>0){rows.splice(index,1);rows.unshift(comment)}
  }
  function initialPhone(progress){
@@ -143,7 +153,7 @@
    const profile=p.contactProfiles[id];profile.signature=content.signature;
    for(const post of content.moments)if(!profile.moments.some(existing=>existing.id===post.id))profile.moments.push(structuredClone(post));
    const dinner=profile.moments.find(post=>post.id==='reality-chen-dinner');
-   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261011-rc8';dinner.imageAlt='林晴做的一桌饭菜'}
+   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261011-rc9';dinner.imageAlt='林晴做的一桌饭菜'}
   }
   if(!p.zhouConcernAdded){
    const rows=p.messages.zhouhe??=[];
@@ -333,7 +343,7 @@
   phone.classList.remove('zero-immersive','cg-active','survey-active','survey-notifying','late-death-active','report-death-active','pickup16-active');
   for(const el of document.querySelectorAll('.opening-message,#identity-reward,#notebook-collected,#d4-delegation-notice'))if(el.id!=='hospital-reunion-notice')el.remove();
   for(const el of [earlySleepButton,midnightContinue,cgExitButton])el.hidden=true;
-  const dock=document.querySelector('#dock');if(dock.childNodes.length)dock.innerHTML='';syncMessageTabs();refreshPhoneBack();syncCall();syncMomentReplies();
+  const dock=document.querySelector('#dock');if(dock.childNodes.length)dock.innerHTML='';syncMessageTabs();refreshPhoneBack();syncCall();syncMomentReplies();syncWallDreamReply();
  }
  function enter(){
   if(entered===state)return;entered=state;
@@ -349,6 +359,7 @@
  function statusPhone(){ordinaryPhoneUI.status();const clock=document.querySelector('#status>span');if(clock)clock.textContent='9月9日 '+data().system.time}
  function homePhone(){
   ordinaryPhoneUI.home();statusPhone();updateHomeDaylight();replaceHomeSymbols();
+  if(!data().awakeningWallSeen)screen.querySelector('[data-app="wall"] .app-icon')?.insertAdjacentHTML('beforeend','<i class="hospital-wall-dot" aria-label="校园墙有新内容"></i>');
   screen.querySelector('.home-footnote').innerHTML='<button type="button" data-hospital-menu>点击此处返回主页</button>';
   const c=data().motherCall;if(c.phase==='waiting')c.dueAt??=Date.now()+3000;
  }
@@ -470,8 +481,85 @@
   posts.unshift({text,date:momentDate(phone.system.date+' '+phone.system.time),replies:[],pendingReplies,replyInterval:2000,replyKind,replyGroupId});
   state.momentDraft='';moments();
  }
+ const wallIdentityAvatars=['forum_f_01','forum_f_rabbit','forum_m_cat'];
+ let wallIdentityPending=null,wallDreamTimer=null;
+ function wallName(row){return row.author==='me'?(row.name&&row.avatarId?row.name:state.forumIdentity?.name||'匿名用户'):row.name}
+ function wallAvatar(row){
+  const avatarId=row.avatarId||(row.author==='me'?state.forumIdentity?.avatarId:null);
+  return avatarId?'<span class="avatar" data-avatar-id="'+esc(avatarId)+'"><img src="'+esc(forumAvatarLibrary.src(avatarId))+'" alt="'+esc(wallName(row))+'"></span>':forumAvatarPhone(row.author,wallName(row),row.gender);
+ }
+ function wallIdentityReady(){const identity=data().forumIdentity;return !!(identity?.name?.trim()&&wallIdentityAvatars.includes(identity.avatarId))}
+ function withWallIdentity(publish,restoreDraft,confirmLabel='确认并发布'){
+  const phone=data(),identity=phone.forumIdentity;
+  if(identity?.name?.trim()&&wallIdentityAvatars.includes(identity.avatarId)){publish();return}
+  const pending=wallIdentityPending={phone,publish,restoreDraft};
+  sheet('设置校园墙身份','<form id="hospital-wall-identity" class="post-form"><label>校园墙昵称<input name="nickname" aria-label="校园墙匿名昵称" placeholder="取一个只在校园墙使用的昵称" maxlength="30" required></label><fieldset class="hospital-wall-avatar-field"><legend>选择头像</legend><div class="hospital-wall-avatars">'+wallIdentityAvatars.map((id,i)=>'<label><input type="radio" name="portrait" value="'+id+'" required aria-label="头像'+(i+1)+'"><img src="'+esc(forumAvatarLibrary.src(id))+'" alt=""></label>').join('')+'</div></fieldset><button class="pill-button forum-publish" type="submit" disabled>确认并发布</button><button class="pill-button hospital-wall-cancel" type="button" data-action="hospital-wall-identity-cancel">取消</button></form>');
+  const form=document.querySelector('#hospital-wall-identity');
+  form.closest('.sheet').classList.add('forum-compose-sheet');
+  form.querySelector('[type="submit"]').textContent=confirmLabel;
+  const update=()=>{form.querySelector('[type="submit"]').disabled=!form.elements.nickname.value.trim()||!wallIdentityAvatars.includes(form.elements.portrait.value)};
+  form.elements.nickname.oninput=update;for(const radio of form.querySelectorAll('[name="portrait"]'))radio.onchange=update;
+  form.onsubmit=e=>{e.preventDefault();if(wallIdentityPending!==pending||data()!==phone)return;
+   const name=form.elements.nickname.value.trim(),avatarId=form.elements.portrait.value;if(!name||!wallIdentityAvatars.includes(avatarId))return;
+   phone.forumIdentity={name,avatarId};wallIdentityPending=null;closeSheet();publish();
+  };
+ }
+ function cancelWallIdentity(){const pending=wallIdentityPending;wallIdentityPending=null;closeSheet();if(pending?.phone===data())pending.restoreDraft?.()}
+ function wallDraft(key,value){const drafts=state.forumDrafts??={};if(value!==undefined)drafts[key]=value;return drafts[key]||''}
+ function sharedDreamIntent(text){
+  const value=text.replace(/\s+/g,'');
+  // Reject explicit denials before looking for shared-memory synonyms.
+  if(/(?:没|未|不曾|从未|没有|不)(?:有|曾|也|再|怎么|太|还|真的|亲身|过|能|敢)*?(?:经历|遇到|碰到|梦到|梦见|做(?:过|了)?.{0,8}梦|记得|记住|记起|印象)|不(?:是|算).{0,4}(?:我也|经历过)|忘(?:了|记)/.test(value))return false;
+  return /(?:我|咱|我们|俺也).{0,10}(?:经历|遇到|碰到|梦到|梦见|做(?:过|了)?.{0,8}梦|记得|记起|印象)|(?:也|同样).{0,5}(?:经历|遇到|碰到|梦到|梦见|做(?:过|了)?.{0,8}梦|记得|记起)|(?:不是|并非|不只是|不止是|不算是)梦|这.{0,3}(?:真的发生过|是真实的)|^(?:也)?(?:经历过|遇到过|碰到过|梦到过|梦见过|也记得|我也是)[了的。！!…]*$/.test(value);
+ }
+ function queueWallDreamReply(target,text){
+  const phone=data();if(target.post.id!=='reality-accident-4'||target.comment.id!=='reality-accident-dream'||phone.forumDreamInteraction)return;
+  const id='reality-accident-dream-response';
+  if(target.parent.replies.some(r=>r.id===id)){phone.forumDreamInteraction={status:'done'};return}
+  const realName=root().profile.name;
+  phone.forumDreamInteraction={status:'pending',dueAt:Date.now()+1000,reply:{id,author:'reality-accident-dream-author',name:'命运你阿帕次',gender:'female',text:sharedDreamIntent(text)?'你是谁？你是'+realName+'吗？':'我总觉得这一切不是梦',replyTo:phone.forumIdentity.name,date:phone.system.date,time:phone.system.time,likes:0,replies:[]}};
+ }
+ function syncWallDreamReply(){
+  if(wallDreamTimer!==null){clearTimeout(wallDreamTimer);wallDreamTimer=null}
+  if(!isVisible()||document.hidden)return;
+  const progress=root(),phone=data(),q=phone.forumDreamInteraction;if(q?.status!=='pending')return;
+  wallDreamTimer=window.mobileNativeTimeout(()=>{
+   wallDreamTimer=null;if(root()!==progress||!isVisible()||document.hidden)return;
+   context(()=>{
+    if(data()!==phone||q.status!=='pending')return;
+    const parent=phone.forumPosts.find(p=>p.id==='reality-accident-4')?.replies.find(r=>r.id==='reality-accident-dream');if(!parent)return;
+    if(!parent.replies.some(r=>r.id===q.reply.id))parent.replies.push(structuredClone(q.reply));
+    q.status='done';if(!phone.expanded.includes(parent.id))phone.expanded.push(parent.id);
+    if(view==='post'&&active==='reality-accident-4'&&!document.querySelector('#overlay .sheet')){
+     const input=screen.querySelector('#hospital-reply-form input');if(input)wallDraft('post:'+active,input.value);
+     post(active);
+    }
+   });
+  },Math.max(0,(Number.isFinite(q.dueAt)?q.dueAt:Date.now()+1000)-Date.now()));
+ }
+ function writeWallPost(){
+  if(!wallIdentityReady())return withWallIdentity(writeWallPost,null,'确认并继续发帖');
+  ordinaryPhoneUI.writePost();
+  const form=document.querySelector('#post-form'),draft=state.forumPostDraft||{};
+  for(const key of ['title','body','category'])if(draft[key]!==undefined)form.elements[key].value=draft[key];
+  const remember=()=>{state.forumPostDraft={title:form.elements.title.value,body:form.elements.body.value,category:form.elements.category.value}};
+  for(const key of ['title','body','category']){form.elements[key].oninput=remember;form.elements[key].onchange=remember}
+  form.onsubmit=e=>{e.preventDefault();remember();const pending={...state.forumPostDraft};if(!pending.title.trim()||!pending.body.trim())return;
+   let sent=false;withWallIdentity(()=>{if(sent)return;sent=true;
+    state.forumPosts.unshift({id:'reality-post-'+storyRunId(),author:'me',name:state.forumIdentity.name,avatarId:state.forumIdentity.avatarId,preserveForumNames:true,...pending,title:pending.title.trim(),body:pending.body.trim(),date:state.system.date,time:state.system.time,likes:0,replies:[]});
+    delete state.forumPostDraft;closeSheet();forumCategory='全部';forumPhone();toast('已发布');
+   },writeWallPost);
+  };
+ }
  function forumPhone(){
+  state.awakeningWallSeen=true;
   state.forumPosts.sort((a,b)=>(b.date+' '+b.time).localeCompare(a.date+' '+a.time));ordinaryPhoneUI.forum();screen.querySelector('[data-forum-category="校园新规"]')?.remove();
+  if(!wallIdentityReady())screen.querySelector('.page-head')?.insertAdjacentHTML('afterend','<button type="button" class="hospital-wall-identity-entry" data-action="hospital-wall-identity-open"><strong>设置校园墙身份</strong><span>填写匿名昵称，选择你的头像 ›</span></button>');
+  for(const card of screen.querySelectorAll('[data-post]')){
+   const p=state.forumPosts.find(post=>post.id===card.dataset.post),count=card.querySelector('.post-foot span:nth-child(2)');
+   if(p&&count)count.innerHTML=icon('chat')+' '+(p.replies||[]).reduce((sum,r)=>sum+1+(r.replies?.length||0),0)+' 回复';
+   if(p&&(p.author==='me'||p.avatarId)){const author=card.querySelector('.post-author');if(author)author.innerHTML=wallAvatar(p)+'<span>'+esc(wallName(p))+'<small>'+esc(wallDateLabel(p))+' · '+esc(p.category)+'</small></span>'}
+  }
  }
  function forumAvatarPhone(id,name,gender){
   const account=forumAvatarLibrary.accounts[id],pool=forumAvatarLibrary.pools[gender||account?.gender||'neutral'];
@@ -479,21 +567,29 @@
   return '<span class="avatar" data-forum-account="'+esc(id)+'" data-avatar-id="'+image+'"><img src="'+forumAvatarLibrary.src(image)+'" alt="'+esc(name||'匿名用户')+'"></span>';
  }
  function commentMarkupPhone(c,parent=null){
-  return '<div class="rule-comment '+(parent?'nested-comment':c.pinned?'aw-pinned-comment':'')+'">'+forumAvatar(c.author,c.name,c.gender)+'<div class="comment-content"><div class="comment-heading"><strong>'+esc(c.author==='me'?state.profile.name:c.name)+'</strong><button data-hospital-comment-like="'+c.id+'" aria-pressed="'+!!c.liked+'">'+(c.liked?'♥':'♡')+' '+(c.likes||0)+'</button></div>'+(!parent&&c.pinned?'<small class="aw-comment-pin">置顶回复</small>':'')+'<p>'+(c.replyTo?'回复 '+esc(c.replyTo)+'：':'')+esc(c.text)+'</p><small class="wall-comment-time">'+esc(wallDateLabel(c))+'</small><button class="aw-reply-button" data-hospital-reply="'+c.id+'">回复</button>'+(!parent&&c.replies?.length?'<button class="thread-toggle" data-hospital-thread="'+c.id+'">'+(state.expanded.includes(c.id)?'收起回复':'展开 '+c.replies.length+' 条回复')+'</button>'+(state.expanded.includes(c.id)?c.replies.map(r=>commentMarkupPhone(r,c.id)).join(''):''):'')+'</div></div>';
+  return '<div class="rule-comment '+(parent?'nested-comment':c.pinned?'aw-pinned-comment':'')+'">'+wallAvatar(c)+'<div class="comment-content"><div class="comment-heading"><strong>'+esc(wallName(c))+'</strong><button data-hospital-comment-like="'+c.id+'" aria-pressed="'+!!c.liked+'">'+(c.liked?'♥':'♡')+' '+(c.likes||0)+'</button></div>'+(!parent&&c.pinned?'<small class="aw-comment-pin">置顶回复</small>':'')+'<p>'+(c.replyTo?'回复 '+esc(c.replyTo)+'：':'')+esc(c.text)+'</p><small class="wall-comment-time">'+esc(wallDateLabel(c))+'</small><button class="aw-reply-button" data-hospital-reply="'+c.id+'">回复</button>'+(!parent&&c.replies?.length?'<button class="thread-toggle" data-hospital-thread="'+c.id+'">'+(state.expanded.includes(c.id)?'收起回复':'展开 '+c.replies.length+' 条回复')+'</button>'+(state.expanded.includes(c.id)?c.replies.map(r=>commentMarkupPhone(r,c.id)).join(''):''):'')+'</div></div>';
  }
  function post(id){
   const p=state.forumPosts.find(p=>p.id===id);if(!p)return;
+  if(!wallIdentityReady())return withWallIdentity(()=>post(id),null,'确认并查看帖子');
   view='post';active=id;closeSheet();
   const numberRows=(rows,prefix)=>rows.forEach((r,i)=>{r.id??=prefix+'-'+i;r.replies??=[];numberRows(r.replies,r.id)});numberRows(p.replies,p.id);
-  screen.innerHTML='<section class="app-page forum-page">'+header('帖子详情','forum')+'<article class="post-detail"><div class="post-author">'+forumAvatar(p.author,p.name,p.gender)+'<span>'+esc(p.author==='me'?state.profile.name:p.name)+'<small>'+esc(wallDateLabel(p))+'</small></span></div><h2>'+esc(p.title)+'</h2><p>'+esc(p.body)+'</p><button class="pill-button '+(p.liked?'liked':'')+'" data-like="'+p.id+'">'+(p.liked?'♥ 已赞':'♡ 点赞')+' '+p.likes+'</button></article><h3 class="reply-title">全部回复 · '+p.replies.reduce((sum,r)=>sum+1+(r.replies?.length||0),0)+'</h3>'+p.replies.map(r=>commentMarkupPhone(r)).join('')+'<form class="rule-comment-form wall-unified-composer" id="hospital-reply-form"><input name="reply" aria-label="回复内容" placeholder="友善地说两句…" required maxlength="500"><button class="pill-button">回复</button></form></section>';
-  screen.querySelector('#hospital-reply-form').onsubmit=e=>{e.preventDefault();const text=e.target.elements.reply.value.trim();if(!text)return;p.replies.push(newReply(text));post(id)};
+  screen.innerHTML='<section class="app-page forum-page">'+header('帖子详情','forum')+'<article class="post-detail"><div class="post-author">'+wallAvatar(p)+'<span>'+esc(wallName(p))+'<small>'+esc(wallDateLabel(p))+'</small></span></div><h2>'+esc(p.title)+'</h2><p>'+esc(p.body)+'</p><button class="pill-button '+(p.liked?'liked':'')+'" data-like="'+p.id+'">'+(p.liked?'♥ 已赞':'♡ 点赞')+' '+p.likes+'</button></article><h3 class="reply-title">全部回复 · '+p.replies.reduce((sum,r)=>sum+1+(r.replies?.length||0),0)+'</h3>'+p.replies.map(r=>commentMarkupPhone(r)).join('')+'<form class="rule-comment-form wall-unified-composer" id="hospital-reply-form"><input name="reply" aria-label="回复内容" placeholder="友善地说两句…" required maxlength="500"><button class="pill-button">回复</button></form></section>';
+  const form=screen.querySelector('#hospital-reply-form'),key='post:'+id;form.elements.reply.value=wallDraft(key);form.elements.reply.oninput=e=>wallDraft(key,e.target.value);
+  form.onsubmit=e=>{e.preventDefault();const raw=form.elements.reply.value;if(!raw.trim())return;wallDraft(key,raw);let sent=false;
+   withWallIdentity(()=>{if(sent)return;sent=true;p.replies.push(newReply(raw));wallDraft(key,'');post(id)},()=>post(id));
+  };
  }
- function newReply(text,replyTo=null){return {id:'reality-reply-'+storyRunId(),author:'me',name:state.profile.name,text,date,time:data().system.time,replyTo,likes:0,replies:[]}}
+ function newReply(text,replyTo=null){return {id:'reality-reply-'+storyRunId(),author:'me',name:state.forumIdentity.name,avatarId:state.forumIdentity.avatarId,text,date,time:data().system.time,replyTo,likes:0,replies:[]}}
  function findComment(id){const p=state.forumPosts.find(p=>p.id===active);for(const c of p?.replies||[]){if(c.id===id)return {post:p,comment:c,parent:c};const r=c.replies?.find(r=>r.id===id);if(r)return {post:p,comment:r,parent:c}}}
  function replyTo(id){
   const target=findComment(id);if(!target)return;
+  if(!wallIdentityReady())return withWallIdentity(()=>replyTo(id),null,'确认并继续回复');
   sheet('回复 '+esc(target.comment.name),'<form id="hospital-nested-reply" class="rule-comment-form"><input name="reply" aria-label="回复内容" required maxlength="500"><button class="pill-button">回复</button></form>');
-  document.querySelector('#hospital-nested-reply').onsubmit=e=>{e.preventDefault();const text=e.target.elements.reply.value.trim();if(!text)return;target.parent.replies.push(newReply(text,target.comment.name));if(!state.expanded.includes(target.parent.id))state.expanded.push(target.parent.id);post(target.post.id)};
+  const form=document.querySelector('#hospital-nested-reply'),key='comment:'+id;form.elements.reply.value=wallDraft(key);form.elements.reply.oninput=e=>wallDraft(key,e.target.value);
+  form.onsubmit=e=>{e.preventDefault();const raw=form.elements.reply.value,text=raw.trim();if(!text)return;wallDraft(key,raw);let sent=false;
+   withWallIdentity(()=>{if(sent)return;sent=true;target.parent.replies.push(newReply(raw,wallName(target.comment)));queueWallDreamReply(target,text);wallDraft(key,'');if(!state.expanded.includes(target.parent.id))state.expanded.push(target.parent.id);post(target.post.id)},()=>replyTo(id));
+  };
  }
  function shopPhone(){ordinaryPhoneUI.shop();screen.querySelector('.shop-nav span').textContent='校园自营 · 到店自取 / 无人机派送'}
  function checkoutPhone(){
@@ -531,6 +627,9 @@
  function back(){if(document.querySelector('#overlay .sheet'))return closeSheet();if(view==='chat'||view.startsWith('message-'))return navigate('messages');if(view==='post')return navigate('wall');if(view==='orders')return navigate('supply');navigate('home')}
  function click(button){
   const d=button.dataset;if(button.disabled)return;
+  if(d.action==='hospital-wall-identity-cancel')return cancelWallIdentity();
+  if(d.action==='hospital-wall-identity-open')return withWallIdentity(forumPhone,null,'确认保存身份');
+  if(d.action==='write-post')return writeWallPost();
   if(d.action==='moment-compose')return composeTextMoment();
   if(d.action==='moment-send')return sendTextMoment();
   if(d.action==='moment-photo')return;
@@ -555,7 +654,7 @@
   if(d.calendarShift){const [y,m]=calendarMonth.split('-').map(Number);calendarMonth=new Date(Date.UTC(y,m-1+Number(d.calendarShift),1)).toISOString().slice(0,7);return calendar()}
   if(d.calendarDate){calendarSelected=d.calendarDate;return calendar()}
   if(d.walletOrder){const order=state.orders.find(o=>o.id===d.walletOrder);if(order)sheet('消费详情','<div class="wallet-receipt"><h3>−'+money(order.total)+' 元</h3><p>'+esc(order.time)+'</p><p>'+esc(order.delivery)+'</p></div>');return}
-  const commands={home:homePhone,'phone-desktop':homePhone,list:()=>navigate('messages'),'message-conversations':()=>navigate('messages'),'message-contacts':contacts,'message-moments':()=>moments(),close:closeSheet,forum:forumPhone,'write-post':ordinaryPhoneUI.writePost,shop:shopPhone,cart:ordinaryPhoneUI.cartSheet,checkout:checkoutPhone,pay:payPhone,orders:ordersPhone,'calendar-today':()=>{calendarMonth='2045-09';calendarSelected=date;calendar()},'save-note':()=>{state.note=screen.querySelector('#note-text').value;toast('备忘录已保存')},profile:messageActions.profile,'zero-lin-profile':()=>contactProfile('linqing'),'chat-options':()=>{messageActions['chat-options']();decorateContactAvatars(document.querySelector('#overlay'))},'new-chat':contacts,'identifier-search':contacts};
+  const commands={home:homePhone,'phone-desktop':homePhone,list:()=>navigate('messages'),'message-conversations':()=>navigate('messages'),'message-contacts':contacts,'message-moments':()=>moments(),close:closeSheet,forum:forumPhone,'write-post':writeWallPost,shop:shopPhone,cart:ordinaryPhoneUI.cartSheet,checkout:checkoutPhone,pay:payPhone,orders:ordersPhone,'calendar-today':()=>{calendarMonth='2045-09';calendarSelected=date;calendar()},'save-note':()=>{state.note=screen.querySelector('#note-text').value;toast('备忘录已保存')},profile:messageActions.profile,'zero-lin-profile':()=>contactProfile('linqing'),'chat-options':()=>{messageActions['chat-options']();decorateContactAvatars(document.querySelector('#overlay'))},'new-chat':contacts,'identifier-search':contacts};
   if(commands[d.action])return commands[d.action]();if(messageActions[d.action])return messageActions[d.action]();if(d.action==='message-moments-lin'){state.messageProfile='linqing';return enterContactMoments(linMoments)}if(['voice-call','video-call'].includes(d.action))sheet(d.action==='voice-call'?'语音通话':'视频通话','<p>暂未连接通话服务。</p><button class="primary" data-action="close">返回聊天</button>');
  }
  window.hospitalPhoneInput=event=>{
@@ -608,6 +707,22 @@
  initializeChapter=function(...args){disposeCall();entered=null;document.querySelector('#phone').classList.remove('hospital-phone');return base.initializeChapter(...args)};
  const style=document.createElement('style');style.textContent='#phone.hospital-phone #dock,#phone.hospital-phone #post-early-sleep,#phone.hospital-phone #midnight-continue-sleep,#phone.hospital-phone #cg-recovery-home{display:none!important}#phone.hospital-phone #screen{height:calc(100% - 43px);padding-bottom:0}';document.head.append(style);
  style.textContent+=`
+ .hospital-wall-identity-entry{display:flex;flex-direction:column;align-items:flex-start;gap:7px;width:100%;padding:15px 18px;margin:0 0 16px;border:1px solid #ffffff24;border-radius:14px;background:#ffffff08;color:inherit;text-align:left}
+ .hospital-wall-identity-entry span{font-size:12px;opacity:.7}
+ #hospital-wall-identity>label{display:grid;gap:10px}
+ #hospital-wall-identity input[name="nickname"]{width:100%;box-sizing:border-box;padding:12px;border:1px solid var(--wall-border);border-radius:12px;background:var(--wall-field);color:var(--wall-text);font:inherit}
+ .hospital-wall-avatar-field{border:0;padding:0;margin:0;min-width:0}
+ .hospital-wall-avatar-field legend{color:var(--wall-muted);font-size:14px;margin-bottom:12px}
+ .hospital-wall-avatars{display:flex;justify-content:space-around;gap:12px;padding:16px 12px;background:var(--wall-field);border:1px solid var(--wall-border);border-radius:16px}
+ .hospital-wall-avatars label{position:relative;display:grid;place-items:center;cursor:pointer}
+ #hospital-wall-identity .hospital-wall-avatars input{position:absolute;width:1px;height:1px;padding:0;margin:0;opacity:0}
+ .hospital-wall-avatars img{width:58px;height:58px;border-radius:50%;border:3px solid transparent;object-fit:cover;padding:3px}
+ .hospital-wall-avatars input:checked+img{border-color:var(--wall-focus);background:var(--wall-button)}
+ .hospital-wall-avatars input:focus-visible+img{outline:2px solid var(--wall-focus);outline-offset:3px}
+ #hospital-wall-identity .pill-button{background:var(--wall-button);color:var(--wall-button-text);border:1px solid var(--wall-border);border-radius:14px;min-height:46px}
+ #hospital-wall-identity .hospital-wall-cancel{background:transparent;color:var(--wall-muted)}
+ #hospital-wall-identity button:disabled{opacity:.4;cursor:default}
+ #phone.hospital-phone .hospital-wall-dot{position:absolute;right:-2px;top:-2px;width:9px;height:9px;border:2px solid #192229;border-radius:50%;background:#e45b67;pointer-events:none}
  #phone.hospital-phone .hospital-service-display{justify-content:center;cursor:default}
  #hospital-mother-call{position:absolute;inset:0;z-index:15000;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;padding:64px 24px 36px;background:radial-gradient(ellipse at 50% 0%,#46544780 0,transparent 58%),radial-gradient(ellipse at 95% 100%,#3f505333,transparent 60%),linear-gradient(165deg,#1b2523,#0c1316);color:#e2e8e5;font-family:inherit}
  #hospital-mother-call::before{content:'';position:absolute;inset:18px;border:1px solid #afc1b211;border-radius:30px;pointer-events:none}
@@ -669,7 +784,9 @@
  new MutationObserver(chrome).observe(document.querySelector('#phone'),{childList:true,subtree:true});
  document.addEventListener('visibilitychange',()=>{if(isVisible())syncCall();else stopCallAudio()});
  window.addEventListener('pagehide',()=>{if(isVisible())save();clearCallTimer();clearCallTyping();stopCallAudio()});
- window.addEventListener('pageshow',()=>{if(isVisible()){syncCall();syncMomentReplies()}});
+ window.addEventListener('pageshow',()=>{if(isVisible()){syncCall();syncMomentReplies();syncWallDreamReply()}});
+ document.addEventListener('visibilitychange',syncWallDreamReply);
+ window.addEventListener('pagehide',()=>{if(wallDreamTimer!==null)clearTimeout(wallDreamTimer);wallDreamTimer=null});
  window.addEventListener('visibilitychange',()=>syncMomentReplies());
  window.addEventListener('pagehide',()=>{if(momentReplyTimer!==null)clearTimeout(momentReplyTimer);momentReplyTimer=null});
  window.addEventListener('storage',()=>{if(isVisible())syncCallAudio()});
