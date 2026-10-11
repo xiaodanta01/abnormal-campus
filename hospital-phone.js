@@ -3,7 +3,7 @@
  const apps=['messages','wall','supply','notes','wallet','calendar','campus','phone'];
  const names=['讯息','校园墙','物资中心','备忘录','钱包','日历','校园通','电话'];
  const date='2045-09-09',time='09:33';
- const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261011-rc7';
+ const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261011-rc8';
  const base={persist,home,status,openApp,chatList,openChat,forum,postDetail,shop,orders,cartSheet,checkout,pay,renderMessage,contactRow,cartLines,cartTotal,quantity,productCards,productArt,forumAvatar,zeroLock,resumeStoryScene,initializeChapter,savePersonalNotebook,playNotificationSound,checkSurvival,showNotebookNotice};
  let owner=null,entered=null;
  let callTimer=null,callTimerKey=null,callAudio=null,callTypingTimer=null;
@@ -29,7 +29,7 @@
     {name:'江晓',text:'已捐，后续如果还需要，可以再联系我'},
     {name:'陈妍',replyTo:'江晓',text:'你已经捐很多了，真的谢谢你'},
     {name:'江晓',replyTo:'陈妍',text:'没关系，希望她能醒过来'}]},
-   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261011-rc7',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
+   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261011-rc8',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
     {name:'周禾',text:'就你吃的最多'},
     {name:'陈妍',replyTo:'周禾',text:'太好吃了呀，震撼美味！'},
     {name:'周禾',replyTo:'陈妍',text:'下次多给【玩家名字】留点，她都没吃上几口'}]}
@@ -73,6 +73,22 @@
   rows[3].replies=[comment('thought','思绪','我室友醒了，但是很多事情都记得很乱。'),comment('burger','我想吃汉堡','我朋友还在重症监护室……希望她快点好起来。'),comment('sleep','睡不醒','我朋友走了……'),comment('cat','我有猫饼','拜托大家都回来吧。')];
   rows[3].replies[2].replies=[comment('condolence','思绪','节哀。','睡不醒')];return rows;
  }
+ function ensureAccidentDreamComment(posts){
+  const post=posts.find(p=>p.id==='reality-accident-4');if(!post)return;
+  const id='reality-accident-dream',rows=post.replies??=[];
+  let comment=rows.find(c=>c.id===id);
+  if(!comment){
+   const reply=(key,name,text)=>({id:id+'-'+key,author:id+'-'+key,name,gender:'female',text,date,time:'07:08',likes:0,replies:[]});
+   comment={...reply('author','命运你阿帕次','有没有人经历了什么普通生学生会的事情？还是说是我做梦梦到的……'),id,pinned:true,replies:[
+    reply('sleep','睡不醒','什么鬼？？'),
+    reply('dumpling','早点水饺','？？？我也梦到了'),
+    reply('toast','云朵吐司','你在说什么啊？')
+   ]};
+   rows.unshift(comment);
+  }
+  comment.pinned=true;
+  const index=rows.indexOf(comment);if(index>0){rows.splice(index,1);rows.unshift(comment)}
+ }
  function initialPhone(progress){
   const contacts=['linqing','zhouhe','chenyue','room408'].map(id=>{
    const original=C.contacts.find(c=>c.id===id)||{id,name:id==='chenyue'?'陈妍':id==='zhouhe'?'周禾':'林晴',avatar:id};
@@ -94,6 +110,7 @@
  }
  function data(){
   const progress=root(),n=progress.story.dayFourSleep,p=n.phone??=initialPhone(progress);
+  ensureAccidentDreamComment(p.forumPosts);
   if(!p.forumPosts.some(post=>post.id==='reality-lin-medical-aid'))p.forumPosts.push(medicalAidPost());
   const aid=p.forumPosts.find(post=>post.id==='reality-lin-medical-aid');
   if(aid.aidLikesBase!==2876){aid.likes=2876+(aid.liked?1:0);aid.aidLikesBase=2876}
@@ -126,7 +143,7 @@
    const profile=p.contactProfiles[id];profile.signature=content.signature;
    for(const post of content.moments)if(!profile.moments.some(existing=>existing.id===post.id))profile.moments.push(structuredClone(post));
    const dinner=profile.moments.find(post=>post.id==='reality-chen-dinner');
-   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261011-rc7';dinner.imageAlt='林晴做的一桌饭菜'}
+   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261011-rc8';dinner.imageAlt='林晴做的一桌饭菜'}
   }
   if(!p.zhouConcernAdded){
    const rows=p.messages.zhouhe??=[];
@@ -462,7 +479,7 @@
   return '<span class="avatar" data-forum-account="'+esc(id)+'" data-avatar-id="'+image+'"><img src="'+forumAvatarLibrary.src(image)+'" alt="'+esc(name||'匿名用户')+'"></span>';
  }
  function commentMarkupPhone(c,parent=null){
-  return '<div class="rule-comment '+(parent?'nested-comment':'')+'">'+forumAvatar(c.author,c.name,c.gender)+'<div class="comment-content"><div class="comment-heading"><strong>'+esc(c.author==='me'?state.profile.name:c.name)+'</strong><button data-hospital-comment-like="'+c.id+'" aria-pressed="'+!!c.liked+'">'+(c.liked?'♥':'♡')+' '+(c.likes||0)+'</button></div><p>'+(c.replyTo?'回复 '+esc(c.replyTo)+'：':'')+esc(c.text)+'</p><small class="wall-comment-time">'+esc(wallDateLabel(c))+'</small><button class="aw-reply-button" data-hospital-reply="'+c.id+'">回复</button>'+(!parent&&c.replies?.length?'<button class="thread-toggle" data-hospital-thread="'+c.id+'">'+(state.expanded.includes(c.id)?'收起回复':'展开 '+c.replies.length+' 条回复')+'</button>'+(state.expanded.includes(c.id)?c.replies.map(r=>commentMarkupPhone(r,c.id)).join(''):''):'')+'</div></div>';
+  return '<div class="rule-comment '+(parent?'nested-comment':c.pinned?'aw-pinned-comment':'')+'">'+forumAvatar(c.author,c.name,c.gender)+'<div class="comment-content"><div class="comment-heading"><strong>'+esc(c.author==='me'?state.profile.name:c.name)+'</strong><button data-hospital-comment-like="'+c.id+'" aria-pressed="'+!!c.liked+'">'+(c.liked?'♥':'♡')+' '+(c.likes||0)+'</button></div>'+(!parent&&c.pinned?'<small class="aw-comment-pin">置顶回复</small>':'')+'<p>'+(c.replyTo?'回复 '+esc(c.replyTo)+'：':'')+esc(c.text)+'</p><small class="wall-comment-time">'+esc(wallDateLabel(c))+'</small><button class="aw-reply-button" data-hospital-reply="'+c.id+'">回复</button>'+(!parent&&c.replies?.length?'<button class="thread-toggle" data-hospital-thread="'+c.id+'">'+(state.expanded.includes(c.id)?'收起回复':'展开 '+c.replies.length+' 条回复')+'</button>'+(state.expanded.includes(c.id)?c.replies.map(r=>commentMarkupPhone(r,c.id)).join(''):''):'')+'</div></div>';
  }
  function post(id){
   const p=state.forumPosts.find(p=>p.id===id);if(!p)return;

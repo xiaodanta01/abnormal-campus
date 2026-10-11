@@ -20,6 +20,15 @@ D4_GROUP_ROWS.push(
  ['yuwei','是啊，也是她一直在提醒我们担心我们'],
  ['ningke','那就先委托给沈可欣吧']
 );
+// Older checkpoints stopped at the original four rows, before delegation rows
+// were appended. Later scenes prove this conversation has already finished.
+function migrateDayFourGroupCursor(progress){
+ const s=progress?.story;
+ if(s?.dayFourMorning?.phase!=='done'||!['dayFourDelegation','dayFourReasoning','dayFourConfrontation','dayFourAfterConfrontation','dayFourDebate','dayFourCounterattack','dayFourVoteReasoning','dayFourFinal','dayFourLinNight','dayFourSleep'].some(key=>s[key]))return;
+ const q=s.dayFourGroup??={};q.index=D4_GROUP_ROWS.length;q.remaining=0;
+}
+storySnapshotMigrations.push(migrateDayFourGroupCursor);
+migrateDayFourGroupCursor(state);
 const D4_DELEGATION_NARRATION=[
  '沈可欣说得每句话听起来都合理，但这一切都太顺利了，顺利到让你感到非常不安。',
  '从提出成为委托人，到选择检举对象，再到其他人陆续表态——这一切就像是早就安排好了一样。',
@@ -37,7 +46,7 @@ function d4DelegationNarrate(){
  const q=d4Delegation();if(!d4DelegationBusy())return;
  closeSheet();stopReading();clearInterval(cgTypingTimer);document.querySelector('#hg-notification')?.remove();
  view='day4-delegation-narration';active=null;rememberRoute();zeroChrome();
- screen.innerHTML='<section class="rd-cg delegation-narration"><img src="assets/bed-phone-day-screen-off.jpg?v=20261011-rc7" alt="坐在宿舍床上看着手机"></section>';
+ screen.innerHTML='<section class="rd-cg delegation-narration"><img src="assets/bed-phone-day-screen-off.jpg?v=20261011-rc8" alt="坐在宿舍床上看着手机"></section>';
  CGDialogue.present(screen.firstElementChild,D4_DELEGATION_NARRATION,{index:q.index||0,onIndex:i=>{if(d4Delegation()===q){q.index=i;persist()}},onComplete:()=>{
   if(d4Delegation()!==q||q.phase!=='narration')return;
   q.phase='ready';state.system.time='09:37';state.game.period='早晨';d4DelegationCapture();persist();home();

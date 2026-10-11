@@ -175,16 +175,21 @@
   const original=window[name];
   window[name]=function(...args){if(!allowRecoveredNotice(id,chat()))return;return original.apply(this,args)};
  }
- // Reuse the same repair on page/BFCache and native foreground recovery.
- function wakeMidnight(){
-  if(['midnight-wait','midnight-notice','midnight-reading','sleep'].includes(postEvening()?.phase)&&!state.story.secondMorningReady&&!(state.game.day>=2))request();
+ // Reconcile every registered runner after page/BFCache/native foreground
+ // recovery. Coalescing avoids visibility, focus and native callbacks repairing
+ // the same scene more than once.
+ let wakeTicket=0;
+ function wakeStory(){
+  const ticket=++wakeTicket;
+  mobileNativeTimeout(()=>{if(ticket===wakeTicket&&!blocked())request()},0);
  }
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)wakeMidnight()});
- window.addEventListener('pageshow',wakeMidnight);
- window.addEventListener('focus',wakeMidnight);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)wakeStory()});
+ window.addEventListener('pageshow',wakeStory);
+ window.addEventListener('focus',wakeStory);
+ window.addEventListener('android-game-resume',wakeStory);
  let nativeWasPaused=!!window.AndroidGameRuntime?.isPaused();
  // Native interval also observes the end of launch/restoration; it never drives messages.
- mobileNativeInterval(()=>{try{const paused=!!window.AndroidGameRuntime?.isPaused();if(nativeWasPaused&&!paused)wakeMidnight();nativeWasPaused=paused;check()}catch(error){tickets.clear();console.warn('Story recovery deferred',error)}},100);
+ mobileNativeInterval(()=>{try{const paused=!!window.AndroidGameRuntime?.isPaused();if(nativeWasPaused&&!paused)wakeStory();nativeWasPaused=paused;check()}catch(error){tickets.clear();console.warn('Story recovery deferred',error)}},100);
  // Track real notifications produced by the original runners as well as recovery
  // prompts. Removing their DOM is not permission to announce the same message again.
  new MutationObserver(records=>{
