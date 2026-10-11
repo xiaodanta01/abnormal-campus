@@ -53,11 +53,16 @@ function d2NightBed(){
 }
 function d2NightBlack(){closeSheet();view='day2-midnight';active=null;rememberRoute();screen.innerHTML='<section class="ending-scene" style="background:#000"></section>';zeroChrome();persist()}
 function d2YelinEndingReason(progress=state){
- const s=progress.story,q=s.mengshuLeakConfrontation,f=s.dayTwoFreeAction;
- // Only this timeline's morning choice and published clues distinguish 024 from 010.
- const stayedSilent=q?.kind==='death'&&q.decisions?.intro===2;
- const published=['d2publicZhou','d2publicYelin'].some(id=>f?.effects?.[id]||f?.completed?.includes(id));
- return s.secondNightResult?.target==='jiang'&&stayedSilent&&!published?'day2-yelin-no-clues':'day2-yelin-misled';
+ const f=progress.story?.dayTwoFreeAction;
+ const published=f?.effects?.d2publicYelin===true||Array.isArray(f?.completed)&&f.completed.includes('d2publicYelin');
+ return published?'day2-yelin-misled':'day2-yelin-no-clues';
+}
+function d2CorrectYelinEnding(progress=state){
+ const s=progress.story;if(!s)return;
+ const reasons=['day2-yelin-misled','day2-yelin-no-clues'];
+ for(const [record,key] of [[s.dayTwoNight,'endingReason'],[s.lateDayDeath,'reason']]){
+  if(record&&reasons.includes(record[key]))record[key]=d2YelinEndingReason(progress);
+ }
 }
 function d2NightSleep(){
  const n=d2Night();if(n?.phase!=='bed'||d2PurchasePrompt(true))return;

@@ -1,7 +1,7 @@
 /* Day-one continuation using existing message, choice, notification and bedtime styles. */
 const POST_MENG_ID='mengshu-friend';
 const POST_MENG_AVATAR='chat_mengshu';
-C.avatars.push({id:POST_MENG_AVATAR,name:'孟舒',src:'assets/chat-avatars/chat_mengshu_v1.jpg?v=20261011-rc5'});
+C.avatars.push({id:POST_MENG_AVATAR,name:'孟舒',src:'assets/chat-avatars/chat_mengshu_v1.jpg?v=20261011-rc7'});
 PORTRAIT_CHARACTERS['孟舒']=POST_MENG_AVATAR;
 function migrateMengshuPortrait(progress){if(!progress)return;for(const c of progress.contacts||[])if(c.id===POST_MENG_ID)c.avatar=POST_MENG_AVATAR;for(const m of progress.messages?.[POST_MENG_ID]||[])if(m.sender&&m.sender!=='me')m.sender=POST_MENG_AVATAR}
 migrateMengshuPortrait(state);
@@ -39,7 +39,6 @@ function postHasTomorrowSupplies(){
 }
 function postOpenPurchase(){closeSheet();shopCategory='全部';openApp('supply')}
 function postPurchasePrompt(expired=false){
- if(reportFirstNightSubsidy(state.game.personalReports?.[state.system.date]))persist();
  const p=postEvening();if(!postPurchaseRequired()||postHasTomorrowSupplies())return false;
  if(expired){p.phase='purchase-required';p.exploreUntil=0;persist();zeroChrome();if(view==='post-evening-bed'||view==='post-evening-transition')home();postOpenPurchase()}
  sheet('睡前储备物资','<p>'+(expired?'睡前，请先完成物资订购。':'你还没有订购明天的物资，先去买一点吧。')+'</p><button class="primary" data-action="post-purchase-open">前往购买</button><button class="secondary" data-action="close">再看看</button>');
@@ -47,26 +46,11 @@ function postPurchasePrompt(expired=false){
 }
 actions['post-purchase-open']=postOpenPurchase;
 
-function postBasicWaterAvailable(){
- const result=state.game.personalReports?.[DAY_ONE_REPORT_DATE];
- return state.game.day===1&&state.system.time>='21:00'&&result?.settled&&result.correct===false&&result.basicSubsidyApplied
-  &&!deliveryOrders().some(o=>o.lines.some(p=>p.id==='ns-basic-water'&&Number(p.quantity)>0));
-}
-const postPurchaseProductsBase=nsProducts;
-nsProducts=function(){
- postPurchaseProductsBase();
- if(postBasicWaterAvailable())C.products.unshift({id:'ns-basic-water',name:'矿泉水',price:100,category:'饮水',label:'基础补给',icon:'box',tone:'blue',detail:'第一晚基础补给 · 限购1瓶'});
-};
 const postPurchasePayBase=pay;
 pay=function(...args){
  if([1,2].includes(state.game.day)&&state.system.time>='21:00'){
-  if(reportFirstNightSubsidy(state.game.personalReports?.[DAY_ONE_REPORT_DATE]))persist();
-  if(Number(state.cart['ns-basic-water'])>0&&(!postBasicWaterAvailable()||Number(state.cart['ns-basic-water'])!==1)){
-   if(postBasicWaterAvailable())state.cart['ns-basic-water']=1;else delete state.cart['ns-basic-water'];
-   persist();shop();toast('第一晚基础补给限购1瓶，请重新确认订单');return;
-  }
   nsProducts();
-  const lines=cartLines(),reserve=postBasicWaterAvailable()?100:300;
+  const lines=cartLines(),reserve=200;
   if(lines.length&&!postHasTomorrowSupplies()&&!lines.some(p=>['食品','饮水'].includes(p.category)&&p.quantity>0)&&Math.round((Number(state.game.wallet)||0)*100)-cartTotal()<reserve){
    sheet('请先储备明天的物资','<p>睡前需要购买至少一件食物或饮用水。请先完成订购，或保留'+reserve/100+'校园币购买基础物资。</p><button class="primary" data-action="post-purchase-open">前往购买</button><button class="secondary" data-action="close">返回订单</button>');return;
   }
@@ -76,7 +60,7 @@ pay=function(...args){
 
 
 function postExplore(){const p=postEvening();p.phase='explore-wait';p.due=Date.now()+2000;persist()}
-function postExploreShow(){reportFirstNightSubsidy(state.game.personalReports?.[state.system.date]);const p=postEvening();p.phase='transition';p.due=Date.now()+2000;state.system.time='22:00';state.game.period='晚上';document.querySelector('#post-evening-notice')?.remove();closeSheet();view='post-evening-transition';active=null;rememberRoute();zeroChrome();document.querySelector('#phone').classList.add('zero-immersive');screen.innerHTML='<section class="fa-time-transition"><h2>时间来到22点</h2><p>该阶段你有60s可以进行购物和其他探索</p><p>明天的物资需要提前订购。睡觉前，先购买至少一件食物或饮用水。</p></section>';persist()}
+function postExploreShow(){const p=postEvening();p.phase='transition';p.due=Date.now()+2000;state.system.time='22:00';state.game.period='晚上';document.querySelector('#post-evening-notice')?.remove();closeSheet();view='post-evening-transition';active=null;rememberRoute();zeroChrome();document.querySelector('#phone').classList.add('zero-immersive');screen.innerHTML='<section class="fa-time-transition"><h2>时间来到22点</h2><p>该阶段你有60s可以进行购物和其他探索</p><p>明天的物资需要提前订购。睡觉前，先购买至少一件食物或饮用水。</p></section>';persist()}
 function postChoose(index){const p=postEvening(),s=p&&POST_SCRIPTS[p.script];if(p?.phase!=='choice'||view!=='chat'||active!==s.chat||!s.choices?.[index])return;const branch=p.script;p.decisions??={};if(p.decisions[branch]!==undefined)return;p.decisions[branch]=index;p.phase='chat';postWrite(s.sentChoices?.[index]||s.choices[index],'post-choice-'+branch,true);if(branch==='lin'){if(index===1){state.game.trust??={};state.game.trust.linqing=(state.game.trust.linqing??30)-5}postStartScript(index===0?'linTime':'linFine')}else if(branch==='meng'){state.game.npcSecrets??={};state.game.npcSecrets.mengshu??={};state.game.npcSecrets.mengshu.impersonatingArchivist=index===0;if(index===1){state.game.npcSecrets.jiangxiao??={};Object.assign(state.game.npcSecrets.jiangxiao,{nightDeathScheduled:true,secondDayAlive:false,nextDayConfrontationAllowed:true});state.story.mengshuLeakConfrontation={pending:true,trigger:'second-night-group-removal'};p.jiangNightDeath=true;postStartScript('mengQuiet')}else postStartScript('mengWarn')}else if(branch==='mengWarn')postStartScript('mengExplain');else if(branch==='mengExplain'){state.game.dangerValue=postDanger()-5;postStartScript('mengSecret')}else if(branch==='mengQuiet')postStartScript('mengQuietAfter');persist()}
 function migrateMengQuietChoice(){const p=postEvening();if(p?.script!=='mengQuiet'||p.decisions?.mengQuiet!==undefined||p.index<=1)return;state.messages[POST_MENG_ID]=(state.messages[POST_MENG_ID]||[]).filter(m=>!/^post-mengQuiet-[1-5]$/.test(m.id||''));p.index=1;p.phase='choice';p.due=0;persist()}
 migrateMengQuietChoice();
@@ -96,11 +80,11 @@ function postSleep(){const p=postEvening();if(p?.phase!=='bed')return;if(postPur
 STORY_CHOICES.push({id:'day2-start',title:'第二日开始',day:'第二日 · 08:40',chat:null});
 function postMorningIntro(){const p=postEvening();view='home';active=null;persist();zeroChrome();home();document.querySelector('.ending-morning-veil')?.remove();const veil=document.createElement('div');veil.className='ending-morning-veil';document.querySelector('#phone').append(veil);storyTimeout(()=>veil.remove(),2200);const el=document.createElement('div');el.id='morning-title';el.className='morning-title';el.innerHTML='<strong>第二日</strong><span>新规实施剩余2日</span>'+dailyVitalsMarkup();document.querySelector('#phone').append(el);storyTimeout(()=>{el.remove();if(postEvening()===p&&state.story.secondMorningReady)deliveryTick()},4500)}
 function postMorning(){const p=postEvening();if(p?.phase!=='sleep')return;if(postSongjiaVotedOut()){postSettleNight();return}p.phase='done';p.morningTransitionUntil=Date.now()+4500;state.system.date=deliveryDateNext(state.system.date);state.system.time='08:40';state.game.day=2;state.game.period='早晨';state.game.location='女生宿舍B栋408室';state.story.secondMorningReady=true;settleMorning();if(checkSecondMorningHealth())return;p.morningDeliveryIds=[];for(const o of deliveryOrders()){deliveryPrepare(o);if(!o.expired&&!o.arrivalNotified&&['待配送','待领取'].includes(o.status)&&o.deliveryDate===state.system.date){p.morningDeliveryIds.push(o.id);o.arrivalNotified=true}}settleMorning();postMorningIntro();d2Capture('day2-start',{view:'day2-morning-start',active:null});}
-function postEveningTick(){if(window.mobileLaunch||document.hidden||['game-menu','nodes','zero-death'].includes(view)||state.game.survivalEnding)return;let p=postEvening();if(!p){if(!postReadRemoval())return;state.story.postReportEvening=p={phase:'chat',script:'lin',index:0,due:Date.now()+messageSendDelay(),decisions:{},removalRead:true};postDanger();persist();return}if(p.phase==='done'){deliveryTick();return}if(p.phase==='failed')return;const now=Date.now();if(p.phase==='explore-wait'&&now>=p.due){postExploreShow();return}if(p.phase==='transition'&&now>=p.due){p.phase='explore';p.exploreUntil=now+60000;home();sheet('储备明日物资','<p>明天的物资需要提前订购。睡觉前，先购买至少一件食物或饮用水。</p>'+(postBasicWaterAvailable()?'<p>第一日检举失败的基础补贴1校园币已到账，可购买一瓶1元基础补给矿泉水。</p>':'')+'<button class="primary" data-action="post-purchase-open">前往购买</button><button class="secondary" data-action="close">我知道了</button>');persist();return}if(p.phase==='explore'&&now>=p.exploreUntil){if(postPurchasePrompt(true))return;p.phase='bed';postSleepScene();return}if(p.phase==='sleep'&&now>=p.due){postMorning();return}if(p.phase!=='chat'||(window.ReadHistory?ReadHistory.waiting('post',p):now<p.due))return;const s=POST_SCRIPTS[p.script];if(!s)return;if(p.index>0&&!postChatCanAdvance(s))return;if(p.index<s.rows.length){const next=s.rows[p.index];if(next?.mine&&storyReplyGate(s.chat,next.text,'post:'+p.script+':'+p.index,'postEveningTick'))return;const i=p.index++,row=s.rows[i];p.due=now+messageSendDelay();postWrite(typeof row==='string'?row:row.text,'post-'+p.script+'-'+i,!!row.mine,row.type||'text');return}if(!postChatCanAdvance(s))return;if(s.choices){p.phase='choice';persist();postDecorate()}else if(s.next==='friend'){p.phase='friend';persist();postNotice('friend')}else if(s.next==='explore')postExplore()}
+function postEveningTick(){if(window.mobileLaunch||document.hidden||['game-menu','nodes','zero-death'].includes(view)||state.game.survivalEnding)return;let p=postEvening();if(!p){if(!postReadRemoval())return;state.story.postReportEvening=p={phase:'chat',script:'lin',index:0,due:Date.now()+messageSendDelay(),decisions:{},removalRead:true};postDanger();persist();return}if(p.phase==='done'){deliveryTick();return}if(p.phase==='failed')return;const now=Date.now();if(p.phase==='explore-wait'&&now>=p.due){postExploreShow();return}if(p.phase==='transition'&&now>=p.due){p.phase='explore';p.exploreUntil=now+60000;home();sheet('储备明日物资','<p>明天的物资需要提前订购。睡觉前，先购买至少一件食物或饮用水。</p>'+'<button class="primary" data-action="post-purchase-open">前往购买</button><button class="secondary" data-action="close">我知道了</button>');persist();return}if(p.phase==='explore'&&now>=p.exploreUntil){if(postPurchasePrompt(true))return;p.phase='bed';postSleepScene();return}if(p.phase==='sleep'&&now>=p.due){postMorning();return}if(p.phase!=='chat'||(window.ReadHistory?ReadHistory.waiting('post',p):now<p.due))return;const s=POST_SCRIPTS[p.script];if(!s)return;if(p.index>0&&!postChatCanAdvance(s))return;if(p.index<s.rows.length){const next=s.rows[p.index];if(next?.mine&&storyReplyGate(s.chat,next.text,'post:'+p.script+':'+p.index,'postEveningTick'))return;const i=p.index++,row=s.rows[i];p.due=now+messageSendDelay();postWrite(typeof row==='string'?row:row.text,'post-'+p.script+'-'+i,!!row.mine,row.type||'text');return}if(!postChatCanAdvance(s))return;if(s.choices){p.phase='choice';persist();postDecorate()}else if(s.next==='friend'){p.phase='friend';persist();postNotice('friend')}else if(s.next==='explore')postExplore()}
 const postOpenBase=openChat;openChat=function(...args){const result=postOpenBase(...args);postDecorate();return result};
 const postListBase=chatList;chatList=function(...args){const result=postListBase(...args);if(view==='messages'&&postEvening()?.phase==='friend'&&!postEvening().accepted)screen.querySelector('.page-head')?.insertAdjacentHTML('afterend','<button class="setting-row" data-action="post-meng-friend" aria-label="新的好友申请，孟舒，待通过"><span><i class="live-dot friend-request-dot" aria-hidden="true"></i>新的好友申请</span><span>孟舒（312） ›</span></button>');return result};
 const postSendBase=sendMessage;sendMessage=function(id,...args){const p=postEvening();if(p&&['chat','choice'].includes(p.phase)&&id===POST_SCRIPTS[p.script]?.chat)return false;return postSendBase(id,...args)};
-const postRenderBase=renderMessage;renderMessage=function(m,c){if(m.id==='alive-qiyue-departure')return '';if(m.type==='system'&&m.text==='有人开始怀疑孟舒的身份了')return '<div class="divider message-group-time">'+esc(m.text)+'</div>';if(m.type==='post-wallet')return '<div class="message">'+avatar(POST_MENG_AVATAR)+'<div class="message-main"><div class="bubble"><img src="assets/story/mengshu-wallet-v1.jpg?v=20261011-rc5" alt="孟舒发来的校园钱包余额截图：52.00校园币" style="display:block;width:220px;max-width:100%;border-radius:12px"></div></div></div>';let html=postRenderBase(m,c);if(c.id===HG_ID&&m.hgWho==='shen'&&m.text==='目前看来是这样')html+='<div class="divider message-group-time"><button data-action="message-speed" style="font:inherit;color:inherit;text-align:inherit;background:none;border:0;padding:0">消息发送的太快了？（点击这里调节速度）</button></div>';return html};
+const postRenderBase=renderMessage;renderMessage=function(m,c){if(m.id==='alive-qiyue-departure')return '';if(m.type==='system'&&m.text==='有人开始怀疑孟舒的身份了')return '<div class="divider message-group-time">'+esc(m.text)+'</div>';if(m.type==='post-wallet')return '<div class="message">'+avatar(POST_MENG_AVATAR)+'<div class="message-main"><div class="bubble"><img src="assets/story/mengshu-wallet-v1.jpg?v=20261011-rc7" alt="孟舒发来的校园钱包余额截图：52.00校园币" style="display:block;width:220px;max-width:100%;border-radius:12px"></div></div></div>';let html=postRenderBase(m,c);if(c.id===HG_ID&&m.hgWho==='shen'&&m.text==='目前看来是这样')html+='<div class="divider message-group-time"><button data-action="message-speed" style="font:inherit;color:inherit;text-align:inherit;background:none;border:0;padding:0">消息发送的太快了？（点击这里调节速度）</button></div>';return html};
 const postLockBase=zeroLock;zeroLock=function(){return ['transition','bed','sleep'].includes(postEvening()?.phase)||postLockBase()};
 Object.assign(actions,{'post-notice':()=>postEvening()?.phase==='friend'?postFriend():openChat(POST_SCRIPTS[postEvening()?.script]?.chat||'linqing'),'post-meng-friend':postFriend,'post-meng-accept':postAccept,'post-sleep':postSleep});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-post-choice]');if(b){e.preventDefault();postChoose(Number(b.dataset.postChoice))}});
@@ -219,10 +203,10 @@ setInterval(aliveMorningTick,250);
 
 // Updated avatar crops and death-line checkpoints.
 const NEW_NPC_AVATARS={叶琳:'npc-yelin-v1',乔安:'npc-qiaoan-v1',陆遥:'npc-luyao-v1',蒋小雪:'npc-jiangxiaoxue-v1'};
-for(const [id,name,file] of [['chat_zhoumo_v2','周茉','chat_zhoumo_v2.jpg'],['chat_yelin_v2','叶琳','chat_yelin_v2.jpg'],['npc-jiangxiaoxue-v1','蒋小雪','npc-jiangxiaoxue-v1.jpg?v=2'],['npc-yelin-v1','叶琳','npc_yelin_v1.jpg'],['npc-qiaoan-v1','乔安','npc_qiaoan_v1.jpg'],['npc-luyao-v1','陆遥','npc_luyao_v1.jpg'],['npc-avatar-pool-1','备用NPC头像1','npc_pool_1_v1.jpg'],['npc-avatar-pool-2','备用NPC头像2','npc_pool_2_v1.jpg'],['npc-avatar-pool-3','备用NPC头像3','npc_pool_3_v1.jpg']]){if(!C.avatars.some(a=>a.id===id))C.avatars.push({id,name,src:'assets/chat-avatars/'+file});if(NEW_NPC_AVATARS[name])PORTRAIT_CHARACTERS[name]=id}
+for(const [id,name,file] of [['chat_zhoumo_v2','周茉','chat_zhoumo_v2.jpg'],['chat_yelin_v2','叶琳','chat_yelin_v2.jpg'],['npc-jiangxiaoxue-v1','蒋小雪','npc-jiangxiaoxue-v1.jpg'],['npc-yelin-v1','叶琳','npc_yelin_v1.jpg'],['npc-qiaoan-v1','乔安','npc_qiaoan_v1.jpg'],['npc-luyao-v1','陆遥','npc_luyao_v1.jpg'],['npc-avatar-pool-1','备用NPC头像1','npc_pool_1_v1.jpg'],['npc-avatar-pool-2','备用NPC头像2','npc_pool_2_v1.jpg'],['npc-avatar-pool-3','备用NPC头像3','npc_pool_3_v1.jpg']]){if(!C.avatars.some(a=>a.id===id))C.avatars.push({id,name,src:'assets/chat-avatars/'+file});if(NEW_NPC_AVATARS[name])PORTRAIT_CHARACTERS[name]=id}
 LEAK_PEOPLE.zhoumo.avatar='chat_zhoumo_v2';
 LEAK_PEOPLE.yelin.avatar=NEW_NPC_AVATARS['叶琳'];
-if(typeof RECORD_PEOPLE!=='undefined')RECORD_PEOPLE.ye[2]='assets/chat-avatars/npc_yelin_v1.jpg?v=20261011-rc5';
+if(typeof RECORD_PEOPLE!=='undefined')RECORD_PEOPLE.ye[2]='assets/chat-avatars/npc_yelin_v1.jpg?v=20261011-rc7';
 function migrateDebatePortraits(progress){for(const c of progress.contacts||[]){const name=(c.name||'').replace(/^叶舒/,'蒋小雪').replace(/（.*?）|\(.*?\)/g,'').trim();if(NEW_NPC_AVATARS[name])c.avatar=NEW_NPC_AVATARS[name];else if(c.id==='yeshu')c.avatar=NEW_NPC_AVATARS['蒋小雪']}for(const rows of Object.values(progress.messages||{}))for(const m of rows){if(m.sender==='me')continue;if(/^周茉/.test(m.name||''))m.sender='chat_zhoumo_v2';for(const [name,id] of Object.entries(NEW_NPC_AVATARS))if(new RegExp('^'+name).test((m.name||'').replace(/^叶舒/,'蒋小雪')))m.sender=id}}
 migrateDebatePortraits(state);
 const portraitRecords=nodeRecords();for(const record of Object.values(portraitRecords))if(record.checkpoint)migrateDebatePortraits(record.checkpoint);saveNodes(portraitRecords);
@@ -247,7 +231,7 @@ actions['post-early-sleep-confirm']=()=>{if(!earlySleepAvailable()){closeSheet()
 setInterval(syncEarlySleepButton,250);syncEarlySleepButton();
 
 // Han Lu portrait and Jiang Xiao's identity-question checkpoint.
-if(!C.avatars.some(a=>a.id==='chat_hanlu_v1'))C.avatars.push({id:'chat_hanlu_v1',name:'韩露',src:'assets/chat-avatars/chat_hanlu_v1.jpg?v=20261011-rc5'});PORTRAIT_CHARACTERS['韩露']='chat_hanlu_v1';LEAK_PEOPLE.hanlu.avatar='chat_hanlu_v1';
+if(!C.avatars.some(a=>a.id==='chat_hanlu_v1'))C.avatars.push({id:'chat_hanlu_v1',name:'韩露',src:'assets/chat-avatars/chat_hanlu_v1.jpg?v=20261011-rc7'});PORTRAIT_CHARACTERS['韩露']='chat_hanlu_v1';LEAK_PEOPLE.hanlu.avatar='chat_hanlu_v1';
 function migrateHanluPortrait(progress){for(const rows of Object.values(progress.messages||{}))for(const m of rows)if(m.sender!=='me'&&/^韩露/.test(m.name||''))m.sender='chat_hanlu_v1';for(const c of progress.contacts||[])if(/^韩露/.test(c.name||''))c.avatar='chat_hanlu_v1'}
 migrateHanluPortrait(state);const hanluResumeBase=resumeStoryScene;resumeStoryScene=function(snapshot){const result=hanluResumeBase(snapshot);migrateHanluPortrait(state);return result};
 const JIANG_IDENTITY_NODE='jiang-alive-identity-question';if(!STORY_CHOICES.some(n=>n.id===JIANG_IDENTITY_NODE))STORY_CHOICES.push({id:JIANG_IDENTITY_NODE,title:'江晓：检举结果的矛盾',day:'第二日 · 江晓存活线',chat:JX.id});
@@ -377,8 +361,8 @@ mengErrorDecorate=function(...args){const result=mengErrorDecorateCheckpointBase
 if(!window.mobileLaunch)captureMengErrorChoice();
 
 /* Load the full-screen choice tree after every story node has registered. */
-if(!document.querySelector('link[href="choice-tree.css?v=20261011-rc5"]')){const choiceTreeStyle=document.createElement('link');choiceTreeStyle.rel='stylesheet';choiceTreeStyle.href='choice-tree.css?v=20261011-rc5';document.head.append(choiceTreeStyle)}
-if(!document.querySelector('script[src="choice-tree.js?v=20261011-rc5"]')){const choiceTreeScript=document.createElement('script');choiceTreeScript.src='choice-tree.js?v=20261011-rc5';document.body.append(choiceTreeScript)}
+if(!document.querySelector('link[href="choice-tree.css?v=20261011-rc7"]')){const choiceTreeStyle=document.createElement('link');choiceTreeStyle.rel='stylesheet';choiceTreeStyle.href='choice-tree.css?v=20261011-rc7';document.head.append(choiceTreeStyle)}
+if(!document.querySelector('script[src="choice-tree.js?v=20261011-rc7"]')){const choiceTreeScript=document.createElement('script');choiceTreeScript.src='choice-tree.js?v=20261011-rc7';document.body.append(choiceTreeScript)}
 
 function migrateSongjiaDialogue(){let changed=false;for(const rows of Object.values(state.messages||{})){for(let i=rows.length-1;i>=0;i--){const m=rows[i];if(!m.id?.startsWith('meng-error-songjia-'))continue;if(['所以宋佳不是学生会？','可她今天根本没做什么','为什么最后会是她？','我看见有人提宋佳','就跟着填了她的名字'].includes(m.text)){rows.splice(i,1);changed=true;continue}const next=m.text?.replace('我也是……','我也是…').replace('说到底，她就是倒霉吧','说到底，我们都是倒霉吧…');if(next!==m.text){m.text=next;changed=true}}}const q=mengError();if(q?.route==='songjia'&&q.rows?.some(row=>row[1]==='所以宋佳不是学生会？')){q.rows=MENG_ERROR_SONG;const map=[0,1,2,3,3,3,3,4,5,6,6,6,7,8,9];q.index=map[Math.min(q.index, map.length-1)]??q.index;changed=true}if(changed)persist()}
 migrateSongjiaDialogue();

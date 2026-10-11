@@ -1,5 +1,5 @@
 /* Final-day rebuttal and report. Cursors, read gates and effects rewind with the save. */
-const D4_FINAL_CG='assets/day4-final-bed-phone.jpg?v=20261011-rc5';
+const D4_FINAL_CG='assets/day4-final-bed-phone.jpg?v=20261011-rc7';
 const D4_FINAL_REPORTERS={shen:'沈可欣',yeshu:'蒋小雪',gunian:'顾念',heyu:'何雨',yuwei:'余薇',baizhi:'白栀'};
 const D4_FINAL_SCRIPTS={
  opening:{rows:[],options:['你们刚才说，我申请成为委托人，是为了骗走普通生的票，对吧？'],next:'claim'},
@@ -70,6 +70,7 @@ function d4FinalDecorate(){
 function d4FinalChoose(index){
  const q=d4Final(),def=q&&D4_FINAL_SCRIPTS[q.script];if(q?.phase!=='choice'||!d4FinalInside()||q.decisions[q.script]!==undefined||!Number.isInteger(index)||!def.options?.[index])return;
  const script=q.script;q.decisions[script]=index;q.phase='chat';d4FinalWrite('me',def.options[index],'d4-final-choice-'+script);d4FinalGo(def.next);
+ const messages=screen.querySelector('#messages');if(messages){captureMessagePosition(messages).bottom=true;queueMessagePosition(messages)}
 }
 function d4FinalTransfer(){
  const q=d4Final(),def=q&&D4_FINAL_SCRIPTS[q.script];if(!q||!def?.votes||q.effects[q.script])return;

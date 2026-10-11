@@ -5,6 +5,7 @@ function lateDeathLocked(){return !storyInputDormant()&&!!lateDeath()&&lateDeath
 let lateDeathInternal=false;
 function lateDeathCall(fn,...args){const previous=lateDeathInternal;lateDeathInternal=true;try{return fn(...args)}finally{lateDeathInternal=previous}}
 function beginLateDeath(reason='left'){
+ if(['day2-yelin-misled','day2-yelin-no-clues'].includes(reason))reason=d2YelinEndingReason();
  if(lateDeath())return false;
  const q=survey(),r=dayReport();
  if(q&&q.phase!=='done'){q.failed=true;q.phase='dead';q.due=0;surveyCleanup()}
@@ -16,6 +17,7 @@ function beginLateDeath(reason='left'){
  lateDeathCall(home);renderLateDeath();syncNoodleMusic();playNotificationSound('system',document.querySelector('#late-death-notice'));return true;
 }
 function renderLateDeath(){
+ d2CorrectYelinEnding();
  const d=lateDeath();if(!d)return;enterStoryEnding();document.querySelector('#late-death-notice')?.remove();
  const phone=document.querySelector('#phone');phone.classList.toggle('late-death-active',['campus','black','dead'].includes(d.phase));
  view=d.phase==='dead'?'zero-death':'late-death';active=null;state.story.route={view,active};

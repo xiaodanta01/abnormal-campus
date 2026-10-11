@@ -117,6 +117,7 @@
  function read(){try{return JSON.parse(GameStorage.getItem(key)||'{}')||{}}catch{return {}}}
  function unlock(id,notify=false){if(!endings.some(e=>e.id===id))return;const records=read();if(records[id])return;records[id]={unlockedAt:Date.now(),noticePending:notify};try{GameStorage.setItem(key,JSON.stringify(records))}catch{toast('无法保存结局，请检查浏览器存储权限')}}
  function deathId(){
+  d2CorrectYelinEnding();
   const s=state.story,d=s.lateDayDeath;
   if(d?.phase==='dead'&&d.reason==='departed-reply')return '018';
   if(d?.phase==='dead'&&d.reason==='day4-final-report-wrong')return '017';
@@ -370,7 +371,7 @@
  window.hospitalEndingInfoFor=(progress=state)=>{const id=hospitalEndingId(progress),ending=endings.find(e=>e.id===id);return {id,name:ending.name,category:ending.category,description:descriptions[id]}};
  function letterAvatar(name){
   if(name==='黑头像')return '<span class="ending-letter-avatar ending-letter-black" aria-hidden="true"></span>';
-  if(name==='作者')return '<span class="ending-letter-avatar ending-letter-author" aria-hidden="true"><img src="assets/ui-flower.svg?v=20261011-rc5" alt=""></span>';
+  if(name==='作者')return '<span class="ending-letter-avatar ending-letter-author" aria-hidden="true"><img src="assets/ui-flower.svg?v=20261011-rc7" alt=""></span>';
   const person=Object.values(FA_PEOPLE).find(p=>p.name===name);
   return avatar(person?.avatar||PORTRAIT_CHARACTERS[name]||'student0');
  }

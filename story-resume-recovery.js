@@ -2,7 +2,7 @@
 (()=>{
  let owner=null,pending=false,lastRoute='',tickets=new Map();
  const inside=id=>view==='chat'&&active===id;
- const blocked=()=>window.mobileLaunch||storyRestoring||document.hidden||!state?.story||state.game.survivalEnding||storyEndingOwner()||['game-menu','nodes','zero-death'].includes(view);
+ const blocked=()=>window.mobileLaunch||storyRestoring||document.hidden||window.AndroidGameRuntime?.isPaused()||!state?.story||state.game.survivalEnding||storyEndingOwner()||['game-menu','nodes','zero-death'].includes(view);
  const notice=(id,show)=>{if(document.getElementById(id))return;show();const el=document.getElementById(id);if(el)el.dataset.ringtonePlayed='true'};
  const groupNotice=()=>notice('hg-notification',()=>hgNotice('group'));
  const noticeIds={'d3-evening':'d3-evening-notice','d4-after':'d4-after-notice','d4-debate':'d4-debate-message','d4-counter':'d4-counter-notice','d4-final':'d4-final-notice','d4-farewell':'d4-final-notice'};
@@ -110,6 +110,11 @@
   d3EveningAfterVote();d3NightStart();
  }
  function repairMidnight(){
+  const first=postEvening(),now=Date.now();
+  if(first?.phase==='sleep'&&!state.story.secondMorningReady&&!(state.game.day>=2)){
+   if(!Number.isFinite(first.due)||first.due>now+1000){first.due=now+1000;persist()}
+   else if(first.due<=now)postMorning();
+  }
   const plans=[
    [postEvening(),MIDNIGHT_RULE_ID,midnightPublish,'due'],
    [d2Night(),D2_FOURTH_RULE_ID,d2FourthPublish,'remaining'],
@@ -170,8 +175,16 @@
   const original=window[name];
   window[name]=function(...args){if(!allowRecoveredNotice(id,chat()))return;return original.apply(this,args)};
  }
+ // Reuse the same repair on page/BFCache and native foreground recovery.
+ function wakeMidnight(){
+  if(['midnight-wait','midnight-notice','midnight-reading','sleep'].includes(postEvening()?.phase)&&!state.story.secondMorningReady&&!(state.game.day>=2))request();
+ }
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)wakeMidnight()});
+ window.addEventListener('pageshow',wakeMidnight);
+ window.addEventListener('focus',wakeMidnight);
+ let nativeWasPaused=!!window.AndroidGameRuntime?.isPaused();
  // Native interval also observes the end of launch/restoration; it never drives messages.
- mobileNativeInterval(()=>{try{check()}catch(error){tickets.clear();console.warn('Story recovery deferred',error)}},100);
+ mobileNativeInterval(()=>{try{const paused=!!window.AndroidGameRuntime?.isPaused();if(nativeWasPaused&&!paused)wakeMidnight();nativeWasPaused=paused;check()}catch(error){tickets.clear();console.warn('Story recovery deferred',error)}},100);
  // Track real notifications produced by the original runners as well as recovery
  // prompts. Removing their DOM is not permission to announce the same message again.
  new MutationObserver(records=>{

@@ -4,3 +4,8 @@
  42%,58%{filter:blur(9px);opacity:.58;transform:scale(1.035)}
 }
 .d3-night-blur{animation:d3-night-blur 4.8s ease-in-out both;transform-origin:center}
+
+/* Hold the blurred background while the internal narration is shown. */
+@keyframes d3-question-blur{from{filter:blur(0);opacity:1;transform:scale(1)}to{filter:blur(9px);opacity:.58;transform:scale(1.035)}}
+.d3-question-blur{animation:d3-question-blur 1s ease-in-out both;transform-origin:center}
+.d3-question-blur-held{filter:blur(9px);opacity:.58;transform:scale(1.035);transform-origin:center}

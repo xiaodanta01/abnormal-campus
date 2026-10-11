@@ -1,5 +1,5 @@
 /* Final-night private chat. Choices, drafts and clocks belong to the current timeline. */
-const D4_LIN_ODEN_IMAGE='assets/day4-night-oden.jpg?v=20261011-rc5';
+const D4_LIN_ODEN_IMAGE='assets/day4-night-oden.jpg?v=20261011-rc7';
 const D4_LIN_ODEN_ROWS=[
  '林晴又出门给你买吃的了，她带回来的关东煮还是一如既往地好吃。',
  '你不明白，她为什么宁愿冒着被发现的风险，也要出去给你带喜欢的食物。',
@@ -33,11 +33,11 @@ const D4_LIN_NIGHT_SCRIPTS={
 const D4_LIN_NIGHT_TOPICS=[['我想知道你的爱好是什么？','hobbies'],['你有喜欢听的歌吗？','song'],['你觉得我是一个什么样的人？','impression']];
 const D4_RELEASE_POST='day4-one-am-release';
 const D5_RELEASE_BODY='解除后可自由活动，明日假期将至，今日可提前出校回家';
-const D4_HOSPITAL_IMAGES={ceiling:'assets/day4-hospital-ceiling.jpg?v=20261011-rc5',nurse:'assets/day4-hospital-nurse.jpg?v=20261011-rc5',zhouhe:'assets/day4-hospital-zhouhe.jpg?v=20261011-rc5'};
-C.avatars.push({id:'hospital_nurse',name:'护士',src:'assets/hospital-nurse-avatar.jpg?v=20261011-rc5'});
-const D5_FOLLOW_IMAGES={road:'assets/day5-lin-night-road.jpg?v=20261011-rc5',bench:'assets/day5-lin-night-bench.jpg?v=20261011-rc5',gate:'assets/day5-campus-gate.jpg?v=20261011-rc5'};
-const D5_STAY_IMAGES={later:'assets/day5-lin-stay-later.jpg?v=20261011-rc5',love:'assets/day5-lin-stay-love.jpg?v=20261011-rc5'};
-const D5_REUNION_IMAGES={wheelchair:'assets/day5-hospital-wheelchair.jpg?v=20261011-rc5',door:'assets/day5-hospital-1207.jpg?v=20261011-rc5',lin:'assets/day5-hospital-lin.jpg?v=20261011-rc5',hands:'assets/day5-hospital-hands.jpg?v=20261011-rc5'};
+const D4_HOSPITAL_IMAGES={ceiling:'assets/day4-hospital-ceiling.jpg?v=20261011-rc7',nurse:'assets/day4-hospital-nurse.jpg?v=20261011-rc7',zhouhe:'assets/day4-hospital-zhouhe.jpg?v=20261011-rc7'};
+C.avatars.push({id:'hospital_nurse',name:'护士',src:'assets/hospital-nurse-avatar.jpg?v=20261011-rc7'});
+const D5_FOLLOW_IMAGES={road:'assets/day5-lin-night-road.jpg?v=20261011-rc7',bench:'assets/day5-lin-night-bench.jpg?v=20261011-rc7',gate:'assets/day5-campus-gate.jpg?v=20261011-rc7'};
+const D5_STAY_IMAGES={later:'assets/day5-lin-stay-later.jpg?v=20261011-rc7',love:'assets/day5-lin-stay-love.jpg?v=20261011-rc7'};
+const D5_REUNION_IMAGES={wheelchair:'assets/day5-hospital-wheelchair.jpg?v=20261011-rc7',door:'assets/day5-hospital-1207.jpg?v=20261011-rc7',lin:'assets/day5-hospital-lin.jpg?v=20261011-rc7',hands:'assets/day5-hospital-hands.jpg?v=20261011-rc7'};
 function d4HospitalScripts(){
  const lin=text=>({speaker:'linqing',text}),nurse=text=>({speaker:'nurse',name:'护士',avatar:'hospital_nurse',text}),zhou=text=>({speaker:'zhouhe',name:'周禾',text:d3EveningText(text)}),me=text=>({speaker:'me',text});
  const scripts={
@@ -161,11 +161,13 @@ function d4LinNightChoose(key,index){
  const option=d4LinNightOptions(n)[index];if(!option)return;
  n.decisions[key]=option[1];if(n.script==='topics')n.asked.push(option[1]);n.phase='chat';
  d4FinalWrite('me',option[0],'d4-lin-night-choice-'+key,{chat:'linqing'});d4LinNightGo(option[1]);
+ const messages=d4LinNightInside()&&screen.querySelector('#messages');if(messages){captureMessagePosition(messages).bottom=true;queueMessagePosition(messages)}
 }
 function d4LinNightAnswer(text){
  const n=d4LinNight();text=String(text).trim();if(d3Paused()||!d4LinNightInside()||n?.phase!=='input'||!text||text.length>500||n.answers[n.script]!==undefined)return;
  const key=n.script;n.answers[key]=text;n.draft='';n.phase='chat';
  d4FinalWrite('me',text,'d4-lin-night-answer-'+key,{chat:'linqing'});d4LinNightGo(D4_LIN_NIGHT_SCRIPTS[key].next);
+ const messages=d4LinNightInside()&&screen.querySelector('#messages');if(messages){captureMessagePosition(messages).bottom=true;queueMessagePosition(messages)}
 }
 function d4LinNightCG(){
  const n=d4LinNight();if(n?.phase!=='cg')return;const previous=captureSceneSnapshot(screen);closeSheet();stopReading();view='day4-lin-night-cg';active=null;rememberRoute();zeroChrome();

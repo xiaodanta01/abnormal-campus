@@ -2,7 +2,7 @@
 const D3_FIFTH_RULE_ID='chapter-five-midnight-rules';
 const D3_FIFTH_RULE_BODY="今晚，系统不接收本人提交的集体检举票。\n请在 21:00 前，指定一名仍在校的人作为你的「委托人」。\n注意：任何身份都可以成为委托人，同时任何人也可以申请成为委托人。\n21:00 时，委托人的检举对象，将同时成为你的检举对象。\n委托人21:00前可以更换；委托人的选择，在结算前对委托者保密。\n未指定委托人，视为放弃检举票。\n\n阵营结算将在今晚1点学生会行动后进行。";
 const D3_NIGHT_BLUR_MS=4800;
-const D3_NIGHT_IMAGE='assets/day3-night-bed.jpg?v=20261011-rc5';
+const D3_NIGHT_IMAGE='assets/day3-night-bed.jpg?v=20261011-rc7';
 STORY_CHOICES.push({id:'day3-night-story',title:'林晴的睡前故事',day:'第三日 · 深夜',chat:null},{id:'day3-night-storyChoice',title:'回应林晴的睡前故事',day:'第三日 · 深夜',chat:null});
 function d3Night(){return state.story.dayThreeNight}
 function d3NightGroupRows(){return [
@@ -59,18 +59,18 @@ function d3NightRender(){const n=d3Night();if(!n)return;const previous=captureSc
  else if(n.phase==='finished')screen.innerHTML='<section class="ending-scene" style="background:#000"><div class="ending-shade"><p>第三日结束</p><button class="secondary" data-action="zero-menu">返回主页</button></div></section>';
  else if(['midnight-wait','midnight-notice'].includes(n.phase))screen.innerHTML='<section class="ending-scene" style="background:#000" aria-label="'+(n.phase==='finished'?'晚安':'夜晚')+'"></section>';
  else {
- screen.innerHTML='<section class="rd-cg"><img class="'+(n.phase==='blur'?'d3-night-blur':'')+'" '+(n.phase==='blur'?'style="animation-delay:-'+(n.blurElapsed||0)+'ms"':'')+' src="'+D3_NIGHT_IMAGE+'" alt="夜晚的宿舍床铺"></section>';const host=screen.firstElementChild;
+ screen.innerHTML='<section class="rd-cg"><img class="'+(n.phase==='blur'?'d3-question-blur':n.phase==='cg'&&n.script==='doubt'?'d3-question-blur-held':'')+'" '+(n.phase==='blur'?'style="animation-delay:-'+Math.min(n.blurElapsed||0,1000)+'ms"':'')+' src="'+D3_NIGHT_IMAGE+'" alt="夜晚的宿舍床铺"></section>';const host=screen.firstElementChild;
  if(n.phase==='choice'){cgChoiceDialogue(host,d3NightScript(n.previous).rows.at(-1));host.insertAdjacentHTML('beforeend','<div class="cg-options">'+d3NightChoices(n.script).map(([id,label])=>'<button type="button" data-d3-night-key="'+n.script+'" data-d3-night-choice="'+id+'">'+esc(label)+'</button>').join('')+'</div>');if(n.script==='storyChoice')d2Capture('day3-night-storyChoice',{view,active:null})}
  else if(n.phase!=='blur'){const script=d3NightScript(n.script),rows=n.reply?[{speaker:'me',text:n.reply},...script.rows]:script.rows;CGDialogue.present(host,rows,{index:n.cgIndex||0,firstReplyConfirmed:!!n.reply,onIndex:i=>{if(d3Night()===n){n.cgIndex=i;persist()}},onComplete:()=>{if(d3Night()===n&&n.phase==='cg')d3NightNext(script.next)}})}
  }
- if(n.phase!=='blur'){if(['transition','midnight-wait','finished'].includes(n.phase))zeroDissolve(previous,600);else cgScreenCrossfade(previous)}persist();
+ if(n.phase!=='blur'&&!(n.phase==='cg'&&n.script==='doubt')){if(['transition','midnight-wait','finished'].includes(n.phase))zeroDissolve(previous,600);else cgScreenCrossfade(previous)}persist();
 }
 let d3NightInternal=false,d3NightLastTick=0,d3NightLastSave=0;
 function d3NightBusy(){return !d3NightInternal&&['transition','bed','midnight-wait','midnight-notice','midnight-reading','cg','choice','blur','finished'].includes(d3Night()?.phase)}
-function d3NightTick(){const now=Date.now();if(d3Paused()){d3NightLastTick=0;const img=screen.querySelector('.d3-night-blur');if(img)img.style.animationPlayState='paused';return}const elapsed=d3NightLastTick?now-d3NightLastTick:0;d3NightLastTick=now;d3NightStart();const n=d3Night();if(!n)return;const img=screen.querySelector('.d3-night-blur');if(img)img.style.animationPlayState='running';
+function d3NightTick(){const now=Date.now();if(d3Paused()){d3NightLastTick=0;const img=screen.querySelector('.d3-question-blur');if(img)img.style.animationPlayState='paused';return}const elapsed=d3NightLastTick?now-d3NightLastTick:0;d3NightLastTick=now;d3NightStart();const n=d3Night();if(!n)return;const img=screen.querySelector('.d3-question-blur');if(img)img.style.animationPlayState='running';
  if(n.phase==='group'&&n.index>0&&(view!=='chat'||active!==HG_ID)&&!window.StoryResumeRecovery?.allow('d3-night'))return;
  if(['group','group-wait','transition','explore','midnight-wait','blur'].includes(n.phase)){
- n.remaining=Math.max(0,n.remaining-elapsed);if(n.phase==='blur')n.blurElapsed=D3_NIGHT_BLUR_MS-n.remaining;if(n.remaining){if(now-d3NightLastSave>=1000){d3NightLastSave=now;persist()}return}
+ n.remaining=Math.max(0,n.remaining-elapsed);if(n.phase==='blur'){n.blurElapsed=D3_NIGHT_BLUR_MS-n.remaining;if(n.blurElapsed>=1000){d3NightNext('doubt');return}};if(n.remaining){if(now-d3NightLastSave>=1000){d3NightLastSave=now;persist()}return}
  if(n.phase==='group'){const rows=d3NightGroupRows();while(n.index<rows.length&&!d3NightAlive(rows[n.index][0]))n.index++;if(n.index>=rows.length){n.phase='group-wait';n.remaining=3000;persist();return}const i=n.index++,row=rows[i];n.remaining=messageSendDelay();const more=rows.slice(n.index).some(r=>d3NightAlive(r[0]));if(!more){n.phase='group-wait';n.remaining=3000}d3NightWrite(row[0],row[1],i)}
  else if(n.phase==='group-wait')d3NightTransition();
  else if(n.phase==='transition'){n.phase='explore';n.remaining=60000;persist();home();syncEarlySleepButton();d3NightPurchase()}
