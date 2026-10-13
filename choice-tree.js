@@ -321,6 +321,9 @@ function legacyDayStartGraph(full,records){
 }
 function unlocked(n,records){return n.legacyReached?true:n.kind==='start'?true:n.kind==='death'?(!n.routeRecord||!!discovered[n.routeRecord])&&(!!discovered[n.id]||!!window.endingGalleryHas?.(n.id)):n.kind==='bubble'?!!discovered[n.id]:n.replayable===false?!!discovered[n.id]||!!records[n.record]?.checkpoint:!!records[n.record]?.checkpoint}
 function visibleGraph(full,records){
+ // An older 020 completion reveals the new checkpoint without inventing a save.
+ const ending020=full.nodes.find(n=>n.id==='020');
+ if(ending020&&unlocked(ending020,records))full={...full,nodes:full.nodes.map(n=>n.id==='day5-stay-promise-confirm'&&!records[n.record]?.checkpoint?{...n,legacyReached:true,legacyLabel:'未到达',replayable:false}:n)};
  // All unexplored routes have the same neutral frontier. Nothing beyond its first lock is rendered.
  const known=new Set(full.nodes.filter(n=>unlocked(n,records)).map(n=>n.id));
  const incoming=new Set(full.edges.map(e=>e.to)),visible=new Set(known);

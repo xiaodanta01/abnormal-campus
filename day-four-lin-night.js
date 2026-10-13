@@ -1,5 +1,5 @@
 /* Final-night private chat. Choices, drafts and clocks belong to the current timeline. */
-const D4_LIN_ODEN_IMAGE='assets/day4-night-oden.jpg?v=20261011-rc10';
+const D4_LIN_ODEN_IMAGE='assets/day4-night-oden.jpg?v=20261014-rc1';
 const D4_LIN_ODEN_ROWS=[
  '林晴又出门给你买吃的了，她带回来的关东煮还是一如既往地好吃。',
  '你不明白，她为什么宁愿冒着被发现的风险，也要出去给你带喜欢的食物。',
@@ -33,11 +33,11 @@ const D4_LIN_NIGHT_SCRIPTS={
 const D4_LIN_NIGHT_TOPICS=[['我想知道你的爱好是什么？','hobbies'],['你有喜欢听的歌吗？','song'],['你觉得我是一个什么样的人？','impression']];
 const D4_RELEASE_POST='day4-one-am-release';
 const D5_RELEASE_BODY='解除后可自由活动，明日假期将至，今日可提前出校回家';
-const D4_HOSPITAL_IMAGES={ceiling:'assets/day4-hospital-ceiling.jpg?v=20261011-rc10',nurse:'assets/day4-hospital-nurse.jpg?v=20261011-rc10',zhouhe:'assets/day4-hospital-zhouhe.jpg?v=20261011-rc10'};
-C.avatars.push({id:'hospital_nurse',name:'护士',src:'assets/hospital-nurse-avatar.jpg?v=20261011-rc10'});
-const D5_FOLLOW_IMAGES={road:'assets/day5-lin-night-road.jpg?v=20261011-rc10',bench:'assets/day5-lin-night-bench.jpg?v=20261011-rc10',gate:'assets/day5-campus-gate.jpg?v=20261011-rc10'};
-const D5_STAY_IMAGES={later:'assets/day5-lin-stay-later.jpg?v=20261011-rc10',love:'assets/day5-lin-stay-love.jpg?v=20261011-rc10'};
-const D5_REUNION_IMAGES={wheelchair:'assets/day5-hospital-wheelchair.jpg?v=20261011-rc10',door:'assets/day5-hospital-1207.jpg?v=20261011-rc10',lin:'assets/day5-hospital-lin.jpg?v=20261011-rc10',hands:'assets/day5-hospital-hands.jpg?v=20261011-rc10'};
+const D4_HOSPITAL_IMAGES={ceiling:'assets/day4-hospital-ceiling.jpg?v=20261014-rc1',nurse:'assets/day4-hospital-nurse.jpg?v=20261014-rc1',zhouhe:'assets/day4-hospital-zhouhe.jpg?v=20261014-rc1'};
+C.avatars.push({id:'hospital_nurse',name:'护士',src:'assets/hospital-nurse-avatar.jpg?v=20261014-rc1'});
+const D5_FOLLOW_IMAGES={road:'assets/day5-lin-night-road.jpg?v=20261014-rc1',bench:'assets/day5-lin-night-bench.jpg?v=20261014-rc1',gate:'assets/day5-campus-gate.jpg?v=20261014-rc1'};
+const D5_STAY_IMAGES={later:'assets/day5-lin-stay-later.jpg?v=20261014-rc1',seaside:'assets/day5-lin-stay-seaside.jpg?v=20261014-rc1',love:'assets/day5-lin-stay-love.jpg?v=20261014-rc1'};
+const D5_REUNION_IMAGES={wheelchair:'assets/day5-hospital-wheelchair.jpg?v=20261014-rc1',door:'assets/day5-hospital-1207.jpg?v=20261014-rc1',lin:'assets/day5-hospital-lin.jpg?v=20261014-rc1',hands:'assets/day5-hospital-hands.jpg?v=20261014-rc1'};
 function d4HospitalScripts(){
  const lin=text=>({speaker:'linqing',text}),nurse=text=>({speaker:'nurse',name:'护士',avatar:'hospital_nurse',text}),zhou=text=>({speaker:'zhouhe',name:'周禾',text:d3EveningText(text)}),me=text=>({speaker:'me',text});
  const scripts={
@@ -400,8 +400,10 @@ function d4SleepRender(){
  const previous=captureSceneSnapshot(screen);closeSheet();stopReading();clearInterval(cgTypingTimer);earlySleepButton.hidden=true;midnightContinue.hidden=true;
  view='day4-sleep-ending';active=null;rememberRoute();zeroChrome();
  if(['cg','choice','blur','recall-shake'].includes(n.phase)){
-  const def=d4HospitalScripts()[n.script],src=n.phase==='blur'&&n.blurNext!=='white-wait'?D4_HOSPITAL_IMAGES.zhouhe:def?.image;
-  const imageLabel=src===D3_NIGHT_IMAGE?'夜晚的宿舍':src===D5_FOLLOW_IMAGES.road?'夜晚通往校门的小路':src===D5_FOLLOW_IMAGES.bench?'坐在校门旁长椅上的林晴':src===D5_STAY_IMAGES.love?'林晴握着你的手':src&&src===D5_STAY_IMAGES.later?'留在校园的日子':'医院病房';
+  const def=d4HospitalScripts()[n.script];
+  const currentImage=()=>n.script==='stay-later'&&n.cgIndex-(n.reply?1:0)>=6?D5_STAY_IMAGES.seaside:def?.image;
+  const src=n.phase==='blur'&&n.blurNext!=='white-wait'?D4_HOSPITAL_IMAGES.zhouhe:currentImage();
+  const imageLabel=src===D3_NIGHT_IMAGE?'夜晚的宿舍':src===D5_FOLLOW_IMAGES.road?'夜晚通往校门的小路':src===D5_FOLLOW_IMAGES.bench?'坐在校门旁长椅上的林晴':src===D5_STAY_IMAGES.love?'林晴握着你的手':src===D5_STAY_IMAGES.seaside?'夕阳下在海边牵着的手':src&&src===D5_STAY_IMAGES.later?'留在校园的日子':'医院病房';
   screen.innerHTML='<section class="rd-cg d4-hospital-scene'+(n.phase==='recall-shake'?' d4-confront-shake':'')+(!src?(def?.dark?' d4-final-sleep-black':' d4-hospital-light'):'')+'">'+(src?'<img src="'+src+'" alt="'+imageLabel+'"'+(n.phase==='blur'?' class="d3-night-blur" style="animation-delay:-'+(D3_NIGHT_BLUR_MS-n.remaining)+'ms"':n.phase==='recall-shake'?' style="animation-delay:-'+(550-n.remaining)+'ms"':'')+'>':'')+'</section>';
   const host=screen.firstElementChild;
   if(n.phase==='choice'){
@@ -409,8 +411,8 @@ function d4SleepRender(){
    host.insertAdjacentHTML('beforeend','<div class="cg-options">'+def.options.map(([label],i)=>'<button type="button" data-d4-hospital-key="'+n.script+'" data-d4-hospital-choice="'+i+'">'+esc(label)+'</button>').join('')+'</div>');
   }else if(n.phase==='cg'){
    const rows=n.reply?[{speaker:'me',text:n.reply},...def.rows]:def.rows;
-   const sync=()=>{if(rows[n.cgIndex]?.monitor)n.monitor=true;host.querySelector('img')?.classList.toggle('d3-night-blur',!!rows[n.cgIndex]?.dizzy);d4HospitalSyncSound()};sync();
-   CGDialogue.present(host,rows,{index:n.cgIndex,firstReplyConfirmed:!!n.reply||n.script==='ask-lin',onIndex:i=>{if(d4Sleep()===n&&n.phase==='cg'){n.cgIndex=i;sync();persist()}},onComplete:()=>{if(d4Sleep()===n&&n.phase==='cg')d4SleepGo(def.next)}});
+   const sync=()=>{if(rows[n.cgIndex]?.monitor)n.monitor=true;const img=host.querySelector('img');if(img&&n.script==='stay-later'){const next=currentImage();if(img.getAttribute('src')!==next){const previousImage=img.cloneNode(true);img.src=next;cgImageCrossfade(previousImage,img,700)}img.alt=next===D5_STAY_IMAGES.seaside?'夕阳下在海边牵着的手':'留在校园的日子'}img?.classList.toggle('d3-night-blur',!!rows[n.cgIndex]?.dizzy);d4HospitalSyncSound()};sync();
+   CGDialogue.present(host,rows,{index:n.cgIndex,firstReplyConfirmed:!!n.reply||n.script==='ask-lin',onReplyConfirmed:(i,row)=>{if(d4Sleep()===n&&n.phase==='cg'&&n.script==='stay-promise'&&row.text==='我愿意，我会一直陪着你的'){n.cgIndex=i;d5CaptureCheckpoint('day5-stay-promise-confirm')}},onIndex:i=>{if(d4Sleep()===n&&n.phase==='cg'){n.cgIndex=i;sync();persist()}},onComplete:()=>{if(d4Sleep()===n&&n.phase==='cg')d4SleepGo(def.next)}});
   }
  }else if(n.phase==='sleep-choice'){
   screen.innerHTML='<section class="rd-cg"><img src="'+D3_NIGHT_IMAGE+'" alt="夜晚的宿舍"></section>';
@@ -483,7 +485,7 @@ window.addEventListener('click',event=>{
 document.addEventListener('visibilitychange',()=>{d4SleepLastTick=0;if(document.hidden)d4HospitalStopSound()});
 setInterval(d4SleepTick,100);
 for(const [key,title]of [['goodnight','回应林晴的晚安'],['nurse-question','向护士询问'],['zhou-question','向周禾询问']])STORY_CHOICES.push({id:'day4-hospital-'+key,title,day:key==='goodnight'?'第五日 · 凌晨':'第五日 · 结局019',chat:null});
-const D5_FOLLOW_CHOICES=[['follow-rise','起来跟上她'],['follow-concern','回应林晴的询问'],['follow-stay-choice','留下还是离开'],['stay-promise-choice','回应林晴的挽留']];
+const D5_FOLLOW_CHOICES=[['follow-rise','起来跟上她'],['follow-concern','回应林晴的询问'],['follow-stay-choice','留下还是离开'],['stay-promise-choice','回应林晴的挽留'],['stay-promise-confirm','我愿意，我会一直陪着你的']];
 for(const [key,title]of D5_FOLLOW_CHOICES)STORY_CHOICES.push({id:d5SleepChoiceNode(key),title,day:'第五日 · 夜晚的校门',chat:null});
 STORY_CHOICES.push({id:D5_RELEASE_NODE,title:'校园新规解除通知',day:'第五日 · 01:00',chat:null},{id:'day4-continue-sleep',title:'01:00 · 继续睡觉',day:'第五日 · 凌晨',chat:null});
 STORY_CHOICES.push({id:'day5-mother-call',title:'妈妈来电',day:'第五日 · 现实医院',chat:null});
