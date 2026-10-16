@@ -40,7 +40,7 @@ window.WebEpilogueLoader=(()=>{
     },
     {
       "path": "assets/audio/epilogue-honey-lemon.mp3",
-      "bytes": 3885916
+      "bytes": 2225371
     },
     {
       "path": "assets/audio/epilogue-riverside.m4a",
@@ -48,7 +48,7 @@ window.WebEpilogueLoader=(()=>{
     },
     {
       "path": "assets/audio/epilogue-shopping-invite.mp3",
-      "bytes": 9262379
+      "bytes": 5055365
     },
     {
       "path": "assets/audio/muted-keypress-06-short-tap.wav",
@@ -252,6 +252,7 @@ window.WebEpilogueLoader=(()=>{
  let ready=false,running=false,retrying=false,layer=null,started=0,previousFocus=null;
  const delay=ms=>new Promise(resolve=>(window.mobileNativeTimeout||window.setTimeout)(resolve,ms));
  const url=path=>window.WebAssets?.url(path)||path;
+ const formatBytes=bytes=>bytes>=1048576?(bytes/1048576).toFixed(1)+' MB':(bytes/1024).toFixed(0)+' KB';
  function render(){
   for(const [kind,items]of Object.entries(manifest)){
    const total=items.reduce((n,item)=>n+item.bytes,0);
@@ -259,7 +260,7 @@ window.WebEpilogueLoader=(()=>{
    const count=items.filter(item=>completed.has(item.path)).length;
    const percent=count===items.length?100:Math.min(99,Math.floor(loaded/Math.max(1,total)*100));
    layer.querySelector('[data-progress="'+kind+'"]').value=percent;
-   layer.querySelector('[data-count="'+kind+'"]').textContent=percent+'% · '+count+'/'+items.length;
+   layer.querySelector('[data-count="'+kind+'"]').textContent=percent+'% · '+formatBytes(loaded)+' / '+formatBytes(total);
   }
  }
  function show(){
