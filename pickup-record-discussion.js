@@ -1,5 +1,5 @@
 /* Optional public discussion. Two-second delivery continues outside the group. */
-const RECORD_PEOPLE={xia:['夏宁','101','assets/npc-pool-0.jpg?v=20261016-rc1'],ye:['叶琳','108','assets/npc-pool-1.jpg?v=20261016-rc1'],fang:['方恬','219','assets/npc-pool-2.jpg?v=20261016-rc1'],zhou:['周茉','316','assets/chat-avatars/chat_zhoumo_v2.jpg?v=20261016-rc1'],liang:['梁音','603','assets/chat-avatars/chat_liangyin_v1.jpg?v=20261016-rc1'],gu:['顾遥','606','assets/npc-pool-0.jpg?v=20261016-rc1']};
+const RECORD_PEOPLE={xia:['夏宁','101','assets/npc-pool-0.jpg?v=20261016-rc2'],ye:['叶琳','108','assets/npc-pool-1.jpg?v=20261016-rc2'],fang:['方恬','219','assets/npc-pool-2.jpg?v=20261016-rc2'],zhou:['周茉','316','assets/chat-avatars/chat_zhoumo_v2.jpg?v=20261016-rc2'],liang:['梁音','603','assets/chat-avatars/chat_liangyin_v1.jpg?v=20261016-rc2'],gu:['顾遥','606','assets/npc-pool-0.jpg?v=20261016-rc2']};
 for(const [key,[name,,src]] of Object.entries(RECORD_PEOPLE))if(!C.avatars.some(a=>a.id==='record-'+key))C.avatars.push({id:'record-'+key,name,src});
 const recordSay=(who,text)=>({who,text});
 const recordChoice=(...choices)=>({choices:choices.map(([label,next,requires])=>({label,next,requires}))});

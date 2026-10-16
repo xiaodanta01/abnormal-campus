@@ -4,10 +4,10 @@
  const names=['讯息','校园墙','物资中心','备忘录','钱包','日历','校园通','电话'];
  const date='2045-09-09',time='09:33';
  const motherAvatarId='chat_hospital_mother';
- if(!C.avatars.some(a=>a.id===motherAvatarId))C.avatars.push({id:motherAvatarId,name:'妈妈',src:'assets/chat-avatars/hospital-mother.jpg?v=20261016-rc1'});
+ if(!C.avatars.some(a=>a.id===motherAvatarId))C.avatars.push({id:motherAvatarId,name:'妈妈',src:'assets/chat-avatars/hospital-mother.jpg?v=20261016-rc2'});
  const fatherAvatarId='chat_hospital_father';
- if(!C.avatars.some(a=>a.id===fatherAvatarId))C.avatars.push({id:fatherAvatarId,name:'爸爸',src:'assets/chat-avatars/hospital-father.jpg?v=20261016-rc1'});
- const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261016-rc1';
+ if(!C.avatars.some(a=>a.id===fatherAvatarId))C.avatars.push({id:fatherAvatarId,name:'爸爸',src:'assets/chat-avatars/hospital-father.jpg?v=20261016-rc2'});
+ const motherRingtoneSource='assets/audio/ringtone-02-warm-chime.mp3?v=20261016-rc2';
  const base={persist,home,status,openApp,chatList,openChat,forum,postDetail,shop,orders,cartSheet,checkout,pay,renderMessage,contactRow,cartLines,cartTotal,quantity,productCards,productArt,forumAvatar,zeroLock,resumeStoryScene,initializeChapter,savePersonalNotebook,playNotificationSound,checkSurvival,showNotebookNotice};
  let owner=null,entered=null;
  let callTimer=null,callTimerKey=null,callAudio=null,callTypingTimer=null;
@@ -33,7 +33,7 @@
     {name:'江晓',text:'已捐，后续如果还需要，可以再联系我'},
     {name:'陈妍',replyTo:'江晓',text:'你已经捐很多了，真的谢谢你'},
     {name:'江晓',replyTo:'陈妍',text:'没关系，希望她能醒过来'}]},
-   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261016-rc1',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
+   {id:'reality-chen-dinner',date:'2045年7月30日 19:07',image:'assets/reality-chen-dinner.jpg?v=20261016-rc2',imageAlt:'林晴做的一桌饭菜',text:'晴姐的厨艺太好了呜呜呜\n但是我出钱买的菜，功劳也不小吧！',replies:[
     {name:'周禾',text:'就你吃的最多'},
     {name:'陈妍',replyTo:'周禾',text:'太好吃了呀，震撼美味！'},
     {name:'周禾',replyTo:'陈妍',text:'下次多给【玩家名字】留点，她都没吃上几口'}]}
@@ -166,7 +166,7 @@
    const profile=p.contactProfiles[id];profile.signature=content.signature;
    for(const post of content.moments)if(!profile.moments.some(existing=>existing.id===post.id))profile.moments.push(structuredClone(post));
    const dinner=profile.moments.find(post=>post.id==='reality-chen-dinner');
-   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261016-rc1';dinner.imageAlt='林晴做的一桌饭菜'}
+   if(dinner){dinner.image='assets/reality-chen-dinner.jpg?v=20261016-rc2';dinner.imageAlt='林晴做的一桌饭菜'}
   }
   if(!p.zhouConcernAdded){
    const rows=p.messages.zhouhe??=[];
@@ -363,7 +363,7 @@
    epilogueMusicFadeAt=0;return;
   }
   if(!epilogueMusic){
-   const audio=epilogueMusic=new Audio(key==='river'?'assets/audio/epilogue-riverside.m4a?v=20261016-rc1':key==='invite'?'assets/audio/epilogue-shopping-invite.mp3?v=20261016-rc1':'assets/audio/epilogue-honey-lemon.mp3?v=20261016-rc1');audio.loop=key!=='calendar';audio.volume=0;
+   const audio=epilogueMusic=new Audio(key==='river'?'assets/audio/epilogue-riverside.m4a?v=20261016-rc2':key==='invite'?'assets/audio/epilogue-shopping-invite.mp3?v=20261016-rc2':'assets/audio/epilogue-honey-lemon.mp3?v=20261016-rc2');audio.loop=key!=='calendar';audio.volume=0;
    audio.addEventListener('ended',()=>{if(key!=='calendar'||epilogueMusic!==audio||root()?.story?.dayFourSleep?.phone!==p)return;(p.epilogueMusicEnded??={})[key]=true;save()});
   }
   if(epilogueMusic.paused){
@@ -528,7 +528,7 @@
  function dischargeCG(){
   const q=data().epilogueDischarge;if(q?.phase!=='cg'||screen.querySelector('#hospital-discharge-cg'))return;
   const previous=captureSceneSnapshot(screen);view='hospital-discharge-cg';active=null;
-  screen.innerHTML='<section id="hospital-discharge-cg" class="rd-cg"><img src="assets/day4-wait-desk.jpg?v=20261016-rc1" alt="宿舍书桌"></section>';
+  screen.innerHTML='<section id="hospital-discharge-cg" class="rd-cg"><img src="assets/day4-wait-desk.jpg?v=20261016-rc2" alt="宿舍书桌"></section>';
   CGDialogue.present(screen.firstElementChild,dischargeNarration,{index:q.index||0,typingInterval:mobileNativeInterval,onIndex:i=>{if(data().epilogueDischarge===q&&q.phase==='cg'){q.index=i;save()}},onComplete:()=>{if(data().epilogueDischarge===q&&q.phase==='cg')dischargeNext()}});
   cgScreenCrossfade(previous);save();
  }
@@ -538,8 +538,8 @@
  }
  function mallLogo(){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 12H4L5 8Z"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/><path d="m9 14 3 3 3-3"/></svg>'}
  const mallProducts=[
-  {id:'knit',name:'秋冬复古风',image:'assets/epilogue-mall-retro.jpg?v=20261016-rc1',subtitle:'毛衣内搭+毛呢外套+打底裤+靴子',price:71900,tone:'rose',tag:'复古秋冬',number:'01'},
-  {id:'skirt',name:'温柔千金风',image:'assets/epilogue-mall-elegant.jpg?v=20261016-rc1',subtitle:'毛呢外套+长裙+皮鞋+袜子',price:53900,tone:'sand',tag:'温柔气质',number:'02'}
+  {id:'knit',name:'秋冬复古风',image:'assets/epilogue-mall-retro.jpg?v=20261016-rc2',subtitle:'毛衣内搭+毛呢外套+打底裤+靴子',price:71900,tone:'rose',tag:'复古秋冬',number:'01'},
+  {id:'skirt',name:'温柔千金风',image:'assets/epilogue-mall-elegant.jpg?v=20261016-rc2',subtitle:'毛呢外套+长裙+皮鞋+袜子',price:53900,tone:'sand',tag:'温柔气质',number:'02'}
  ];
  const mallPrice=cents=>(cents/100).toFixed(2);
  function mallData(){const p=data();return p.mall??={purchased:{},checkout:null}}
@@ -614,7 +614,7 @@
   const posts=[
    {id:'epilogue-023-travel-new-year',date:'2048年1月1日 10:51',text:'大家元旦快乐！\n想和大家分享一个好消息：我的债务问题很快就能彻底解决了\n我也已经和父亲断绝了一切联系，不会再让他从我这里骗走一分钱\n我会通过法律途径起诉并向他追偿\n前两天向学校要一份当初帮助过我的同学名单，但学校始终没有同意，说参与捐助的人实在太多了，但我也真的很想亲口对你们每一个人说声谢谢\n\n所以我决定，以后在保证自己基本生活的前提下，以东川大学学生的名义，将多余的钱都捐给其他需要帮助的人\n\n谢谢你们曾经给予我的善意\n今后，我也会努力把这份善意继续传递下去',replies:[{name:'周禾',text:'恭喜你'},{name:p.profile.name,text:'小晴太厉害了'},{name:'猫薄水',text:'元旦快乐'},{name:'总是任性',text:'啊啊啊恭喜恭喜，听到这个消息真是太好了'},{name:'早点水饺',text:'你好好的就是对大家最好的回报了'},{name:'鱼鱼鱼',text:'做得好小晴'}]},
    {id:'epilogue-023-travel-tomorrow',date:'2047年10月31日 20:59',text:'突然发现\n我现在好像不会再害怕睡觉和明天了\n反而是很期待每一个明天',replies:[]},
-   {id:'epilogue-023-travel-work',date:'2045年9月27日 09:02',text:'新工作的第一天',image:'assets/epilogue-first-workday.jpg?v=20261016-rc1',imageAlt:'新工作第一天，办公桌上的咖啡与窗外阳光',replies:[{name:'周禾',text:'加油！下班请你吃饭'},{name:p.profile.name,text:'别累到自己了哦'},{name:'白米饭',text:'冲啊啊啊'}]}
+   {id:'epilogue-023-travel-work',date:'2045年9月27日 09:02',text:'新工作的第一天',image:'assets/epilogue-first-workday.jpg?v=20261016-rc2',imageAlt:'新工作第一天，办公桌上的咖啡与窗外阳光',replies:[{name:'周禾',text:'加油！下班请你吃饭'},{name:p.profile.name,text:'别累到自己了哦'},{name:'白米饭',text:'冲啊啊啊'}]}
   ];
   const existingWork=profile.moments.find(post=>post.id===posts[2].id);
   if(existingWork){existingWork.image=posts[2].image;existingWork.imageAlt=posts[2].imageAlt;}
@@ -765,9 +765,9 @@
 
  const taxiCars=[{id:'express',name:'舒适型',detail:'宽敞安静 · 4座',fare:32},{id:'comfort',name:'无人驾驶',detail:'智能出行 · 4座',fare:45},{id:'business',name:'商务型',detail:'舒适空间 · 6座',fare:68}];
  const taxiArrivalScenes={
-  express:{image:'assets/epilogue-taxi-comfort.jpg?v=20261016-rc1',avatar:'taxi_comfort_driver',portrait:'assets/chat-avatars/taxi-comfort-driver-v2.jpg?v=20261016-rc1',name:'司机',text:'您好，您的目的地到了，请从右侧下车'},
-  comfort:{image:'assets/epilogue-taxi-autonomous.jpg?v=20261016-rc1',avatar:'taxi_autonomous_voice',portrait:'assets/chat-avatars/taxi-autonomous-voice.jpg?v=20261016-rc1',name:'智能语音',text:'您好，您的目的地：东川中心北区A口已经到了，请从右侧下车'},
-  business:{image:'assets/epilogue-taxi-business.jpg?v=20261016-rc1',avatar:'taxi_business_driver',portrait:'assets/chat-avatars/taxi-business-driver-v2.jpg?v=20261016-rc1',name:'司机',text:'您好，您的目的地到了，请从右侧下车'}
+  express:{image:'assets/epilogue-taxi-comfort.jpg?v=20261016-rc2',avatar:'taxi_comfort_driver',portrait:'assets/chat-avatars/taxi-comfort-driver-v2.jpg?v=20261016-rc2',name:'司机',text:'您好，您的目的地到了，请从右侧下车'},
+  comfort:{image:'assets/epilogue-taxi-autonomous.jpg?v=20261016-rc2',avatar:'taxi_autonomous_voice',portrait:'assets/chat-avatars/taxi-autonomous-voice.jpg?v=20261016-rc2',name:'智能语音',text:'您好，您的目的地：东川中心北区A口已经到了，请从右侧下车'},
+  business:{image:'assets/epilogue-taxi-business.jpg?v=20261016-rc2',avatar:'taxi_business_driver',portrait:'assets/chat-avatars/taxi-business-driver-v2.jpg?v=20261016-rc2',name:'司机',text:'您好，您的目的地到了，请从右侧下车'}
  };
  for(const scene of Object.values(taxiArrivalScenes))if(!C.avatars.some(a=>a.id===scene.avatar))C.avatars.push({id:scene.avatar,name:scene.name,src:scene.portrait});
  let taxiArrivalOwner=null;
@@ -791,8 +791,8 @@
   cgScreenCrossfade(previous);save();
  }
  const epilogueOutfitScenes={
-  '1':{meeting:'assets/epilogue-meeting-outfit-1.jpg?v=20261016-rc1',greeting:'assets/epilogue-greeting-outfit-1.jpg?v=20261016-rc1'},
-  '2':{meeting:'assets/epilogue-meeting-outfit-2.jpg?v=20261016-rc1',greeting:'assets/epilogue-greeting-outfit-2.jpg?v=20261016-rc1'}
+  '1':{meeting:'assets/epilogue-meeting-outfit-1.jpg?v=20261016-rc2',greeting:'assets/epilogue-greeting-outfit-1.jpg?v=20261016-rc2'},
+  '2':{meeting:'assets/epilogue-meeting-outfit-2.jpg?v=20261016-rc2',greeting:'assets/epilogue-greeting-outfit-2.jpg?v=20261016-rc2'}
  };
  // Select once per saved story; later scenes share this same outfit route.
  function epilogueOutfit(p){
@@ -870,9 +870,9 @@
   if(changeImage)cgScreenCrossfade(previous);save();
  }
  // Reserved CG slots; clothing changes the artwork only, never this shared script.
- const epilogueMallImages={p1:{'1':'assets/epilogue-mall-hall.jpg?v=20261016-rc1','2':'assets/epilogue-mall-hall.jpg?v=20261016-rc1'},p2:{'1':'assets/epilogue-jewelry-shop.jpg?v=20261016-rc1','2':'assets/epilogue-jewelry-shop.jpg?v=20261016-rc1'},hairclips:{'1':'assets/epilogue-hairclips.jpg?v=20261016-rc1','2':'assets/epilogue-hairclips.jpg?v=20261016-rc1'},p3:{'1':'assets/epilogue-island-shop.jpg?v=20261016-rc1','2':'assets/epilogue-island-shop.jpg?v=20261016-rc1'},p4:{'1':'assets/epilogue-tea-shop.jpg?v=20261016-rc1','2':'assets/epilogue-tea-shop.jpg?v=20261016-rc1'},birds:{'1':'assets/epilogue-bird-charms.jpg?v=20261016-rc1','2':'assets/epilogue-bird-charms.jpg?v=20261016-rc1'},escalator:{'1':'assets/epilogue-escalator.jpg?v=20261016-rc1','2':'assets/epilogue-escalator.jpg?v=20261016-rc1'},restaurant:{'1':'assets/epilogue-restaurant.jpg?v=20261016-rc1','2':'assets/epilogue-restaurant.jpg?v=20261016-rc1'},dinner:{'1':'assets/epilogue-dinner.jpg?v=20261016-rc1','2':'assets/epilogue-dinner.jpg?v=20261016-rc1'},dinnerLin:{'1':'assets/epilogue-dinner-linqing-outfit1.jpg?v=20261016-rc1','2':'assets/epilogue-dinner-linqing-outfit2-v2.jpg?v=20261016-rc1'},checkout:{'1':'assets/epilogue-dinner-paid.jpg?v=20261016-rc1','2':'assets/epilogue-dinner-paid.jpg?v=20261016-rc1'},parkArrival:{'1':'assets/epilogue-park-arrival.jpg?v=20261016-rc1','2':'assets/epilogue-park-arrival.jpg?v=20261016-rc1'},riverBreeze:{'1':'assets/epilogue-river-breeze-outfit1.jpg?v=20261016-rc1','2':'assets/epilogue-river-breeze-outfit2.jpg?v=20261016-rc1'},riverSteps:{'1':'assets/epilogue-river-steps.jpg?v=20261016-rc1','2':'assets/epilogue-river-steps.jpg?v=20261016-rc1'},hairTouch:{'1':'assets/epilogue-hair-touch-outfit1.jpg?v=20261016-rc1','2':'assets/epilogue-hair-touch-outfit2.jpg?v=20261016-rc1'},subwayGoodbye:{'1':'assets/epilogue-subway-goodbye.jpg?v=20261016-rc1','2':'assets/epilogue-subway-goodbye.jpg?v=20261016-rc1'},fingerTouch:{'1':'assets/epilogue-finger-touch-outfit1.jpg?v=20261016-rc1','2':'assets/epilogue-finger-touch-outfit2.jpg?v=20261016-rc1'},holdingHands:{'1':'assets/epilogue-holding-hands-outfit1.jpg?v=20261016-rc1','2':'assets/epilogue-holding-hands-outfit2.jpg?v=20261016-rc1'},riverside:{'1':'','2':''},future:{'1':'assets/day2-midday-desk.jpg?v=20261016-rc1','2':'assets/day2-midday-desk.jpg?v=20261016-rc1'}};
- if(!C.avatars.some(a=>a.id==='mall-clerk'))C.avatars.push({id:'mall-clerk',name:'店员',src:'assets/chat-avatars/epilogue-tea-clerk.jpg?v=20261016-rc1'});
- if(!C.avatars.some(a=>a.id==='restaurant-reception'))C.avatars.push({id:'restaurant-reception',name:'前台服务员',src:'assets/chat-avatars/epilogue-restaurant-reception.jpg?v=20261016-rc1'});
+ const epilogueMallImages={p1:{'1':'assets/epilogue-mall-hall.jpg?v=20261016-rc2','2':'assets/epilogue-mall-hall.jpg?v=20261016-rc2'},p2:{'1':'assets/epilogue-jewelry-shop.jpg?v=20261016-rc2','2':'assets/epilogue-jewelry-shop.jpg?v=20261016-rc2'},hairclips:{'1':'assets/epilogue-hairclips.jpg?v=20261016-rc2','2':'assets/epilogue-hairclips.jpg?v=20261016-rc2'},p3:{'1':'assets/epilogue-island-shop.jpg?v=20261016-rc2','2':'assets/epilogue-island-shop.jpg?v=20261016-rc2'},p4:{'1':'assets/epilogue-tea-shop.jpg?v=20261016-rc2','2':'assets/epilogue-tea-shop.jpg?v=20261016-rc2'},birds:{'1':'assets/epilogue-bird-charms.jpg?v=20261016-rc2','2':'assets/epilogue-bird-charms.jpg?v=20261016-rc2'},escalator:{'1':'assets/epilogue-escalator.jpg?v=20261016-rc2','2':'assets/epilogue-escalator.jpg?v=20261016-rc2'},restaurant:{'1':'assets/epilogue-restaurant.jpg?v=20261016-rc2','2':'assets/epilogue-restaurant.jpg?v=20261016-rc2'},dinner:{'1':'assets/epilogue-dinner.jpg?v=20261016-rc2','2':'assets/epilogue-dinner.jpg?v=20261016-rc2'},dinnerLin:{'1':'assets/epilogue-dinner-linqing-outfit1.jpg?v=20261016-rc2','2':'assets/epilogue-dinner-linqing-outfit2-v2.jpg?v=20261016-rc2'},checkout:{'1':'assets/epilogue-dinner-paid.jpg?v=20261016-rc2','2':'assets/epilogue-dinner-paid.jpg?v=20261016-rc2'},parkArrival:{'1':'assets/epilogue-park-arrival.jpg?v=20261016-rc2','2':'assets/epilogue-park-arrival.jpg?v=20261016-rc2'},riverBreeze:{'1':'assets/epilogue-river-breeze-outfit1.jpg?v=20261016-rc2','2':'assets/epilogue-river-breeze-outfit2.jpg?v=20261016-rc2'},riverSteps:{'1':'assets/epilogue-river-steps.jpg?v=20261016-rc2','2':'assets/epilogue-river-steps.jpg?v=20261016-rc2'},hairTouch:{'1':'assets/epilogue-hair-touch-outfit1.jpg?v=20261016-rc2','2':'assets/epilogue-hair-touch-outfit2.jpg?v=20261016-rc2'},subwayGoodbye:{'1':'assets/epilogue-subway-goodbye.jpg?v=20261016-rc2','2':'assets/epilogue-subway-goodbye.jpg?v=20261016-rc2'},fingerTouch:{'1':'assets/epilogue-finger-touch-outfit1.jpg?v=20261016-rc2','2':'assets/epilogue-finger-touch-outfit2.jpg?v=20261016-rc2'},holdingHands:{'1':'assets/epilogue-holding-hands-outfit1.jpg?v=20261016-rc2','2':'assets/epilogue-holding-hands-outfit2.jpg?v=20261016-rc2'},riverside:{'1':'','2':''},future:{'1':'assets/day2-midday-desk.jpg?v=20261016-rc2','2':'assets/day2-midday-desk.jpg?v=20261016-rc2'}};
+ if(!C.avatars.some(a=>a.id==='mall-clerk'))C.avatars.push({id:'mall-clerk',name:'店员',src:'assets/chat-avatars/epilogue-tea-clerk.jpg?v=20261016-rc2'});
+ if(!C.avatars.some(a=>a.id==='restaurant-reception'))C.avatars.push({id:'restaurant-reception',name:'前台服务员',src:'assets/chat-avatars/epilogue-restaurant-reception.jpg?v=20261016-rc2'});
  const mallLin=text=>({speaker:'linqing',name:'林晴',text}),mallMe=text=>({speaker:'me',text});
  const mallDrinks=[{name:'杨枝甘露',price:22},{name:'手打柠檬茶',price:18},{name:'四季奶青',price:16}];
  const mallSceneScript={
@@ -1040,7 +1040,7 @@
   'trip-now':{rows:['如果你想的话，就现在'],choices:[['好！','finish-travel']]},
   'trip-when':{rows:['你想什么时候都可以'],choices:[['好！','finish-travel']]}
  };
- function epilogueSticker(){return '<img class="epilogue-blush-sticker" src="assets/epilogue-blush-cat.jpg?v=20261016-rc1" alt="小猫抱心表情包">'}
+ function epilogueSticker(){return '<img class="epilogue-blush-sticker" src="assets/epilogue-blush-cat.jpg?v=20261016-rc2" alt="小猫抱心表情包">'}
  function epilogueFinish(kind){
   const q=data().epilogueMall;if(!epilogueFinishes[kind])return;
   q.finish=kind;q.phase='ending';q.node='finish-'+kind;

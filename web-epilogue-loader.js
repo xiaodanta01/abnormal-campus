@@ -297,21 +297,32 @@ window.WebEpilogueLoader=(()=>{
   layer.querySelector('button').hidden=true;
   layer.querySelector('[role="status"]').textContent='正在准备番外资源，请稍候…';
   const failures=[];
-  async function queue(kind,workers){
+  async function queue(kind,workers,onItem){
    const pending=manifest[kind].filter(item=>!completed.has(item.path));
-   await Promise.all(Array.from({length:workers},async()=>{while(pending.length){const item=pending.shift();try{await download(item,kind)}catch(error){failures.push(item.path)}}}));
+   await Promise.all(Array.from({length:workers},async()=>{while(pending.length){const item=pending.shift();try{await download(item,kind);onItem?.()}catch(error){failures.push(item.path)}}}));
   }
-  await Promise.all([queue('music',1),queue('cg',2)]);
+  // Music is the gate's priority. Do not spend the first network slots on CGs.
+  await queue('music',1);
   if(failures.length){
    running=false;
    layer.querySelector('[role="status"]').textContent='有 '+failures.length+' 项资源未加载成功，请检查网络后重试。已完成的资源会保留。';
    layer.querySelector('button').hidden=false;layer.querySelector('button').focus();return;
   }
-  layer.querySelector('[role="status"]').textContent='资源加载完毕，正在进入番外…';
+  layer.querySelector('[role="status"]').textContent='音乐已就绪，正在加载 CG…';
+  const backgroundCG=queue('cg',2);
+  while(true){
+   const total=manifest.cg.reduce((n,item)=>n+item.bytes,0);
+   const loaded=manifest.cg.reduce((n,item)=>n+(completed.has(item.path)?item.bytes:received.get(item.path)||0),0);
+   if(loaded/Math.max(1,total)>=.4)break;
+   await delay(100);
+  }
+  layer.querySelector('[role="status"]').textContent='已完成首批 CG，正在进入番外…';
   await delay(Math.max(0,1000-(performance.now()-started)));
   ready=true;running=false;layer.remove();layer=null;
   if(previousFocus?.isConnected)previousFocus.focus();
   const pending=[...callbacks];callbacks.clear();for(const callback of pending)callback();
+  // The remaining CGs keep downloading after the story has started.
+  backgroundCG.catch(()=>{});
  }
  return {ensure(){if(ready)return true;show();if(!running&&layer.querySelector('button').hidden)void run();return false},whenReady(callback){if(ready)callback();else callbacks.add(callback)},get ready(){return ready}};
 })();
