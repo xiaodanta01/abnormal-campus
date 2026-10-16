@@ -1469,7 +1469,7 @@ function mallSceneCGKey(q){
   if(m.type==='time')return '';
   let html=ordinaryPhoneUI.renderMessage(m,c);
   if(m.epilogueSticker)html=ordinaryPhoneUI.renderMessage({...m,text:'EPILOGUE_BLUSH_STICKER'},c).replace('EPILOGUE_BLUSH_STICKER',epilogueSticker());
-  if(c.id==='linqing'&&m.id==='epilogue-023-discharge-zhou')html+='<div class="divider message-group-time" data-author-playlist-guide><span>番外篇推荐配乐</span><a href="https://music.163.com/playlist?id=18492712703&amp;uct2=U2FsdGVkX1+APNy8OMffilsgUD7XnKtXi61pbu0NZMk=" target="_blank" rel="noopener noreferrer">点击此处跳转</a></div>';
+  if(c.id==='room408'&&m.id==='epilogue-023-discharge-zhou')html+='<div class="divider message-group-time" data-author-playlist-guide><span>番外篇推荐配乐</span><a href="https://music.163.com/playlist?id=18492712703&amp;uct2=U2FsdGVkX1+APNy8OMffilsgUD7XnKtXi61pbu0NZMk=" target="_blank" rel="noopener noreferrer">点击此处跳转</a></div>';
  const rows=state.messages[c.id],index=rows.indexOf(m);
   if(c.id==='linqing'&&m.id==='taxi-player-share')html=ordinaryPhoneUI.renderMessage({...m,type:'text',text:'HOSPITAL_TAXI_CARD'},c).replace('HOSPITAL_TAXI_CARD',()=>taxiShareCard()).replace(/class="message(?=[\s"])/,'class="message ht-share-message');
   if(c.id==='epilogue-mother'&&(m.id==='epilogue-mother-transfer'||m.id==='epilogue-mother-receipt')){
