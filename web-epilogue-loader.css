@@ -1,0 +1,15 @@
+#web-epilogue-loader{position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;padding:24px;background:#121a20;color:#ecf1ee;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;box-sizing:border-box;overscroll-behavior:contain;touch-action:pan-y;outline:none}
+#web-epilogue-loader *{box-sizing:border-box}
+.web-epilogue-card{width:min(100%,420px);padding:30px 25px;border:1px solid #91b5a333;border-radius:24px;background:linear-gradient(145deg,#263b37,#1a242b);box-shadow:0 24px 70px #0005}
+.web-epilogue-kicker{font-size:11px;letter-spacing:3px;color:#a3c8b4}
+#web-epilogue-title{font-size:22px;line-height:1.55;font-weight:600;margin:17px 0 12px;overflow-wrap:anywhere}
+.web-epilogue-card>p{font-size:13px;line-height:1.8;color:#bccac5;margin:0 0 30px}
+.web-epilogue-track{display:grid;grid-template-columns:1fr auto;gap:12px;margin:26px 0;font-size:14px}
+.web-epilogue-track span{color:#b8cec3;font-size:12px;font-variant-numeric:tabular-nums}
+.web-epilogue-track progress{grid-column:1/-1;width:100%;height:8px;border:0;border-radius:8px;overflow:hidden;background:#ffffff16;accent-color:#a3cfb5}
+.web-epilogue-track progress::-webkit-progress-bar{background:#ffffff16;border-radius:8px}
+.web-epilogue-track progress::-webkit-progress-value{background:#a3cfb5;border-radius:8px}
+.web-epilogue-track progress::-moz-progress-bar{background:#a3cfb5;border-radius:8px}
+.web-epilogue-card>p.web-epilogue-status{font-size:12px;margin:26px 0 0;min-height:44px}
+.web-epilogue-card>button{margin-top:18px;padding:12px 20px;border:0;border-radius:12px;background:#b9dbc7;color:#172a22;font:inherit;cursor:pointer}
+.web-epilogue-card>button[hidden]{display:none}

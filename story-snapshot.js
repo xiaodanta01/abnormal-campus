@@ -241,6 +241,15 @@ function resumeGameSnapshot(snapshot,options={}){
  if(storyRestoreGuards.some(guard=>guard(snapshot)))return false;
  // Complete validation/migration before discarding the live state.
  const restored=restoreStorySnapshot(snapshot),sourceNodeId=options.sourceNodeId;
+ if(sourceNodeId==='epilogue023-arrival'){
+  const phone=restored.story.dayFourSleep?.phone,purchased=phone?.mall?.purchased;
+  if(purchased?.knit&&purchased?.skirt){
+   const previous=state.story.dayFourSleep?.phone?.epilogueOutfit||phone.epilogueOutfit;
+   phone.epilogueOutfit=previous==='1'?'2':previous==='2'?'1':(Math.random()<.5?'1':'2');
+  }else if(phone&&purchased){
+   if(purchased.knit)phone.epilogueOutfit='1';else if(purchased.skirt)phone.epilogueOutfit='2';
+  }
+ }
  if(sourceNodeId){const parentRunId=restored.timeline.runId;restored.timeline={...restored.timeline,runId:storyRunId(),parentRunId,sourceNodeId,createdAt:Date.now(),snapshotAt:Date.now()};restored.story.replayRun=restored.timeline.runId}
  const sourceCheckpoint=sourceNodeId?structuredClone(restored):null;
  cleanupStoryTimeline();storyRestoring=true;

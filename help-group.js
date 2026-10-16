@@ -90,8 +90,6 @@ const retryAwChoices=awChoices;
 awChoices=function(){if(awReady()&&awState().choice===null&&view==='chat'&&active==='linqing')recordStoryChoice('day0-linqing-reply');return retryAwChoices()};
 const retryHgOpen=openChat;
 openChat=function(id){const result=retryHgOpen(id);if(view==='chat'&&active===HG_ID&&hg().phase==='choice')recordStoryChoice('day0-xuzhixia-reply');return result};
-zeroNodes=function(){if(view!=='game-menu'&&view!=='nodes')return;view='nodes';rememberRoute();const records=nodeRecords();screen.innerHTML=`<section class="app-page zero-nodes"><header class="page-head"><button class="icon-button" data-action="zero-menu" aria-label="返回主页">${icon('back')}</button><h1>再一次抉择</h1></header><p>那些已经走到过的路口。</p><div class="zero-timeline">${STORY_CHOICES.map(n=>`<button class="zero-node ${records[n.id]?'visited':''}" ${records[n.id]?`data-retry-choice="${n.id}"`:'disabled aria-label="尚未经历的节点"'}><i></i>${records[n.id]?`<small>${esc(n.day||'第零日')}</small><strong>${esc(n.title)}</strong>`:'<strong>？</strong>'}</button>`).join('')}<button class="zero-node" disabled aria-label="尚未经历的节点"><i></i><strong>？</strong></button></div><button class="secondary retry-home" data-action="zero-menu">返回游戏主页</button></section>`};
-actions['zero-nodes']=zeroNodes;
 function retryStoryChoice(id){if(view==='nodes')return loadStoryNode(id)}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-retry-choice]');if(b)retryStoryChoice(b.dataset.retryChoice)});
 // Capture only an actually pending choice, never reconstruct history from later progress.

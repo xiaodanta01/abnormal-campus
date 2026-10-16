@@ -1,5 +1,5 @@
 /* Final-night private chat. Choices, drafts and clocks belong to the current timeline. */
-const D4_LIN_ODEN_IMAGE='assets/day4-night-oden.jpg?v=20261014-rc2';
+const D4_LIN_ODEN_IMAGE='assets/day4-night-oden.jpg?v=20261016-rc1';
 const D4_LIN_ODEN_ROWS=[
  '林晴又出门给你买吃的了，她带回来的关东煮还是一如既往地好吃。',
  '你不明白，她为什么宁愿冒着被发现的风险，也要出去给你带喜欢的食物。',
@@ -33,11 +33,11 @@ const D4_LIN_NIGHT_SCRIPTS={
 const D4_LIN_NIGHT_TOPICS=[['我想知道你的爱好是什么？','hobbies'],['你有喜欢听的歌吗？','song'],['你觉得我是一个什么样的人？','impression']];
 const D4_RELEASE_POST='day4-one-am-release';
 const D5_RELEASE_BODY='解除后可自由活动，明日假期将至，今日可提前出校回家';
-const D4_HOSPITAL_IMAGES={ceiling:'assets/day4-hospital-ceiling.jpg?v=20261014-rc2',nurse:'assets/day4-hospital-nurse.jpg?v=20261014-rc2',zhouhe:'assets/day4-hospital-zhouhe.jpg?v=20261014-rc2'};
-C.avatars.push({id:'hospital_nurse',name:'护士',src:'assets/hospital-nurse-avatar.jpg?v=20261014-rc2'});
-const D5_FOLLOW_IMAGES={road:'assets/day5-lin-night-road.jpg?v=20261014-rc2',bench:'assets/day5-lin-night-bench.jpg?v=20261014-rc2',gate:'assets/day5-campus-gate.jpg?v=20261014-rc2'};
-const D5_STAY_IMAGES={later:'assets/day5-lin-stay-later.jpg?v=20261014-rc2',seaside:'assets/day5-lin-stay-seaside.jpg?v=20261014-rc2',love:'assets/day5-lin-stay-love.jpg?v=20261014-rc2'};
-const D5_REUNION_IMAGES={wheelchair:'assets/day5-hospital-wheelchair.jpg?v=20261014-rc2',door:'assets/day5-hospital-1207.jpg?v=20261014-rc2',lin:'assets/day5-hospital-lin.jpg?v=20261014-rc2',hands:'assets/day5-hospital-hands.jpg?v=20261014-rc2'};
+const D4_HOSPITAL_IMAGES={ceiling:'assets/day4-hospital-ceiling.jpg?v=20261016-rc1',nurse:'assets/day4-hospital-nurse.jpg?v=20261016-rc1',zhouhe:'assets/day4-hospital-zhouhe.jpg?v=20261016-rc1'};
+C.avatars.push({id:'hospital_nurse',name:'护士',src:'assets/hospital-nurse-avatar.jpg?v=20261016-rc1'});
+const D5_FOLLOW_IMAGES={road:'assets/day5-lin-night-road.jpg?v=20261016-rc1',bench:'assets/day5-lin-night-bench.jpg?v=20261016-rc1',gate:'assets/day5-campus-gate.jpg?v=20261016-rc1'};
+const D5_STAY_IMAGES={later:'assets/day5-lin-stay-later.jpg?v=20261016-rc1',seaside:'assets/day5-lin-stay-seaside.jpg?v=20261016-rc1',love:'assets/day5-lin-stay-love.jpg?v=20261016-rc1'};
+const D5_REUNION_IMAGES={wheelchair:'assets/day5-hospital-wheelchair.jpg?v=20261016-rc1',door:'assets/day5-hospital-1207.jpg?v=20261016-rc1',lin:'assets/day5-hospital-lin.jpg?v=20261016-rc1',hands:'assets/day5-hospital-hands.jpg?v=20261016-rc1'};
 function d4HospitalScripts(){
  const lin=text=>({speaker:'linqing',text}),nurse=text=>({speaker:'nurse',name:'护士',avatar:'hospital_nurse',text}),zhou=text=>({speaker:'zhouhe',name:'周禾',text:d3EveningText(text)}),me=text=>({speaker:'me',text});
  const scripts={
@@ -495,6 +495,12 @@ for(const [key,title]of D5_REUNION_CHOICES)STORY_CHOICES.push({id:'day5-reunion-
 for(const [id,title]of [['day5-leave-low-choice','陪林晴面对'],['day5-leave-high-choice','牵手离开']])STORY_CHOICES.push({id,title,day:'第五日 · 夜晚的校门',chat:null});
 const D5_TOGETHER_CHOICES=[['zhou-question','向周禾询问林晴'],['reunion-location','询问林晴的病床'],['reunion-visit-choice','请周禾带你探望'],['reunion-bed-choice','唤醒林晴'],['call-choice','握住林晴的手'],['mother-call','妈妈来电']];
 for(const [key,title]of D5_TOGETHER_CHOICES)STORY_CHOICES.push({id:'day5-together-'+key,title,day:'第五日 · 结局023',chat:null});
+const D5_EPILOGUE_CHOICES=[['discharge','林晴出院的消息','9月17日'],['gift-shopping','为林晴选购礼物','9月17日'],['shopping-invite','林晴的逛街邀请','9月22日'],['taxi-choice','选择车型','9月22日'],['arrival','到达东川中心','9月22日'],['mall-choice','选择商店','9月22日'],['dinner-invite','林晴带你去吃饭','9月22日'],['photo-choice','你要拍照吗？','9月22日'],['river-invite','邀请江边散步','9月22日'],['river-reply','回应林晴说你有意思','9月22日'],['river-joy','林晴表达自己的喜悦','9月22日']];
+const D5_EPILOGUE_BRANCHES={'river-reply':[['river-first','没有呢，你是第一个这么说的哦'],['river-laugh','是你笑点太低了吧！']],'taxi-choice':[['taxi-express','舒适型'],['taxi-comfort','无人驾驶'],['taxi-business','商务型']],'mall-choice':[['shop-jewelry','银栖饰集'],['shop-island','小岛杂货'],['shop-tea','一川茶饮']],'photo-choice':[['photo-yes','拍照发朋友圈'],['photo-no','直接吃饭']]};
+const D5_EPILOGUE_ENDINGS=[['blush','你们在脸红什么呢？'],['friends','你们都是彼此最好的朋友'],['wind','今晚的风有点大'],['travel','一起去旅行吧！']];
+for(const [key,title]of D5_EPILOGUE_ENDINGS)STORY_CHOICES.push({id:'epilogue023-finish-'+key,title:'番外完 · '+title,day:'番外',chat:null});
+for(const branches of Object.values(D5_EPILOGUE_BRANCHES))for(const [key,title]of branches)STORY_CHOICES.push({id:'epilogue023-'+key,title,day:'番外 · 9月22日',chat:null});
+for(const [key,title,date]of D5_EPILOGUE_CHOICES)STORY_CHOICES.push({id:'epilogue023-'+key,title,day:'番外 · '+date,chat:null});
 function makeDayFiveWorldline(){
  window.ensureMotherCallNode?.();
  window.ensureMotherCallNode?.('021');
@@ -528,7 +534,18 @@ function makeDayFiveWorldline(){
  from='day5-leave-high-choice';x=leaveX;add(from,x,1680);g.edges.push({from:'day5-follow-stay-choice',to:from});x+=310;
  for(const [key]of D5_TOGETHER_CHOICES){const id='day5-together-'+key;add(id,x,1680);g.edges.push({from,to:id});from=id;x+=310}
  g.nodes.push({id:'023',title:'结局023 · 你们一起回来了。',x,y:1680,kind:'death',category:'hidden',record:null,replayable:false});g.edges.push({from,to:'023'});
- g.height=1960;g.width=Math.max(priorWidth,x+310)+70;return g;
+ from='023';
+ let epilogueBranches=[];
+ for(const [key,title,date]of D5_EPILOGUE_CHOICES){
+  x+=310;const id='epilogue023-'+key;
+  g.nodes.push({id,title,x,y:1680,kind:'story',record:id,replayable:true,epilogue:true,epilogueDate:date});
+  if(epilogueBranches.length){for(const branch of epilogueBranches)g.edges.push({from:branch,to:id});epilogueBranches=[]}else g.edges.push({from,to:id});from=id;
+  const branches=D5_EPILOGUE_BRANCHES[key];
+  if(branches){x+=310;branches.forEach(([branchKey,branchTitle],i)=>{const branchId='epilogue023-'+branchKey;g.nodes.push({id:branchId,title:branchTitle,x,y:1680+(i-(branches.length-1)/2)*180,kind:'story',record:branchId,replayable:true,epilogue:true,epilogueDate:date});g.edges.push({from:id,to:branchId});epilogueBranches.push(branchId)})}
+ }
+ x+=310;
+ for(const [i,[key,title]]of D5_EPILOGUE_ENDINGS.entries()){const id='epilogue023-finish-'+key;g.nodes.push({id,title:'番外完 · '+title,x,y:1410+i*180,kind:'story',record:id,replayable:true,epilogue:true});g.edges.push({from,to:id})}
+ g.height=2200;g.width=Math.max(priorWidth,x+310)+70;return g;
 }
 function migrateDayFiveReleaseBody(progress){
  const post=progress?.forumPosts?.find(p=>p.id===D4_RELEASE_POST);

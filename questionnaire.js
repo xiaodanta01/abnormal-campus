@@ -1,5 +1,5 @@
 /* Questionnaire follows the final evening warning. Dedicated sound awaits the supplied asset. */
-const SURVEY_CONFIG={sound:'assets/audio/questionnaire-monitor-v1.mp3?v=20261014-rc2',wakeImage:'assets/questionnaire/dorm-night-v1.jpg?v=20261014-rc2'};
+const SURVEY_CONFIG={sound:'assets/audio/questionnaire-monitor-v1.mp3?v=20261016-rc1',wakeImage:'assets/questionnaire/dorm-night-v1.jpg?v=20261016-rc1'};
 const SURVEY_LEGACY_NODE='day1-questionnaire-start';
 const SURVEY_PRE_NODE='day1-questionnaire-before-notice';
 const SURVEY_QUESTIONS=[
