@@ -240,8 +240,14 @@ window.WebEpilogueLoader=(()=>{
       "path": "assets/reality-chen-dinner.jpg",
       "bytes": 509606
     }
-  ]
+ ]
 };
+ // Only the first two background tracks block entry. The river track and
+ // short effects are allowed to load lazily in the background during play.
+ manifest.music=manifest.music.filter(item=>[
+  'assets/audio/epilogue-honey-lemon.mp3',
+  'assets/audio/epilogue-shopping-invite.mp3'
+ ].includes(item.path));
  const completed=new Set(),received=new Map(),callbacks=new Set();
  let ready=false,running=false,retrying=false,layer=null,started=0,previousFocus=null;
  const delay=ms=>new Promise(resolve=>(window.mobileNativeTimeout||window.setTimeout)(resolve,ms));
