@@ -349,8 +349,7 @@
   return ['rolling','done'].includes(p?.epilogueCalendar?.phase)?'calendar':null;
  }
  function epilogueMusicWanted(){
-  const progress=root(),p=progress?.story?.dayFourSleep?.phone;
-  return bgmSettings.enabled&&isVisible()&&webEpilogueReady()&&!document.hidden&&!mobileSounds.silent&&hospitalEndingId(progress)==='023'&&p?.motherCall?.endingConfirmed&&!!epilogueMusicTrack(p);
+  return false;
  }
  function syncEpilogueMusic(){
   if(owner)return;

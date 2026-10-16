@@ -11,5 +11,6 @@
 .web-epilogue-track progress::-webkit-progress-value{background:#a3cfb5;border-radius:8px}
 .web-epilogue-track progress::-moz-progress-bar{background:#a3cfb5;border-radius:8px}
 .web-epilogue-card>p.web-epilogue-status{font-size:12px;margin:26px 0 0;min-height:44px}
+.web-epilogue-playlist{display:block;margin-top:4px;color:#b9dbc7;font-size:12px;text-decoration:underline;text-underline-offset:3px}
 .web-epilogue-card>button{margin-top:18px;padding:12px 20px;border:0;border-radius:12px;background:#b9dbc7;color:#172a22;font:inherit;cursor:pointer}
 .web-epilogue-card>button[hidden]{display:none}

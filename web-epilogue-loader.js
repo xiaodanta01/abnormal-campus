@@ -244,10 +244,7 @@ window.WebEpilogueLoader=(()=>{
 };
  // Only the first two background tracks block entry. The river track and
  // short effects are allowed to load lazily in the background during play.
- manifest.music=manifest.music.filter(item=>[
-  'assets/audio/epilogue-honey-lemon.mp3',
-  'assets/audio/epilogue-shopping-invite.mp3'
- ].includes(item.path));
+ manifest.music=[];
  const completed=new Set(),received=new Map(),callbacks=new Set();
  let ready=false,running=false,retrying=false,layer=null,started=0,previousFocus=null;
  const delay=ms=>new Promise(resolve=>(window.mobileNativeTimeout||window.setTimeout)(resolve,ms));
@@ -268,7 +265,7 @@ window.WebEpilogueLoader=(()=>{
   previousFocus=document.activeElement;
   layer=document.createElement('div');layer.id='web-epilogue-loader';layer.tabIndex=-1;
   layer.setAttribute('role','dialog');layer.setAttribute('aria-modal','true');layer.setAttribute('aria-labelledby','web-epilogue-title');
-  layer.innerHTML='<section class="web-epilogue-card"><span class="web-epilogue-kicker">EXTRA STORY</span><h1 id="web-epilogue-title">网页版专属：番外剧情加载包</h1><p>CG 加载到 40% 后进入游戏，音乐将在后台加载</p><div class="web-epilogue-track"><label for="epilogue-music-progress">音乐</label><span data-count="music"></span><progress id="epilogue-music-progress" data-progress="music" max="100" value="0"></progress></div><div class="web-epilogue-track"><label for="epilogue-cg-progress">CG</label><span data-count="cg"></span><progress id="epilogue-cg-progress" data-progress="cg" max="100" value="0"></progress></div><p class="web-epilogue-status" role="status" aria-live="polite">正在准备番外资源，请稍候…</p><button type="button" hidden>重新加载</button></section>';
+  layer.innerHTML='<section class="web-epilogue-card"><span class="web-epilogue-kicker">EXTRA STORY</span><h1 id="web-epilogue-title">网页版专属：番外剧情加载包</h1><p>CG 加载到 40% 后进入游戏</p><div class="web-epilogue-track"><label for="epilogue-cg-progress">CG</label><span data-count="cg"></span><progress id="epilogue-cg-progress" data-progress="cg" max="100" value="0"></progress></div><p class="web-epilogue-status" role="status" aria-live="polite">正在准备番外资源，请稍候…</p><a class="web-epilogue-playlist" href="https://music.163.com/playlist?id=18492712703&amp;uct2=U2FsdGVkX1+APNy8OMffilsgUD7XnKtXi61pbu0NZMk=" target="_blank" rel="noopener noreferrer">番外篇推荐配乐</a><button type="button" hidden>重新加载</button></section>';
   layer.querySelector('button').onclick=()=>{retrying=true;run()};
   layer.addEventListener('keydown',event=>{
    if(event.key==='Tab'){event.preventDefault();const button=layer.querySelector('button');(button.hidden?layer:button).focus()}
