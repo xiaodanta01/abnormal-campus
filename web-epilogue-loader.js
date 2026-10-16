@@ -268,7 +268,7 @@ window.WebEpilogueLoader=(()=>{
   previousFocus=document.activeElement;
   layer=document.createElement('div');layer.id='web-epilogue-loader';layer.tabIndex=-1;
   layer.setAttribute('role','dialog');layer.setAttribute('aria-modal','true');layer.setAttribute('aria-labelledby','web-epilogue-title');
-  layer.innerHTML='<section class="web-epilogue-card"><span class="web-epilogue-kicker">EXTRA STORY</span><h1 id="web-epilogue-title">网页版专属：番外剧情加载包</h1><p>将在资源加载完毕后进入游戏</p><div class="web-epilogue-track"><label for="epilogue-music-progress">音乐</label><span data-count="music"></span><progress id="epilogue-music-progress" data-progress="music" max="100" value="0"></progress></div><div class="web-epilogue-track"><label for="epilogue-cg-progress">CG</label><span data-count="cg"></span><progress id="epilogue-cg-progress" data-progress="cg" max="100" value="0"></progress></div><p class="web-epilogue-status" role="status" aria-live="polite">正在准备番外资源，请稍候…</p><button type="button" hidden>重新加载</button></section>';
+  layer.innerHTML='<section class="web-epilogue-card"><span class="web-epilogue-kicker">EXTRA STORY</span><h1 id="web-epilogue-title">网页版专属：番外剧情加载包</h1><p>CG 加载到 40% 后进入游戏，音乐将在后台加载</p><div class="web-epilogue-track"><label for="epilogue-music-progress">音乐</label><span data-count="music"></span><progress id="epilogue-music-progress" data-progress="music" max="100" value="0"></progress></div><div class="web-epilogue-track"><label for="epilogue-cg-progress">CG</label><span data-count="cg"></span><progress id="epilogue-cg-progress" data-progress="cg" max="100" value="0"></progress></div><p class="web-epilogue-status" role="status" aria-live="polite">正在准备番外资源，请稍候…</p><button type="button" hidden>重新加载</button></section>';
   layer.querySelector('button').onclick=()=>{retrying=true;run()};
   layer.addEventListener('keydown',event=>{
    if(event.key==='Tab'){event.preventDefault();const button=layer.querySelector('button');(button.hidden?layer:button).focus()}
@@ -308,15 +308,10 @@ window.WebEpilogueLoader=(()=>{
    const pending=manifest[kind].filter(item=>!completed.has(item.path));
    await Promise.all(Array.from({length:workers},async()=>{while(pending.length){const item=pending.shift();try{await download(item,kind);onItem?.()}catch(error){failures.push(item.path)}}}));
   }
-  // Music is the gate's priority. Do not spend the first network slots on CGs.
-  await queue('music',1);
-  if(failures.length){
-   running=false;
-   layer.querySelector('[role="status"]').textContent='有 '+failures.length+' 项资源未加载成功，请检查网络后重试。已完成的资源会保留。';
-   layer.querySelector('button').hidden=false;layer.querySelector('button').focus();return;
-  }
+  // Music is background-only. The entry gate is based on CG readiness now.
+  const backgroundMusic=queue('music',1);
   retrying=false;
-  layer.querySelector('[role="status"]').textContent='音乐已就绪，正在加载 CG…';
+  layer.querySelector('[role="status"]').textContent='正在加载 CG…';
   const backgroundCG=queue('cg',2);
   while(true){
    const total=manifest.cg.reduce((n,item)=>n+item.bytes,0);
@@ -330,6 +325,7 @@ window.WebEpilogueLoader=(()=>{
   if(previousFocus?.isConnected)previousFocus.focus();
   const pending=[...callbacks];callbacks.clear();for(const callback of pending)callback();
   // The remaining CGs keep downloading after the story has started.
+  backgroundMusic.catch(()=>{});
   backgroundCG.catch(()=>{});
  }
  return {ensure(){if(ready)return true;show();if(!running&&layer.querySelector('button').hidden)void run();return false},whenReady(callback){if(ready)callback();else callbacks.add(callback)},get ready(){return ready}};
