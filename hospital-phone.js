@@ -831,7 +831,8 @@
  let epilogueGreetingOwner=null;
  function epilogueGreetingCG(){
   const p=data(),outfit=epilogueOutfit(p);if(!outfit||p.epilogueMeeting?.phase!=='done')return;
-  const q=p.epilogueGreeting??={node:'call',phase:'choice-wait',remaining:messageSendDelay(),index:0,decisions:{}};
+  const q=p.epilogueGreeting??={node:'call',phase:'choice',remaining:0,index:0,decisions:{}};
+  if(q.phase==='choice-wait'){q.phase='choice';q.remaining=0}
   if(q.phase==='done')return;
   const key=q.node+':'+q.phase,existing=screen.querySelector('#hospital-epilogue-greeting-cg');
   if(existing&&epilogueGreetingOwner===q&&existing.dataset.stage===key)return;
@@ -864,7 +865,7 @@
   }else CGDialogue.present(host,rows,{index:q.index||0,firstReplyConfirmed:true,retainOnComplete:true,typingInterval:mobileNativeInterval,onIndex:i=>{if(data().epilogueGreeting===q){q.index=i;save()}},onComplete:()=>{
    if(data().epilogueGreeting!==q||q.phase!=='rows')return;
    if(q.node==='end'){q.phase='done';context(epilogueMallCG);save();return}
-   q.phase='choice-wait';q.remaining=messageSendDelay();context(epilogueGreetingCG);save();
+   q.phase='choice';q.remaining=0;context(epilogueGreetingCG);save();
   }});
   if(changeImage)cgScreenCrossfade(previous);save();
  }
@@ -1283,7 +1284,7 @@ function mallSceneCGKey(q){
    if(data().epilogueMall!==q||q.phase!=='rows')return;
    if(def.next){if(!mallSceneGo(def.next)){q.index=Math.max(0,rows.length-1);scene.dataset.stage='';context(epilogueMallCG)}return}
    if(q.node==='river-pause')q.riversideAffection=Number(p.epilogueShopping?.affection)||0;
-   q.phase=def.choices?'choice-wait':'done';q.remaining=def.choices?messageSendDelay():0;context(epilogueMallCG);save();
+   q.phase=def.choices?'choice':'done';q.remaining=0;context(epilogueMallCG);save();
   }});
   if(change)zeroDissolve(previous,600);save();
  }
