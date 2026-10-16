@@ -243,7 +243,7 @@ window.WebEpilogueLoader=(()=>{
   ]
 };
  const completed=new Set(),received=new Map(),callbacks=new Set();
- let ready=false,running=false,layer=null,started=0,previousFocus=null;
+ let ready=false,running=false,retrying=false,layer=null,started=0,previousFocus=null;
  const delay=ms=>new Promise(resolve=>(window.mobileNativeTimeout||window.setTimeout)(resolve,ms));
  const url=path=>window.WebAssets?.url(path)||path;
  function render(){
@@ -262,7 +262,7 @@ window.WebEpilogueLoader=(()=>{
   layer=document.createElement('div');layer.id='web-epilogue-loader';layer.tabIndex=-1;
   layer.setAttribute('role','dialog');layer.setAttribute('aria-modal','true');layer.setAttribute('aria-labelledby','web-epilogue-title');
   layer.innerHTML='<section class="web-epilogue-card"><span class="web-epilogue-kicker">EXTRA STORY</span><h1 id="web-epilogue-title">网页版专属：番外剧情加载包</h1><p>将在资源加载完毕后进入游戏</p><div class="web-epilogue-track"><label for="epilogue-music-progress">音乐</label><span data-count="music"></span><progress id="epilogue-music-progress" data-progress="music" max="100" value="0"></progress></div><div class="web-epilogue-track"><label for="epilogue-cg-progress">CG</label><span data-count="cg"></span><progress id="epilogue-cg-progress" data-progress="cg" max="100" value="0"></progress></div><p class="web-epilogue-status" role="status" aria-live="polite">正在准备番外资源，请稍候…</p><button type="button" hidden>重新加载</button></section>';
-  layer.querySelector('button').onclick=run;
+  layer.querySelector('button').onclick=()=>{retrying=true;run()};
   layer.addEventListener('keydown',event=>{
    if(event.key==='Tab'){event.preventDefault();const button=layer.querySelector('button');(button.hidden?layer:button).focus()}
    event.stopPropagation();
@@ -275,7 +275,7 @@ window.WebEpilogueLoader=(()=>{
   const arm=()=>{clearTimeout(timer);timer=(window.mobileNativeTimeout||window.setTimeout)(()=>controller.abort(),90000)};
   received.set(item.path,0);arm();
   try{
-   const response=await fetch(url(item.path),{cache:'force-cache',signal:controller.signal});
+   const response=await fetch(url(item.path),{cache:retrying?'reload':'force-cache',signal:controller.signal});
    if(!response.ok)throw new Error('HTTP '+response.status);
    let blob;
    if(response.body?.getReader){
@@ -291,7 +291,7 @@ window.WebEpilogueLoader=(()=>{
    completed.add(item.path);render();
   }finally{clearTimeout(timer)}
  }
- async function run(){
+  async function run(){
   if(running||ready)return;
   running=true;show();started=performance.now();
   layer.querySelector('button').hidden=true;
@@ -308,6 +308,7 @@ window.WebEpilogueLoader=(()=>{
    layer.querySelector('[role="status"]').textContent='有 '+failures.length+' 项资源未加载成功，请检查网络后重试。已完成的资源会保留。';
    layer.querySelector('button').hidden=false;layer.querySelector('button').focus();return;
   }
+  retrying=false;
   layer.querySelector('[role="status"]').textContent='音乐已就绪，正在加载 CG…';
   const backgroundCG=queue('cg',2);
   while(true){
