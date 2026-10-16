@@ -244,7 +244,7 @@ window.WebEpilogueLoader=(()=>{
 };
  // Only the first two background tracks block entry. The river track and
  // short effects are allowed to load lazily in the background during play.
- manifest.music=[];
+ delete manifest.music;
  const completed=new Set(),received=new Map(),callbacks=new Set();
  let ready=false,running=false,retrying=false,layer=null,started=0,previousFocus=null;
  const cacheName='abnormal-campus-epilogue-cg-20261017';
@@ -315,8 +315,6 @@ window.WebEpilogueLoader=(()=>{
    const pending=manifest[kind].filter(item=>!completed.has(item.path));
    await Promise.all(Array.from({length:workers},async()=>{while(pending.length){const item=pending.shift();try{await download(item,kind);onItem?.()}catch(error){failures.push(item.path)}}}));
   }
-  // Music is background-only. The entry gate is based on CG readiness now.
-  const backgroundMusic=queue('music',1);
   retrying=false;
   layer.querySelector('[role="status"]').textContent='正在加载 CG…';
   const backgroundCG=queue('cg',2);
@@ -332,7 +330,6 @@ window.WebEpilogueLoader=(()=>{
   if(previousFocus?.isConnected)previousFocus.focus();
   const pending=[...callbacks];callbacks.clear();for(const callback of pending)callback();
   // The remaining CGs keep downloading after the story has started.
-  backgroundMusic.catch(()=>{});
   backgroundCG.catch(()=>{});
  }
  return {ensure(){if(ready)return true;show();if(!running&&layer.querySelector('button').hidden)void run();return false},whenReady(callback){if(ready)callback();else callbacks.add(callback)},get ready(){return ready}};
