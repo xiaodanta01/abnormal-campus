@@ -247,10 +247,12 @@ window.WebEpilogueLoader=(()=>{
  manifest.music=[];
  const completed=new Set(),received=new Map(),callbacks=new Set();
  let ready=false,running=false,retrying=false,layer=null,started=0,previousFocus=null;
+ const cacheName='abnormal-campus-epilogue-cg-20261017';
  const delay=ms=>new Promise(resolve=>(window.mobileNativeTimeout||window.setTimeout)(resolve,ms));
  const url=path=>window.WebAssets?.url(path)||path;
  const formatBytes=bytes=>bytes>=1048576?(bytes/1048576).toFixed(1)+' MB':(bytes/1024).toFixed(0)+' KB';
  function render(){
+  if(!layer)return;
   for(const [kind,items]of Object.entries(manifest)){
    const total=items.reduce((n,item)=>n+item.bytes,0);
    const loaded=items.reduce((n,item)=>n+(completed.has(item.path)?item.bytes:Math.min(item.bytes,received.get(item.path)||0)),0);
@@ -279,8 +281,16 @@ window.WebEpilogueLoader=(()=>{
   const arm=()=>{clearTimeout(timer);timer=(window.mobileNativeTimeout||window.setTimeout)(()=>controller.abort(),90000)};
   received.set(item.path,0);arm();
   try{
-   const response=await fetch(url(item.path),{cache:retrying?'reload':'force-cache',signal:controller.signal});
+   const requestURL=url(item.path),cache=typeof caches!=='undefined'?await caches.open(cacheName):null;
+   let response=!retrying&&cache?await cache.match(requestURL):null;
+   if(response){
+    const cachedBlob=await response.blob();
+    if(!cachedBlob.size)response=null;
+    else{received.set(item.path,cachedBlob.size);completed.add(item.path);render();return}
+   }
+   response=await fetch(requestURL,{cache:retrying?'reload':'default',signal:controller.signal});
    if(!response.ok)throw new Error('HTTP '+response.status);
+   if(cache&&response.type!=='opaque')await cache.put(requestURL,response.clone());
    let blob;
    if(response.body?.getReader){
     const reader=response.body.getReader(),chunks=[];let size=0;
